@@ -20,7 +20,7 @@
 package org.screamingsandals.bedwars.inventories;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -484,6 +484,8 @@ public class ShopInventory implements Listener {
             if (!Main.getConfigurator().config.getBoolean("removePurchaseMessages", false)) {
                 player.sendMessage(i18nc("buy_succes", game.getCustomPrefix()).replace("%item%", amount + "x " + getNameOrCustomNameOfItem(newItem))
                         .replace("%material%", price + " " + type.getItemName()));
+                player.sendTitle(i18nc("buy_succes", game.getCustomPrefix()).replace("%item%", amount + "x " + getNameOrCustomNameOfItem(newItem))
+                        .replace("%material%", price + " " + type.getItemName()), "", 5, 20, 5 );
             }
             Sounds.playSound(player, player.getLocation(),
                     Main.getConfigurator().config.getString("sounds.item_buy.sound"), Sounds.ENTITY_ITEM_PICKUP, (float) Main.getConfigurator().config.getDouble("sounds.item_buy.volume"), (float) Main.getConfigurator().config.getDouble("sounds.item_buy.pitch"));
@@ -494,6 +496,7 @@ public class ShopInventory implements Listener {
             }
         }
     }
+
 
     private void handleUpgrade(ShopTransactionEvent event) {
         Player player = event.getPlayer();

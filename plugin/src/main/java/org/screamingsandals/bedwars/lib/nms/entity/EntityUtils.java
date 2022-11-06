@@ -55,6 +55,27 @@ public class EntityUtils {
 		return null;
 	}
 
+	public static EntityLivingNMS makeMobForgetTarget(LivingEntity mob) {
+		try {
+			Object handler = ClassStorage.getHandle(mob);
+			if (!EntityInsentientAccessor.getType().isInstance(handler)) {
+				throw new IllegalArgumentException("Entity must be instance of EntityInsentient!!");
+			}
+
+			EntityLivingNMS entityLiving = new EntityLivingNMS(handler);
+//
+//			GoalSelector selector = entityLiving.getGoalSelector();
+//			selector.clearSelector();
+//			entityLiving.getTargetSelector().clearSelector();
+			entityLiving.getTargetSelector().attackTarget(null);
+
+			return entityLiving;
+		} catch (Throwable ignored) {
+			ignored.printStackTrace();
+		}
+		return null;
+	}
+
 	/*
 	 * includes random movement
 	 * @return EntityLivingNMS

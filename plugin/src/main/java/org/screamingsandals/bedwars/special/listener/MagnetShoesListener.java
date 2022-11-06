@@ -19,9 +19,16 @@
 
 package org.screamingsandals.bedwars.special.listener;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
 import org.screamingsandals.bedwars.api.events.BedwarsApplyPropertyToBoughtItem;
+import org.screamingsandals.bedwars.api.game.GameStatus;
+import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.MiscUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,26 +50,64 @@ public class MagnetShoesListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onDamage(EntityDamageEvent event) {
         if (event.isCancelled() || !(event.getEntity() instanceof Player)) {
             return;
         }
 
-        Player player = (Player) event.getEntity();
-        if (Main.isPlayerInGame(player)) {
-            ItemStack boots = player.getInventory().getBoots();
-            if (boots != null) {
-                String magnetShoes = APIUtils.unhashFromInvisibleStringStartsWith(boots, MAGNET_SHOES_PREFIX);
-                if (magnetShoes != null) {
-                    int probability = Integer.parseInt(magnetShoes.split(":")[2]);
-                    int randInt = MiscUtils.randInt(0, 100);
-                    if (randInt <= probability) {
-                        event.setCancelled(true);
-                        player.damage(event.getDamage());
+//        if (event instanceof EntityDamageByEntityEvent) {
+
+//            EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) event;
+//            if (edbee.getDamager() instanceof Player) {
+//
+//                Player damager = (Player) edbee.getDamager();
+//
+                Player victim = (Player) event.getEntity();
+
+                if (Main.isPlayerInGame(victim)) {
+                    ItemStack boots = victim.getInventory().getBoots();
+                    if (boots != null) {
+                        String magnetShoes = APIUtils.unhashFromInvisibleStringStartsWith(boots, MAGNET_SHOES_PREFIX);
+                        if (magnetShoes != null) {
+
+//                            if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
+////                                Bukkit.getConsoleSender().sendMessage("returned on entity explosion");
+//                                return;
+//                            }
+
+//                    if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION || event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+//                        Projectile projectile = (Projectile) edbee.getDamager();
+//                        if (projectile instanceof Fireball && game.getStatus() == GameStatus.RUNNING) {
+//                            final double damage = Main.getConfigurator().config.getDouble("specials.throwable-fireball.damage");
+//                            event.setDamage(damage);
+//                        } else if (projectile.getShooter() instanceof Player) {
+//                            Player damager = (Player) projectile.getShooter();
+//                            if (Main.isPlayerInGame(damager)) {
+//                                GamePlayer gDamager = Main.getPlayerGameProfile(damager);
+//                                if (gDamager.isSpectator || gDamager.getGame().getPlayerTeam(gDamager) == game.getPlayerTeam(gPlayer) && !game.getOriginalOrInheritedFriendlyfire()) {
+//                                    event.setCancelled(true);
+//                                }
+//                            }
+//                        }
+                            if (event instanceof EntityDamageByEntityEvent) {
+                                EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) event;
+                                if (edbee.getDamager() != victim) {
+                                    int probability = Integer.parseInt(magnetShoes.split(":")[2]);
+                                    int randInt = MiscUtils.randInt(0, 100);
+//                                    Bukkit.getConsoleSender().sendMessage("probability :" + probability);
+                                    if (randInt <= probability) {
+                                        event.setCancelled(true);
+
+//                                        Bukkit.getConsoleSender().sendMessage("boots " + victim.getDisplayName() + " " + event.getDamage() + " " + event.getFinalDamage() + " " + event.getCause());
+                                        victim.damage(event.getDamage());
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        }
+//            }
+//        }
     }
 }

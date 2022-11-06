@@ -20,7 +20,13 @@
 package org.screamingsandals.bedwars.special;
 
 import org.bukkit.plugin.Plugin;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.InventoryGUICleaner;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.InventoryGUIClickListener;
 import org.screamingsandals.bedwars.special.listener.*;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomBlockListener;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.gadgets.TrampolineListener;
+import org.screamingsandals.bedwars.utils.flowergun.fixes.*;
+import org.screamingsandals.bedwars.utils.flowergun.mechanics.*;
 
 public class SpecialRegister {
 
@@ -38,6 +44,32 @@ public class SpecialRegister {
         plugin.getServer().getPluginManager().registerEvents(new TrapListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new WarpPowderListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new AutoIgniteableTNTListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new InventoryGUICleaner(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new InventoryGUIClickListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new TrampolineListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new CustomBlockListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new VineListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new FireListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new TallBlocksListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new FireworkListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new ShieldListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new HeadsListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new ConsumeListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new EndgameDamageListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new SnowballListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new DealDamageListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new CombustListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new ElytraListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new ZoglinListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PhantomListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new BlazeListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new ItemUseListener(), plugin);
     }
 
 }

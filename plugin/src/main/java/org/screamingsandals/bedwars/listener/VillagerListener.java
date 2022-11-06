@@ -22,6 +22,7 @@ package org.screamingsandals.bedwars.listener;
 import org.bukkit.Bukkit;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.GameStatus;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.CustomGUI;
 import org.screamingsandals.bedwars.game.GameStore;
 import org.screamingsandals.bedwars.api.events.BedwarsOpenShopEvent;
 import org.screamingsandals.bedwars.api.events.BedwarsOpenShopEvent.Result;
@@ -31,6 +32,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.screamingsandals.bedwars.utils.CitizensUtils;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.ShopInstance;
 
 public class VillagerListener implements Listener {
 
@@ -72,6 +74,20 @@ public class VillagerListener implements Listener {
             return;
         }
 
-        Main.openStore(event.getPlayer(), store);
+        //TODO CustomGUI creation
+        //WAYPOINT CUSTOM SHOP
+
+        GamePlayer gamePlayer = Main.getPlayerGameProfile(event.getPlayer());
+        if (gamePlayer.didFlagAmountChange())
+        {
+            gamePlayer.setCustomGUIShopInstance(new ShopInstance(event.getPlayer(), game.shop));
+        }
+
+
+        CustomGUI gui = new CustomGUI(event.getPlayer(), "SHOP");
+        gui.load();
+
+
+//        Main.openStore(event.getPlayer(), store);
     }
 }

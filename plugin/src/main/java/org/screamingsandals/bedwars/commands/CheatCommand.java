@@ -50,6 +50,27 @@ public class CheatCommand extends BaseCommand {
             return true;
         }
 
+
+        Bukkit.getConsoleSender().sendMessage("Arg0 = " + args.get(0));
+        if (args.get(0).equalsIgnoreCase("setcountdown")) {
+            Player player = (Player) sender;
+            Game game = Main.getPlayerGameProfile(player).getGame();
+            if (args.size() != 2) {
+                sender.sendMessage(i18n("unknown_usage"));
+                return true;
+            }
+
+            int time = Integer.parseInt(args.get(1));
+
+            if (game == null) {
+                sender.sendMessage("Game is null...");
+                return true;
+            }
+            game.countdown = time;
+            sender.sendMessage("Countdown set to " + time);
+            return true;
+        }
+
         if (args.size() >= 1) {
             Player player = (Player) sender;
             if (!Main.isPlayerInGame(player)) {
@@ -148,7 +169,7 @@ public class CheatCommand extends BaseCommand {
         }
 
         if (args.size() == 1) {
-            completion.addAll(Arrays.asList("give", "kill", "startemptygame"));
+            completion.addAll(Arrays.asList("give", "kill", "startemptygame","setcountdown"));
         }
         if (Main.isPlayerInGame((Player) sender)) {
             if (args.size() > 1 && args.get(0).equals("give")) {

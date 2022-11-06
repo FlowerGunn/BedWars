@@ -32,6 +32,7 @@ import org.screamingsandals.bedwars.api.BedwarsAPI;
 import org.screamingsandals.bedwars.api.events.BedwarsApplyPropertyToBoughtItem;
 import org.screamingsandals.bedwars.special.ThrowableFireball;
 import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 public class ThrowableFireballListener implements Listener {
 
@@ -60,6 +61,9 @@ public class ThrowableFireballListener implements Listener {
             String unhash = APIUtils.unhashFromInvisibleStringStartsWith(stack, THROWABLE_FIREBALL_PREFIX);
             if (unhash != null && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
                 event.setCancelled(true);
+
+                if (player.getCooldown(event.getItem().getType()) > 0) return;
+
                 String[] properties = unhash.split(":");
                 float damage = (float) Double.parseDouble(properties[2]);
                 boolean incendiary = Boolean.parseBoolean(properties[3]);
@@ -88,6 +92,7 @@ public class ThrowableFireballListener implements Listener {
                     }
                 }
                 player.updateInventory();
+                player.setCooldown(event.getItem().getType(), FlowerUtils.fireballCooldown);
             }
         }
     }

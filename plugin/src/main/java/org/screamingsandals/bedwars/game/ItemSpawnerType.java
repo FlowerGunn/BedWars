@@ -19,7 +19,7 @@
 
 package org.screamingsandals.bedwars.game;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -60,6 +60,10 @@ public class ItemSpawnerType implements org.screamingsandals.bedwars.api.game.It
         return interval;
     }
 
+    public void setInterval(int interval) {
+        this.interval = interval;
+    }
+
     public double getSpread() {
         return spread;
     }
@@ -83,6 +87,11 @@ public class ItemSpawnerType implements org.screamingsandals.bedwars.api.game.It
         return color + getTranslatableKey();
     }
 
+    public String getClearName() {
+        return getTranslatableKey();
+    }
+
+
     public String getItemBoldName() {
         return color.toString() + ChatColor.BOLD.toString() + getTranslatableKey();
     }
@@ -99,6 +108,14 @@ public class ItemSpawnerType implements org.screamingsandals.bedwars.api.game.It
         ItemStack stack = new ItemStack(material, amount, (short) damage);
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(getItemName());
+        stack.setItemMeta(stackMeta);
+        return stack;
+    }
+
+    public ItemStack getClearStack(int amount) {
+        ItemStack stack = new ItemStack(material, amount, (short) damage);
+        ItemMeta stackMeta = stack.getItemMeta();
+        stackMeta.setDisplayName(getClearName());
         stack.setItemMeta(stackMeta);
         return stack;
     }

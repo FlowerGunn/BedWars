@@ -19,6 +19,7 @@
 
 package org.screamingsandals.bedwars.config;
 
+import net.md_5.bungee.api.ChatColor;
 import org.screamingsandals.bedwars.Main;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -110,7 +111,7 @@ public class Configurator {
         }
 
         AtomicBoolean modify = new AtomicBoolean(false);
-        checkOrSetConfig(modify, "locale", "en");
+        checkOrSetConfig(modify, "locale", "ru");
         checkOrSetConfig(modify, "debug", false);
 
         checkOrSetConfig(modify, "allow-crafting", false);
@@ -140,7 +141,7 @@ public class Configurator {
         checkOrSetConfig(modify, "disable-hunger", false);
         checkOrSetConfig(modify, "automatic-coloring-in-shop", true);
         checkOrSetConfig(modify, "sell-max-64-per-click-in-shop", true);
-        checkOrSetConfig(modify, "enable-cheat-command-for-admins", false);
+        checkOrSetConfig(modify, "enable-cheat-command-for-admins", true);
         checkOrSetConfig(modify, "shopkeepers-are-silent", true);
 
         // config migration: "destroy-placed-blocks-by-explosion-except" from string to string list
@@ -224,7 +225,7 @@ public class Configurator {
             {
                 put("bronze", new HashMap<String, Object>() {
                     {
-                        put("material", Main.isLegacy() ? "CLAY_BRICK" : "BRICK");
+                        put("material", Main.isLegacy() ? "CLAY_BRICK" : "COPPER_INGOT");
                         /* Config migration 1 -> 2: if spawners.bronze exists, get this value */
                         put("interval", config.getInt("spawners.bronze", 1));
                         put("name", "Bronze");
@@ -252,6 +253,17 @@ public class Configurator {
                         put("name", "Gold");
                         put("translate", "resource_gold");
                         put("color", "GOLD");
+                        put("spread", 1.0);
+                    }
+                });
+                put("emerald", new HashMap<String, Object>() {
+                    {
+                        put("material", "EMERALD");
+                        /* Config migration 1 -> 2: if spawners.gold exists, get this value */
+                        put("interval", config.getInt("spawners.emerald", 40));
+                        put("name", "Emerald");
+                        put("translate", "resource_emerald");
+                        put("color", "GREEN");
                         put("spread", 1.0);
                     }
                 });

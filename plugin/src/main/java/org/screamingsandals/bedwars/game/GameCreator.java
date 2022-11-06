@@ -71,6 +71,22 @@ public class GameCreator {
             response = setPos1(player.getLocation());
         } else if (action.equalsIgnoreCase("pos2")) {
             response = setPos2(player.getLocation());
+        } else if (action.equalsIgnoreCase("schematic")) {
+            response = setSchematicPosition(player.getLocation());
+        } else if (action.equalsIgnoreCase("deathmatchradius")) {
+            response = setDeathmatchRadius(player.getLocation());
+        } else if (action.equalsIgnoreCase("deathmatchfloor")) {
+            response = setDeathmatchFloor(player.getLocation());
+        } else if (action.equalsIgnoreCase("deathmatchceiling")) {
+            response = setDeathmatchCeiling(player.getLocation());
+        } else if (action.equalsIgnoreCase("deathmatchtime")) {
+            if (args.length >= 1) {
+                response = setDeathmatchTime(args[0]);
+            }
+        } else if (action.equalsIgnoreCase("deathmatchstart")) {
+            if (args.length >= 1) {
+                response = setDeathmatchStart(args[0]);
+            }
         } else if (action.equalsIgnoreCase("pausecountdown")) {
             if (args.length >= 1) {
                 response = setPauseCountdown(Integer.parseInt(args[0]));
@@ -740,7 +756,7 @@ public class GameCreator {
         loc.setPitch(0);
         ItemSpawnerType spawnerType = Main.getSpawnerType(type);
         if (spawnerType != null) {
-            game.getSpawners().add(new ItemSpawner(loc, spawnerType, customName, hologramEnabled, startLevel, team, maxSpawnedResources));
+            game.getSpawners().add(new ItemSpawner(loc, spawnerType, customName, hologramEnabled, startLevel, team, maxSpawnedResources, spawnerType.getInterval()));
             return i18n("admin_command_spawner_added").replace("%resource%", spawnerType.getItemName())
                     .replace("%x%", Integer.toString(loc.getBlockX())).replace("%y%", Integer.toString(loc.getBlockY()))
                     .replace("%z%", Integer.toString(loc.getBlockZ()));
@@ -910,6 +926,76 @@ public class GameCreator {
                 .replace("%x%", Integer.toString(loc.getBlockX())).replace("%y%", Integer.toString(loc.getBlockY()))
                 .replace("%z%", Integer.toString(loc.getBlockZ()));
     }
+
+    public String setSchematicPosition(Location loc) {
+        if (game.getWorld() == null) {
+            game.setWorld(loc.getWorld());
+        }
+        if (game.getWorld() != loc.getWorld()) {
+            return i18n("admin_command_must_be_in_same_world");
+        }
+
+        game.setSchematicPosition(loc);
+        return "Schematic position set!";
+    }
+
+    public String setDeathmatchRadius(Location loc) {
+        if (game.getWorld() == null) {
+            game.setWorld(loc.getWorld());
+        }
+        if (game.getWorld() != loc.getWorld()) {
+            return i18n("admin_command_must_be_in_same_world");
+        }
+
+        if (game.getPos1() == null || game.getPos2() == null) {
+            return "Set pos1 and pos2!!!!!!!";
+        }
+
+        game.setDeathmatchRadius(loc);
+        return "Success Deathmatch Radius";
+    }
+
+    public String setDeathmatchFloor(Location loc) {
+        if (game.getWorld() == null) {
+            game.setWorld(loc.getWorld());
+        }
+        if (game.getWorld() != loc.getWorld()) {
+            return i18n("admin_command_must_be_in_same_world");
+        }
+
+        game.setDeathmatchFloor(loc);
+        return "Success Deathmatch Floor";
+    }
+
+    public String setDeathmatchCeiling(Location loc) {
+        if (game.getWorld() == null) {
+            game.setWorld(loc.getWorld());
+        }
+        if (game.getWorld() != loc.getWorld()) {
+            return i18n("admin_command_must_be_in_same_world");
+        }
+
+        game.setDeathmatchCeiling(loc);
+        return "Success Deathmatch Ceiling";
+    }
+
+    public String setDeathmatchTime(String string) {
+
+        int time = Integer.parseInt(string);
+        game.setDeathmatchTime(time);
+
+        return "Success Deathmatch Time";
+    }
+
+    public String setDeathmatchStart(String string) {
+
+        int start = Integer.parseInt(string);
+        game.setDeathmatchStart(start);
+
+        return "Success Deathmatch Start";
+    }
+
+
 
     public String setPauseCountdown(int countdown) {
         if (countdown >= 10 && countdown <= 600) {

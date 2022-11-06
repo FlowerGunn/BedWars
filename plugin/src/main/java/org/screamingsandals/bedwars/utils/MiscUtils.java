@@ -188,6 +188,7 @@ public class MiscUtils {
         double z = 0;
         float yaw = 0;
         float pitch = 0;
+        if (location == null) return new Location(world,0.0,0.0,0.0);
         for (String pos : location.split(";")) {
             lpos++;
             switch (lpos) {

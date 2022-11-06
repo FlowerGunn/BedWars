@@ -19,18 +19,31 @@
 
 package org.screamingsandals.bedwars.game;
 
+import static com.ibm.icu.impl.ValidIdentifiers.Datatype.x;
 import static org.screamingsandals.bedwars.lib.lang.I.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.session.ClipboardHolder;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
+import org.bukkit.block.*;
 import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -52,6 +65,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.Vector;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.ArenaTime;
 import org.screamingsandals.bedwars.api.InGameConfigBooleanConstants;
@@ -70,6 +84,8 @@ import org.screamingsandals.bedwars.boss.BossBar18;
 import org.screamingsandals.bedwars.boss.BossBarSelector;
 import org.screamingsandals.bedwars.boss.XPBar;
 import org.screamingsandals.bedwars.commands.StatsCommand;
+import org.screamingsandals.bedwars.special.Trap;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.Shop;
 import org.screamingsandals.bedwars.inventories.TeamSelectorInventory;
 import org.screamingsandals.bedwars.listener.Player116ListenerUtils;
 import org.screamingsandals.bedwars.region.FlatteningRegion;
@@ -80,12 +96,17 @@ import org.screamingsandals.bedwars.lib.debug.Debug;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.screamingsandals.bedwars.lib.nms.holograms.Hologram;
 import org.screamingsandals.bedwars.lib.signmanager.SignBlock;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomBlock;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
 import org.screamingsandals.simpleinventories.utils.MaterialSearchEngine;
 import org.screamingsandals.simpleinventories.utils.StackParser;
 
 import com.onarandombox.MultiverseCore.api.Core;
 
 public class Game implements org.screamingsandals.bedwars.api.game.Game {
+
     @Getter
     private File file;
     private String name;
@@ -93,6 +114,29 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     private Location pos2;
     private Location lobbySpawn;
     private Location specSpawn;
+
+    private Location center;
+
+    private boolean wasMapRestored = false;
+
+    public int deathmatchFloor = 0;
+    public int deathmatchCeiling = 255;
+    public int deathmatchRadius = 10;
+    public int deathmatchTime = 60;
+    public int deathmatchStart = 30;
+
+    public double currentRadius;
+    public double currentFloor;
+    public double currentCeiling;
+    public double currentDeathmatchProgress;
+
+    public int arenaFloor;
+    public int arenaCeiling;
+    public int arenaRadius;
+
+    public boolean isDeathmatch = false;
+    public boolean isAnnihilation = false;
+
     private List<Team> teams = new ArrayList<>();
     private List<ItemSpawner> spawners = new ArrayList<>();
     private Map<Player, RespawnProtection> respawnProtectionMap = new HashMap<>();
@@ -109,6 +153,13 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     private BarColor gameBossBarColor = null;
     private String gameBossBarColorName = null;
     private String customPrefix = null;
+
+    public Shop shop = null;
+    public FlowerUtils deathRules = null;
+
+    private List<CustomBlock> customBlocks = new ArrayList<>();
+
+    public List<GameFlag> gameFlags = new ArrayList<>();
 
     // Boolean settings
     public static final String COMPASS_ENABLED = "compass-enabled";
@@ -217,24 +268,32 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     private GameStatus previousStatus = GameStatus.DISABLED;
     private GameStatus status = GameStatus.DISABLED;
     private GameStatus afterRebuild = GameStatus.WAITING;
-    private int countdown = -1, previousCountdown = -1;
+    public int countdown = -1, previousCountdown = -1;
     private int calculatedMaxPlayers;
     private BukkitTask task;
     private List<CurrentTeam> teamsInGame = new ArrayList<>();
     private Region region = Main.isLegacy() ? new LegacyRegion() : new FlatteningRegion();
     private Scoreboard gameScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-    private StatusBar statusbar;
+    public StatusBar statusbar;
     private Map<Location, ItemStack[]> usedChests = new HashMap<>();
     private List<SpecialItem> activeSpecialItems = new ArrayList<>();
     private List<DelayFactory> activeDelays = new ArrayList<>();
     private List<Hologram> createdHolograms = new ArrayList<>();
     private Map<ItemSpawner, Hologram> countdownHolograms = new HashMap<>();
     private Map<GamePlayer, Inventory> fakeEnderChests = new HashMap<>();
-    private int postGameWaiting = 3;
+    private int postGameWaiting = 10;
     private boolean preparing = false;
     private Map<UUID, TeamSelectorInventory> teamSelectorInventories = new HashMap();
+    private Location schematicPosition;
+
 
     private Game() {
+
+        this.shop = new Shop(this);
+
+        this.deathRules = new FlowerUtils();
+
+        this.gameFlags = new ArrayList<>();
 
     }
 
@@ -359,6 +418,9 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     public List<Team> getTeams() {
         return teams;
     }
+    public List<CurrentTeam> getCurrentTeams() {
+        return teamsInGame;
+    }
 
     public List<ItemSpawner> getSpawners() {
         return spawners;
@@ -425,6 +487,37 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         region.addBuiltDuringGame(block.getLocation());
 
         return true;
+    }
+
+    public void breakAllBeds() {
+        ArrayList<CurrentTeam> currentTeams = new ArrayList<>(teamsInGame);
+
+        for ( CurrentTeam currentTeam : currentTeams ) {
+            if ( currentTeam.isBed ) {
+                currentTeam.isBed = false;
+                Location loc = currentTeam.teamInfo.bed;
+                Block block = loc.getBlock();
+                if (region.isBedBlock(block.getState())) {
+                    //bedDestroyed(loc, null, true, false, false);
+                    region.putOriginalBlock(block.getLocation(), block.getState());
+                    if (block.getLocation().equals(loc)) {
+                        Block neighbor = region.getBedNeighbor(block);
+                        region.putOriginalBlock(neighbor.getLocation(), neighbor.getState());
+                    } else {
+                        region.putOriginalBlock(loc, region.getBedNeighbor(block).getState());
+                    }
+                    block.setType(Material.AIR);
+                    if (region.getBedNeighbor(block) != null)
+                    region.getBedNeighbor(block).setType(Material.AIR);
+//                    if (region.isBedHead(block.getState())) {
+//                        region.getBedNeighbor(block).setType(Material.AIR);
+//                    } else {
+//                        block.setType(Material.AIR);
+//                    }
+                }
+            }
+        }
+
     }
 
     public boolean blockBreak(GamePlayer player, Block block, BlockBreakEvent event) {
@@ -529,6 +622,19 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         }
         if (Main.isBreakableBlock(block.getType())) {
             region.putOriginalBlock(block.getLocation(), block.getState());
+            Block upper = block.getRelative(BlockFace.UP, 1);
+            Block lower = block.getRelative(BlockFace.DOWN, 1);
+
+            if ( FlowerUtils.doubleBlocks.contains(block.getType())){
+                if ( upper.getType() == block.getType() ) {
+                    region.putOriginalBlock(upper.getLocation(), upper.getState());
+//                    Bukkit.getConsoleSender().sendMessage("upper");
+                }
+                if ( lower.getType() == block.getType() ) {
+                    region.putOriginalBlock(lower.getLocation(), lower.getState());
+//                    Bukkit.getConsoleSender().sendMessage("lower");
+                }
+            }
             return true;
         }
         return false;
@@ -556,6 +662,15 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                     region.getBedNeighbor(block).setType(Material.AIR);
                 } else {
                     block.setType(Material.AIR);
+                    for (SpecialItem special : this.getActivedSpecialItems(Trap.class)) {
+                        Trap trapBlock = (Trap) special;
+                        if (trapBlock.isPlaced()) {
+                            if (loc.equals(trapBlock.getLocation())) {
+                                trapBlock.destroy();
+                                break;
+                            }
+                        }
+                    }
                 }
             } else {
                 bedDestroyed(loc, null, false, "RESPAWN_ANCHOR".equals(block.getType().name()), block.getType().name().contains("CAKE"));
@@ -603,6 +718,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                     team.isBed = false;
                     updateScoreboard();
                     String colored_broker = "explosion";
+                    colored_broker = "Deathmatch";
                     if (broker != null) {
                         colored_broker = getPlayerTeam(Main.getPlayerGameProfile(broker)).teamInfo.color.chatColor + broker.getDisplayName();
                     }
@@ -754,6 +870,10 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         gamePlayer.player.getInventory().setItem(vipPosition, startGame);
                     }
                 }
+
+                ItemStack abilties = FlowerUtils.getAbilitiesMenuItemStack();
+                gamePlayer.player.getInventory().setItem(6, abilties);
+
             });
 
             if (isEmpty) {
@@ -928,6 +1048,12 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             game.pauseCountdown = configMap.getInt("pauseCountdown");
             game.gameTime = configMap.getInt("gameTime");
 
+            game.deathmatchRadius = configMap.getInt("deathmatchRadius");
+            game.deathmatchFloor = configMap.getInt("deathmatchFloor");
+            game.deathmatchCeiling = configMap.getInt("deathmatchCeiling");
+            game.deathmatchTime = configMap.getInt("deathmatchTime");
+            game.deathmatchStart = configMap.getInt("deathmatchStart");
+
             String worldName = configMap.getString("world");
             game.world = Bukkit.getWorld(worldName);
 
@@ -965,6 +1091,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
             game.pos1 = MiscUtils.readLocationFromString(game.world, configMap.getString("pos1"));
             game.pos2 = MiscUtils.readLocationFromString(game.world, configMap.getString("pos2"));
+            game.schematicPosition = MiscUtils.readLocationFromString(game.world, configMap.getString("schematic"));
+            game.setCenter();
             game.specSpawn = MiscUtils.readLocationFromString(game.world, configMap.getString("specSpawn"));
             String spawnWorld = configMap.getString("lobbySpawnWorld");
             World lobbySpawnWorld = Bukkit.getWorld(spawnWorld);
@@ -1022,7 +1150,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                             (String) spawner.get("customName"), ((Boolean) spawner.getOrDefault("hologramEnabled", true)),
                             ((Number) spawner.getOrDefault("startLevel", 1)).doubleValue(),
                             game.getTeamFromName((String) spawner.get("team")),
-                            (int) spawner.getOrDefault("maxSpawnedResources", -1));
+                            (int) spawner.getOrDefault("maxSpawnedResources", -1), Main.getSpawnerType(((String) spawner.get("type"))).getInterval());
                     game.spawners.add(sa);
                 }
             }
@@ -1087,7 +1215,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             game.arenaTime = ArenaTime.valueOf(configMap.getString("arenaTime", ArenaTime.WORLD.name()).toUpperCase());
             game.arenaWeather = loadWeather(configMap.getString("arenaWeather", "default").toUpperCase());
 
-            game.postGameWaiting = configMap.getInt("postGameWaiting", 3);
+            game.postGameWaiting = configMap.getInt("postGameWaiting", 10);
             game.customPrefix = configMap.getString("customPrefix", null);
 
             game.lobbyBossBarColorName = configMap.getString("lobbyBossBarColor", "default");
@@ -1098,6 +1226,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             } catch (Throwable t) {
                 // We're using 1.8
             }
+
+            game.tryToRestore();
 
             Main.addGame(game);
             game.start();
@@ -1168,9 +1298,15 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         configMap.set("name", name);
         configMap.set("pauseCountdown", pauseCountdown);
         configMap.set("gameTime", gameTime);
+        configMap.set("deathmatchRadius", deathmatchRadius);
+        configMap.set("deathmatchCeiling", deathmatchCeiling);
+        configMap.set("deathmatchFloor", deathmatchFloor);
+        configMap.set("deathmatchTime", deathmatchTime);
+        configMap.set("deathmatchStart", deathmatchStart);
         configMap.set("world", world.getName());
         configMap.set("pos1", MiscUtils.setLocationToString(pos1));
         configMap.set("pos2", MiscUtils.setLocationToString(pos2));
+        configMap.set("schematic", MiscUtils.setLocationToString(schematicPosition));
         configMap.set("specSpawn", MiscUtils.setLocationToString(specSpawn));
         configMap.set("lobbySpawn", MiscUtils.setLocationToString(lobbySpawn));
         configMap.set("lobbySpawnWorld", lobbySpawn.getWorld().getName());
@@ -1288,6 +1424,9 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             status = GameStatus.WAITING;
             countdown = -1;
             calculatedMaxPlayers = 0;
+
+//            customGUIShop.loadAllItems();
+
             for (Team team : teams) {
                 calculatedMaxPlayers += team.maxPlayers;
             }
@@ -1447,7 +1586,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         }
     }
 
-    private void internalTeamJoin(GamePlayer player, Team teamForJoin) {
+    private boolean internalTeamJoin(GamePlayer player, Team teamForJoin) {
         CurrentTeam current = null;
         for (CurrentTeam t : teamsInGame) {
             if (t.teamInfo == teamForJoin) {
@@ -1461,7 +1600,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         Main.getInstance().getServer().getPluginManager().callEvent(event);
 
         if (event.isCancelled()) {
-            return;
+            return false;
         }
 
         if (current == null) {
@@ -1470,11 +1609,11 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             if (scoreboardTeam == null) {
                 scoreboardTeam = gameScoreboard.registerNewTeam(teamForJoin.name);
             }
-            if (!Main.isLegacy()) {
-                scoreboardTeam.setColor(teamForJoin.color.chatColor);
-            } else {
-                scoreboardTeam.setPrefix(teamForJoin.color.chatColor.toString());
-            }
+//            if (!Main.isLegacy()) {
+//                scoreboardTeam.setColor(teamForJoin.color.chatColor);
+//            } else {
+//                scoreboardTeam.setPrefix(teamForJoin.color.chatColor.toString());
+//            }
             scoreboardTeam.setAllowFriendlyFire(getOriginalOrInheritedFriendlyfire());
 
             current.setScoreboardTeam(scoreboardTeam);
@@ -1484,7 +1623,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                     i18nc("team_already_selected", customPrefix).replace("%team%", teamForJoin.color.chatColor + teamForJoin.name)
                             .replace("%players%", Integer.toString(current.players.size()))
                             .replaceAll("%maxplayers%", Integer.toString(current.teamInfo.maxPlayers)));
-            return;
+            return false;
         }
         if (current.players.size() >= current.teamInfo.maxPlayers) {
             if (cur != null) {
@@ -1495,7 +1634,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                 player.player.sendMessage(
                         i18nc("team_is_full", customPrefix).replace("%team%", teamForJoin.color.chatColor + teamForJoin.name));
             }
-            return;
+            return false;
         }
         if (cur != null) {
             cur.players.remove(player);
@@ -1538,6 +1677,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         if (Main.getTabManager() != null) {
             players.forEach(Main.getTabManager()::modifyForPlayer);
         }
+
+        return true;
     }
 
     public void joinRandomTeam(GamePlayer player) {
@@ -1872,6 +2013,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         }
                     }
 
+                    clearItems();
+
                     for (ItemSpawner spawner : spawners) {
                         UpgradeStorage storage = UpgradeRegistry.getUpgrade("spawner");
                         if (storage != null) {
@@ -1912,6 +2055,19 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         player.player.getInventory().setChestplate(null);
                         player.player.getInventory().setLeggings(null);
                         player.player.getInventory().setBoots(null);
+                        //WAYPOINT FIRST PLAYER SPAWN
+
+                        for ( GamePlayer gamePlayer : this.getConnectedGamePlayers() ) {
+                            int j = gamePlayer.loadedAbilities.size() - 1;
+                            while (j > 0) {
+                                if ( gamePlayer.loadedAbilities.get(j) == null) gamePlayer.loadedAbilities.remove(j);
+                                j--;
+                            }
+                        }
+
+                        Triggers.playerFirstSpawn(player);
+
+                        player.lastDeathCounter = this.gameTime;
                         Title.send(player.player, gameStartTitle, gameStartSubtitle);
                         if (team == null) {
                             makeSpectator(player, true);
@@ -1940,6 +2096,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         }
                     }
 
+
+
                     if (getOriginalOrInheritedRemoveUnusedTargetBlocks()) {
                         for (Team team : teams) {
                             CurrentTeam ct = null;
@@ -1965,6 +2123,10 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                             }
                         }
                     }
+
+                    //WAYPOINT game flags reset and customblocks reset
+                    this.gameFlags = new ArrayList<>();
+                    this.customBlocks = new ArrayList<>();
 
                     for (CurrentTeam team : teamsInGame) {
                         Block block = team.getTargetBlock().getBlock();
@@ -2046,6 +2208,21 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         } else {
             // Phase 6.2.1: On game tick (if not interrupted by a change of status)
             if (status == GameStatus.RUNNING && tick.getNextStatus() == GameStatus.RUNNING) {
+
+//                Bukkit.getConsoleSender().sendMessage("countdown " + countdown + " ");
+
+                //WAYPOINT events
+                int seconds = gameTime - countdown;
+                if (seconds == FlowerUtils.firstEventTimestamp) FlowerUtils.firstEventRun(this);
+                else if (seconds == FlowerUtils.secondEventTimestamp) FlowerUtils.secondEventRun(this);
+                else if (seconds == FlowerUtils.thirdEventTimestamp) FlowerUtils.thirdEventRun(this);
+                if (seconds == deathmatchStart) FlowerUtils.deathmatchStart(this);
+                else if (seconds == deathmatchStart + deathmatchTime) FlowerUtils.deathmatchEnd(this);
+                else if (seconds == deathmatchStart - FlowerUtils.deathmatchWarning) FlowerUtils.deathmatchWarning(this);
+
+                if (isDeathmatch) FlowerUtils.processDeathmatch(this);
+                if (isAnnihilation) FlowerUtils.processAnnihilation(this);
+
                 int runningTeams = 0;
                 for (CurrentTeam t : teamsInGame) {
                     if (t.forced) {
@@ -2145,7 +2322,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         }
 
                         ItemSpawnerType type = spawner.type;
-                        int cycle = type.getInterval();
+                        int cycle = spawner.getInterval();
                         /*
                          * Calculate resource spawn from elapsedTime, not from remainingTime/countdown
                          */
@@ -2171,7 +2348,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                 continue;
                             }
                         }
-
+//                        Bukkit.getConsoleSender().sendMessage("elapsed = " + elapsedTime + "   cycle = " + cycle + "    spawner interval = " + spawner.interval + "    key = " + spawner.getItemSpawnerType().getConfigKey());
                         if ((elapsedTime % cycle) == 0) {
                             int calculatedStack = 1;
                             double currentLevel = spawner.getCurrentLevel();
@@ -2199,13 +2376,23 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
                             if (resource.getAmount() > 0) {
                                 Location loc = spawner.getLocation().clone().add(0, 0.05, 0);
-                                Item item = loc.getWorld().dropItem(loc, resource);
-                                double spread = type.getSpread();
-                                if (spread != 1.0) {
-                                    item.setVelocity(item.getVelocity().multiply(spread));
+
+                                if (loc.getBlock().getType() == Material.CHEST) {
+                                    Inventory inventory = ((Chest) loc.getBlock().getState()).getBlockInventory();
+                                    Map<Integer, ItemStack> map = inventory.addItem(resource);
+                                    map.forEach((integer, itemStack) -> loc.getWorld().dropItem(loc.add(0,1,0), itemStack));
+
                                 }
-                                item.setPickupDelay(0);
-                                spawner.add(item);
+                                else {
+                                    Item item = loc.getWorld().dropItem(loc, resource);
+                                    double spread = type.getSpread();
+                                    if (spread != 1.0) {
+                                        item.setVelocity(item.getVelocity().multiply(spread));
+                                    }
+                                    item.setPickupDelay(0);
+                                    spawner.add(item);
+                                }
+
                             }
                         }
                     }
@@ -2285,16 +2472,34 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         }
     }
 
+    public void clearItems() {
+        for (Entity e : this.world.getEntities()) {
+            if (GameCreator.isInArea(e.getLocation(), pos1, pos2)) {
+                if (e instanceof Item || e instanceof Projectile) {
+                    Chunk chunk = e.getLocation().getChunk();
+                    if (!chunk.isLoaded()) {
+                        chunk.load();
+                    }
+                    e.remove();
+                }
+            }
+        }
+    }
+
     public void rebuild() {
         teamsInGame.clear();
         activeSpecialItems.clear();
         activeDelays.clear();
+
+        isDeathmatch = false;
+        isAnnihilation = false;
 
         BedwarsPreRebuildingEvent preRebuildingEvent = new BedwarsPreRebuildingEvent(this);
         Main.getInstance().getServer().getPluginManager().callEvent(preRebuildingEvent);
 
         for (ItemSpawner spawner : spawners) {
             spawner.currentLevel = spawner.startLevel;
+            spawner.setInterval(spawner.getItemSpawnerType().getInterval());
             spawner.spawnedItems.clear();
         }
         for (GameStore store : gameStore) {
@@ -2306,17 +2511,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
         region.regen();
         // Remove items
-        for (Entity e : this.world.getEntities()) {
-            if (GameCreator.isInArea(e.getLocation(), pos1, pos2)) {
-                if (e instanceof Item) {
-                    Chunk chunk = e.getLocation().getChunk();
-                    if (!chunk.isLoaded()) {
-                        chunk.load();
-                    }
-                    e.remove();
-                }
-            }
-        }
+        clearItems();
 
         // Chest clearing
         for (Map.Entry<Location, ItemStack[]> entry : usedChests.entrySet()) {
@@ -2419,36 +2614,55 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         }
     }
 
-    public void selectTeam(GamePlayer playerGameProfile, String displayName) {
+    public boolean selectTeam(GamePlayer playerGameProfile, String displayName) {
         if (status == GameStatus.WAITING) {
             displayName = ChatColor.stripColor(displayName);
-            playerGameProfile.player.closeInventory();
+            //playerGameProfile.player.closeInventory();
             for (Team team : teams) {
                 if (displayName.equals(team.name)) {
-                    internalTeamJoin(playerGameProfile, team);
-                    break;
+                    return internalTeamJoin(playerGameProfile, team);
                 }
             }
         }
+        return false;
     }
 
     public void updateScoreboard() {
+
+        //SCOREBOARD KILLER
+        if (1 == 1) return;
+
         if (!getOriginalOrInheritedScoreaboard()) {
             return;
         }
 
+
+        Component component = Component.newline();
+        component.insertion(this.formatScoreboardTitle());
         Objective obj = this.gameScoreboard.getObjective("display");
         if (obj == null) {
-            obj = this.gameScoreboard.registerNewObjective("display", "dummy");
+            obj = this.gameScoreboard.registerNewObjective("display", "dummy", component);
         }
 
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-        obj.setDisplayName(this.formatScoreboardTitle());
+//        obj.displayName(component);
+
+
+
+        for (String key : this.gameScoreboard.getEntries()) {
+            String firstSymbol = ChatColor.stripColor(key).substring(0, 1);
+//            Bukkit.getConsoleSender().sendMessage(ChatColor.stripColor(key) + "  " + firstSymbol + "   " + anchorEmptyString());
+            if ( firstSymbol.contains(ChatColor.stripColor(anchorEmptyString())) || firstSymbol.contains(ChatColor.stripColor(bedExistString())) ) {
+                this.gameScoreboard.resetScores(key);
+//                Bukkit.getConsoleSender().sendMessage("removed");
+            }
+        }
 
         for (CurrentTeam team : teamsInGame) {
-            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, false, false));
-            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, false, true));
-            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, true, false));
+//            int max_players = team.getMaxPlayers();
+//            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, false, false));
+//            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, false, true));
+//            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, true, false));
 
             Score score = obj.getScore(this.formatScoreboardTeam(team, !team.isBed, team.isBed && "RESPAWN_ANCHOR".equals(team.teamInfo.bed.getBlock().getType().name()) && Player116ListenerUtils.isAnchorEmpty(team.teamInfo.bed.getBlock())));
             score.setScore(team.players.size());
@@ -2459,13 +2673,27 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         }
     }
 
-    private String formatScoreboardTeam(CurrentTeam team, boolean destroy, boolean empty) {
+    public String formatScoreboardTeam(CurrentTeam team, boolean destroy, boolean empty) {
         if (team == null) {
             return "";
         }
 
-        return Main.getConfigurator().config.getString("scoreboard.teamTitle")
-                .replace("%color%", team.teamInfo.color.chatColor.toString()).replace("%team%", team.teamInfo.name)
+        List<GamePlayer> players = team.players;
+        int maxPlayers = team.getMaxPlayers();
+        int presentPlayers = team.countConnectedPlayers();
+
+
+        String show = "%bed% ";
+        for (int i = 1; i <= maxPlayers; i++ ){
+            if( i <= presentPlayers ) show += team.teamInfo.color.chatColor;
+            else show += ChatColor.GRAY;
+            show += "■";
+        }
+        show += " " + team.teamInfo.color.chatColor + "%team%";
+
+        //return Main.getConfigurator().config.getString("scoreboard.teamTitle")
+        return (show)
+                .replace("%team%", team.teamInfo.name)
                 .replace("%bed%", destroy ? bedLostString() : (empty ? anchorEmptyString() : bedExistString()));
     }
 
@@ -2482,6 +2710,10 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     }
 
     private void updateScoreboardTimer() {
+
+        //SCOREBOARD KILLER
+        if (1 == 1) return;
+
         if (this.status != GameStatus.RUNNING || !getOriginalOrInheritedScoreaboard()) {
             return;
         }
@@ -2605,6 +2837,10 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     }
 
     private void updateLobbyScoreboard() {
+
+        //SCOREBOARD KILLER
+        if (1 == 1) return;
+
         if (status != GameStatus.WAITING || !getOriginalOrInheritedLobbyScoreaboard()) {
             return;
         }
@@ -2687,6 +2923,14 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         List<Player> playerList = new ArrayList<>();
         for (GamePlayer player : players) {
             playerList.add(player.player);
+        }
+        return playerList;
+    }
+
+    public List<GamePlayer> getConnectedGamePlayers() {
+        List<GamePlayer> playerList = new ArrayList<>();
+        for (GamePlayer player : players) {
+            playerList.add(player);
         }
         return playerList;
     }
@@ -3240,6 +3484,11 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         return new ArrayList<>(spawners);
     }
 
+    public List<ItemSpawner> unsafeGetItemSpawners() {
+        return this.spawners;
+    }
+
+
     @Override
     public InGameConfigBooleanConstants getSpawnerDisableMerge() {
         return spawnerDisableMerge;
@@ -3392,6 +3641,62 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             }
         }
         return false;
+    }
+
+    public void tryToRestore() {
+        if ( this.wasMapRestored ) return;
+        else {
+            this.wasMapRestored = true;
+
+            final Clipboard[] clipboard = new Clipboard[1];
+
+            File schematic = null;
+            try {
+                schematic = Main.getInstance().getDataFolder().toPath().resolve("../FastAsyncWorldEdit/schematics/" + this.getName() + ".schem").toFile();
+            }
+            catch (Exception e) {
+                Bukkit.getConsoleSender().sendMessage("Fucking error for arena - " + this.getName());
+            }
+
+            if (schematic == null) {
+                Bukkit.getConsoleSender().sendMessage("can't find schematic - " + this.getName());
+                return;
+            }
+            else {
+                File finalSchematic = schematic;
+                Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+                    ClipboardFormat format = ClipboardFormats.findByFile(finalSchematic);
+                    Bukkit.getConsoleSender().sendMessage("found schematic - " + this.getName());
+
+                    try (ClipboardReader reader = format.getReader(new FileInputStream(finalSchematic))) {
+                        clipboard[0] = reader.read();
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    if (this.schematicPosition.getBlockX() == 0 && this.schematicPosition.getBlockY() == 0 && this.schematicPosition.getBlockZ() == 0) {
+                        Bukkit.getConsoleSender().sendMessage("schematic point not set - " + this.getName());
+                        return;
+                    }
+
+                    com.sk89q.worldedit.world.World adaptedWorld = BukkitAdapter.adapt(world);
+                    EditSession session = WorldEdit.getInstance().newEditSession(adaptedWorld);
+                    Operation operation = new ClipboardHolder(clipboard[0])
+                            .createPaste(session)
+                            .to(BlockVector3.at(this.schematicPosition.getBlockX(), this.schematicPosition.getBlockY(), this.schematicPosition.getBlockZ()))
+                            .ignoreAirBlocks(false)
+                            .build();
+                    Operations.complete(operation);
+                    session.close();
+
+                    Bukkit.getConsoleSender().sendMessage("schematic loaded! - " + this.getName());
+
+                });
+
+            }
+        }
     }
 
     public RespawnProtection addProtectedPlayer(Player player) {
@@ -3557,5 +3862,97 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
     public void setCustomPrefix(String customPrefix) {
         this.customPrefix = customPrefix;
+    }
+
+    public void addCustomBlock(CustomBlock block) {
+        this.customBlocks.add(block);
+    }
+    public boolean tryRemoveCustomBlock(Block block) {
+        for (CustomBlock customBlock : this.customBlocks) {
+            if ( customBlock.getBlock().equals(block) ) {
+                this.customBlocks.remove(customBlock);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public CustomBlock getCustomBlock(Block block) {
+        for (CustomBlock customBlock : this.customBlocks) {
+            if ( customBlock.getBlock().equals(block) ) {
+                return customBlock;
+            }
+        }
+        return null;
+    }
+
+    public int countAdjacentCustomBlocks(CustomBlock customBlock, double radius) {
+        int counter = 0;
+        Location location = customBlock.getBlock().getLocation();
+        for (CustomBlock customBlockTemp : this.customBlocks) {
+            if ( customBlock.getGadgetType() == customBlockTemp.getGadgetType() && location.distance(customBlockTemp.getBlock().getLocation()) < radius) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    public void setDeathmatchRadius(Location loc) {
+
+        Vector centerVector = getCenter().toVector().subtract(loc.toVector());
+
+        this.deathmatchRadius = Math.max( Math.abs(centerVector.getBlockZ()), Math.abs(centerVector.getBlockX()) );
+
+    }
+
+    private void setCenter() {
+
+        Vector vpos1 = pos1.toVector();
+        Vector vpos2 = pos2.toVector();
+        Vector diagonal = vpos2.subtract(vpos1);
+        diagonal.multiply(0.5);
+        Location center = vpos1.add(diagonal).toLocation(world);
+
+        this.center = center;
+
+    }
+
+    public Location getCenter() {
+
+        if (this.center == null) setCenter();
+        return this.center;
+
+    }
+
+    public void setDeathmatchFloor(Location loc) {
+
+        this.deathmatchFloor = loc.getBlockY();
+
+    }
+
+    public void setDeathmatchCeiling(Location loc) {
+
+        this.deathmatchCeiling = loc.getBlockY();
+
+    }
+
+    public void setDeathmatchStart(int start) {
+
+        this.deathmatchStart = start;
+
+    }
+
+    public void setDeathmatchTime(int time) {
+
+        this.deathmatchTime = time;
+
+    }
+
+    public void setSchematicPosition(Location location) {
+        this.schematicPosition = location;
+    }
+
+    public Location getSchematicPosition() {
+        return this.schematicPosition;
     }
 }

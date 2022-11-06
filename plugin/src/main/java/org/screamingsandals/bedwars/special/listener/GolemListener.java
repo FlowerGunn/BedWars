@@ -19,7 +19,9 @@
 
 package org.screamingsandals.bedwars.special.listener;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Zombie;
 import org.bukkit.projectiles.ProjectileSource;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
@@ -29,6 +31,7 @@ import org.screamingsandals.bedwars.api.events.BedwarsApplyPropertyToBoughtItem;
 import org.screamingsandals.bedwars.api.special.SpecialItem;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.special.Golem;
+import org.screamingsandals.bedwars.special.Zoglin;
 import org.screamingsandals.bedwars.utils.DelayFactory;
 import org.screamingsandals.bedwars.utils.MiscUtils;
 import org.bukkit.Location;
@@ -43,6 +46,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 import java.util.List;
 
@@ -116,10 +120,12 @@ public class GolemListener implements Listener {
     }
 
     @EventHandler
-    public void onGolemDamage(EntityDamageByEntityEvent event) {
+    public void onGolemDamaged(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof IronGolem)) {
             return;
         }
+
+        Bukkit.getConsoleSender().sendMessage("Golem is damaged =( for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
 
         IronGolem ironGolem = (IronGolem) event.getEntity();
         for (String name : Main.getGameNames()) {
@@ -160,6 +166,49 @@ public class GolemListener implements Listener {
     }
 
     @EventHandler
+    public void onGolemAttack(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof IronGolem)) {
+            return;
+        }
+
+        IronGolem ironGolem = (IronGolem) event.getDamager();
+        for (String name : Main.getGameNames()) {
+            Game game = Main.getGame(name);
+            if (game.getStatus() == GameStatus.RUNNING && ironGolem.getWorld().equals(game.getGameWorld())) {
+                List<SpecialItem> golems = game.getActivedSpecialItems(Golem.class);
+                for (SpecialItem item : golems) {
+                    if (item instanceof Golem) {
+                        Golem golem = (Golem) item;
+                        if (golem.getEntity().equals(ironGolem)) {
+
+                            if ( event.getEntity() instanceof Player ) {
+                                Player player = (Player) event.getEntity();
+                                event.setDamage(FlowerUtils.golemDamage);
+                                Bukkit.getConsoleSender().sendMessage("Golem damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+//    public void onGolemAttack(EntityDamageByEntityEvent event) {
+//        if (!(event.getDamager() instanceof IronGolem)) {
+//            return;
+//        }
+//
+//
+//        if ( event.getEntity() instanceof Player ) {
+//            Player player = (Player) event.getEntity();
+//            event.setDamage(FlowerUtils.golemDamage);
+//            Bukkit.getConsoleSender().sendMessage("Golem damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
+//        }
+//
+//    }
+
+    @EventHandler
     public void onGolemTarget(EntityTargetEvent event) {
     	if (!(event.getEntity() instanceof IronGolem)) {
             return;
@@ -169,8 +218,9 @@ public class GolemListener implements Listener {
         for (String name : Main.getGameNames()) {
             Game game = Main.getGame(name);
             if ((game.getStatus() == GameStatus.RUNNING || game.getStatus() == GameStatus.GAME_END_CELEBRATING) && ironGolem.getWorld().equals(game.getGameWorld())) {
-                List<SpecialItem> golems = game.getActivedSpecialItems(Golem.class);
-                for (SpecialItem item : golems) {
+                List<SpecialItem> activeGolems = game.getActivedSpecialItems(Golem.class);
+                List<SpecialItem> activeZoglins = game.getActivedSpecialItems(Zoglin.class);
+                for (SpecialItem item : activeGolems) {
                     if (item instanceof Golem) {
                         Golem golem = (Golem) item;
                         if (golem.getEntity().equals(ironGolem)) {
@@ -194,10 +244,19 @@ public class GolemListener implements Listener {
                                     }
                                 }
                             } else if (event.getTarget() instanceof IronGolem) {
-                                for (SpecialItem item2 : golems) {
-                                    if (item2 instanceof Golem) {
-                                        Golem golem2 = (Golem) item2;
-                                        if (golem2.getEntity().equals(event.getTarget()) && golem2.getTeam() == golem.getTeam()) {
+                                for (SpecialItem activeGolem : activeGolems) {
+                                    if (activeGolem instanceof Golem) {
+                                        Golem anotherActiveGolem = (Golem) activeGolem;
+                                        if (anotherActiveGolem.getEntity().equals(event.getTarget()) && anotherActiveGolem.getTeam() == golem.getTeam()) {
+                                            event.setCancelled(true);
+                                        }
+                                    }
+                                }
+                            } else if (event.getTarget() instanceof Golem) {
+                                for (SpecialItem anotherSpecialEntity : activeZoglins) {
+                                    if (anotherSpecialEntity instanceof Golem) {
+                                        Zoglin activeZoglin = (Zoglin) anotherSpecialEntity;
+                                        if (activeZoglin.getEntity().equals(event.getTarget()) && activeZoglin.getTeam() == golem.getTeam()) {
                                             event.setCancelled(true);
                                         }
                                     }

@@ -88,9 +88,16 @@ game_end: "&cИгра окончена! Спасибо за участие!"
 command_is_not_allowed: "&cНельзя пользоваться этой командой во время игры!"
 price: "Цена:"
 amount: "Количество:"
-resource_bronze: "Бронза"
+resource_bronze: "Медь"
 resource_iron: "Железо"
 resource_gold: "Золото"
+resource_emerald: "Изумруд"
+
+resource_bronze_icon: "&c"
+resource_iron_icon: "&7"
+resource_gold_icon: "&6"
+resource_emerald_icon: "&a"
+
 resource_netherite: "Незерит"
 countdown_spawning: "&e%seconds% &bсекунд"
 every_second_spawning: "&bежесекундно"
@@ -215,6 +222,7 @@ team_chest_broken: "&cВаш командный сундук сломан!"
 trap_built: "&aВы поставили ловушку! Теперь подождите, когда в неё кто-нибудь попадётся!"
 player_self_killed: "&cИгрок %victim% &cумер!"
 player_killed: "&cИгрок %killer% &cубил игрока %victim%&c!"
+player_killed_last_breath: "&cИгрок %killer% &cубил игрока %victim%&c на последнем вздохе! (пасхалочка)"
 arena_info_header: "&aИнформация об арене:"
 arena_info_name: "&7Имя: &r%name%"
 arena_info_status: "&7Статус: &r%status%"
@@ -260,7 +268,9 @@ please_select_info_type_config: "&aКонфигурация&f - &7/bw admin %are
 please_select_info_type_click: "&bНажмите на необходимую вам команду!"
 statistics_is_disabled: "&cСтатистика игроков отключена на этом сервере!"
 statistics_player_is_not_exists: "&cИгрок не найден!"
+info_player_is_not_exists: "&cИгрок не найден!"
 statistics_not_found: "&cСтатистика для игрока не найдена!"
+info_not_found: "&cИгрок не находится в игре!"
 statistics_header: "&aСтатистика игрока &7%player%&a:"
 statistics_kills: "&7Убийства: &a%kills%"
 statistics_deaths: "&7Смертей: &e%deaths%"
@@ -429,3 +439,167 @@ help_bw_cheat_give: /bw cheat give <ресурс> [кол-во] [игрок] - &
 "party_command_invalid_arguments": '&cНеверное количество аргументов! Введите /bw
   party help для получения помощи'
 "party_command_warped": '&aЧлены группы были перенесены'
+
+new_buy_fail: 'Обсёр'
+new_buy_success: '&4ИетИет ИЕТ иет &5ИИИИИИииИИИиии'
+item_name_trap: 'Ловушка джокушкера'
+item_name_tnt: 'Динамит с самоподжёгом'
+item_name_golem: 'Яйцо голема'
+item_name_zoglin: 'Яйцо Зоглина'
+item_name_blaze: 'Яйцо Ифрита'
+item_name_phantom: 'Яйцо Фантома'
+item_name_explosive_sheep: 'Взрывная овца'
+item_name_arrow_shield: 'Защита от стрел'
+item_name_platform: 'Стеклянная платформа'
+item_name_slime_platform: 'Слизневая платформа'
+item_name_magnet_boots: 'Магнитные ботинки 50%'
+item_name_magnet_boots_new: 'Магнитные ботинки 100%'
+item_name_magnet_boots_gymnast: 'Ботинки Гимнаста'
+item_name_teleport: 'Телепорт на базу'
+item_name_fireball: 'Огненный шар'
+item_name_tracker: 'Компасс с игроками'
+item_name_wall: 'Автостена'
+shop_category_weapons: 'Ближнее оружие'
+shop_category_armour: 'Броня'
+shop_category_blocks: 'Блоки'
+shop_category_food: 'Еда'
+shop_category_gadgets: 'Гаджеты'
+shop_category_tools: 'Инструменты'
+shop_category_ranged: 'Дальнее оружие'
+shop_category_potions: 'Зелья'
+shop_category_special: 'Особое'
+team_upgrades_name: '&9&lКомандные улучшения'
+team_upgrades_description1: '&7Головы выпадают при убийстве игроков:'
+team_upgrades_description2: '&7Мечом - шанс &f%chance%%'
+team_upgrades_description3: '&7Топором - шанс &f%chance%%'
+shop_category_roleplay: 'Странное'
+shop_category_roleplay_description: 'Данные предметы можно использовать в некоторых крафтах.'
+
+
+team_upgrade_notification: '&7%player%&7 приобрёл улучшение %upgrade%'
+
+item_name_trampoline: 'Батут'
+item_description_trampoline1: '&7Удерживайте кнопку &9Shift'
+item_description_trampoline2: '&7стоя на батутах и отпустите её'
+item_description_trampoline3: '&7чтобы взлететь вверх.'
+item_description_trampoline4: '&7Ставьте несколько батутов рядом,'
+item_description_trampoline5: '&7чтобы увеличить их &6силу&7.'
+
+item_potion_hunger: 'Удушающий газ'
+item_potion_speed: 'Энергетик'
+item_potion_speed2: 'Нелегальный энергетик'
+item_potion_healing: 'Арбузный сок'
+item_potion_healing2: 'Кровь админов'
+item_potion_invisibility: 'Жижа прозрачности'
+item_potion_invisibility2: 'Прозрачная жижа прозрачности'
+item_potion_invisibility3: 'Диетическая жижа прозрачности'
+item_potion_strength: 'К*мшот'
+item_potion_resistance: 'Слёзы Амитексинга'
+item_potion_slow: 'Липкая субстанция'
+item_potion_slow2: 'Густые телесные жидкости'
+item_potion_poison: 'Едкая кислота'
+item_potion_poison2: 'Парфюм - GUCCI'
+
+description_support_arrow1: '&7Данные стрелы работают'
+description_support_arrow2: '&7только на союзников'
+description_support_arrow3: '&7и не наносят им урон.'
+
+description_ammo_firework1: '&7Данные феерверки работают &8(только)'
+description_ammo_firework2: '&7как аммуниция для арбалета.'
+description_ammo_firework3: '&7Они обязаны находиться'
+description_ammo_firework4: '&7во вторичной руке.'
+
+description_arrow_shield1: '&7Блокирует все снаряды по'
+description_arrow_shield2: '&7использующему игроку на 10 секунд.'
+
+event1_text: '&6Золото &7и &aИзумруды &7активированы!'
+event1_bossbar: '&eСтадия 2: Спавн Золота и Изумрудов'
+event2_text: '&7Все генераторы &6ускорены&7!'
+event2_bossbar: '&6Стадия 3: Ускорение генераторов'
+event3_text: '&4Все генераторы разогнаны до &cМАКСИМУМА&4!!!'
+event3_bossbar: '&cСтадия 4: Перегрев генераторов'
+
+event_deathmatch_text: '&5Начался дезматч! Кровати уничтожены!'
+event_deathmatch_bossbar: '&5Стадия 5: Дезматч'
+event_annihilation_text: '&dНачало аннигиляции!!!'
+event_annihilation_bossbar: '&dСтадия 6: Аннигиляция'
+event_deathmatch_warning: '&7Дезматч через 60 секунд...'
+
+lost_durability: '&7-%durability%% прочности'
+lost_durability_subtext: '&8+5% за каждый уровень Прочности.'
+
+game_forced: "&aGame is going to start with empty teams. Destroy their target blocks to win!"
+
+trampoline_success: "&7Вжууууух... Сила:&a%power%"
+
+firework_with_elytra_failed: '&6Счастья вам и здоровья!'
+
+skull_name: "&7Череп игрока %teamcolor%%name%"
+
+upgrade_price_row: "&7Цена: &f%price% &7голов"
+
+
+upgrade_intellect_level1_name: "&f&lИнтеллект Ур.&a&l1"
+upgrade_intellect_level1_description1: "&7Медь не исчезает при смерти."
+upgrade_intellect_level1_description2: ""
+upgrade_intellect_level1_description3: ""
+upgrade_intellect_level2_name: "&f&lИнтеллект Ур.&9&l2"
+upgrade_intellect_level2_description1: "&7Серебро не исчезает при смерти."
+upgrade_intellect_level2_description2: ""
+upgrade_intellect_level2_description3: ""
+upgrade_intellect_level3_name: "&f&lИнтеллект Ур.&5&l3"
+upgrade_intellect_level3_description1: "&7Автоматическое удаление бутылочек и автозамена"
+upgrade_intellect_level3_description2: "&7зелий на хотбаре. Использование бутылочки мёда"
+upgrade_intellect_level3_description3: "&7очищает негативные эффекты с игрока."
+upgrade_intellect_level4a_name: "&f&lИнтеллект Ур.&6&l<&6&l4&7&l>"
+upgrade_intellect_level4a_description1: "&7В магазине становятся доступны"
+upgrade_intellect_level4a_description2: "&7зелья на Силу."
+upgrade_intellect_level4a_description3: ""
+upgrade_intellect_level4b_name: "&f&lИнтеллект Ур.&7&l<&6&l4&6&l>"
+upgrade_intellect_level4b_description1: "&7В магазине становятся доступны"
+upgrade_intellect_level4b_description2: "&7зелья на Сопротивление урону."
+upgrade_intellect_level4b_description3: ""
+
+upgrade_agility_level1_name: "&f&lЛовкость Ур.&a&l1"
+upgrade_agility_level1_description1: "&7Эффект Спешки и Скорости"
+upgrade_agility_level1_description2: "&7после любой покупки в магазине."
+upgrade_agility_level1_description3: ""
+upgrade_agility_level2_name: "&f&lЛовкость Ур.&9&l2"
+upgrade_agility_level2_description1: "&7После смерти луки и арбалеты не могут"
+upgrade_agility_level2_description2: "&7потерять более чем 20%"
+upgrade_agility_level2_description3: "&7от своей максимальной прочности."
+upgrade_agility_level3_name: "&f&lЛовкость Ур.&5&l3"
+upgrade_agility_level3_description1: "&7Скидка на снаряды в магазине."
+upgrade_agility_level3_description2: "&7Эффект Прыгучести после"
+upgrade_agility_level3_description3: "&7любой покупки в магазине."
+upgrade_agility_level4a_name: "&f&lЛовкость Ур.&6&l<&6&l4&7&l>"
+upgrade_agility_level4a_description1: "&7В магазине становятся доступны"
+upgrade_agility_level4a_description2: "&7стрелы на Иссушение."
+upgrade_agility_level4a_description3: ""
+upgrade_agility_level4b_name: "&f&lЛовкость Ур.&7&l<&6&l4&6&l>"
+upgrade_agility_level4b_description1: "&7В магазине становятся доступны"
+upgrade_agility_level4b_description2: "&7стрелы на Отравление."
+upgrade_agility_level4b_description3: ""
+
+upgrade_vitality_level1_name: "&f&lЖивучесть Ур.&a&l1"
+upgrade_vitality_level1_description1: "&7В магазине становится доступен"
+upgrade_vitality_level1_description2: "&7кожаный нагрудник."
+upgrade_vitality_level1_description3: "&7Авто-экипировка брони."
+upgrade_vitality_level2_name: "&f&lЖивучесть Ур.&9&l2"
+upgrade_vitality_level2_description1: "&7Кожаная броня не теряет"
+upgrade_vitality_level2_description2: "&7прочность при смерти."
+upgrade_vitality_level2_description3: "&7"
+upgrade_vitality_level3_name: "&f&lЖивучесть Ур.&5&l3"
+upgrade_vitality_level3_description1: "&7В магазине становятся доступны"
+upgrade_vitality_level3_description2: "&7ботинки на Невесомость."
+upgrade_vitality_level3_description3: "&7"
+upgrade_vitality_level4a_name: "&f&lЖивучесть Ур.&6&l<&6&l4&7&l>"
+upgrade_vitality_level4a_description1: "&7Вы получаете эффект"
+upgrade_vitality_level4a_description2: "&7Поглощения при возрождении."
+upgrade_vitality_level4a_description3: "&7"
+upgrade_vitality_level4b_name: "&f&lЖивучесть Ур.&7&l<&6&l4&6&l>"
+upgrade_vitality_level4b_description1: "&7Вы получаете эффект"
+upgrade_vitality_level4b_description2: "&7Сопротивления Урону при возрождении."
+upgrade_vitality_level4b_description3: "&7"
+
+abilities_menu_item_name: "&6Выбор способностей"

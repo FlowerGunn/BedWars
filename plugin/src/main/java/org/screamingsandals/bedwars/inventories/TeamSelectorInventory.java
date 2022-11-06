@@ -118,7 +118,7 @@ public class TeamSelectorInventory implements Listener {
         this.simpleGuiFormat = simpleGuiFormat;
     }
 
-    private List<String> formatLore(Team team, Game game) {
+    public static List<String> formatLore(Team team, Game game) {
         List<String> loreList = new ArrayList<>();
         List<GamePlayer> playersInTeam = game.getPlayersInTeam(team);
         int playersInTeamCount = playersInTeam.size();
@@ -174,7 +174,7 @@ public class TeamSelectorInventory implements Listener {
         if (reader.containsKey("team")) {
             Team team = (Team) reader.get("team");
             game.selectTeam(Main.getPlayerGameProfile(inventoryHolder), team.getName());
-            inventoryHolder.closeInventory();
+            //inventoryHolder.closeInventory();
 
             repaint();
         }

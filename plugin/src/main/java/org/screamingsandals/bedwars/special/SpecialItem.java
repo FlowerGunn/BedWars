@@ -19,12 +19,16 @@
 
 package org.screamingsandals.bedwars.special;
 
+import lombok.Getter;
+import org.bukkit.entity.LivingEntity;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.api.Team;
 import org.bukkit.entity.Player;
 
 public abstract class SpecialItem implements org.screamingsandals.bedwars.api.special.SpecialItem {
 
+    @Getter
+    protected LivingEntity entity;
     protected Game game;
     protected Player player;
     protected Team team;
@@ -34,6 +38,9 @@ public abstract class SpecialItem implements org.screamingsandals.bedwars.api.sp
         this.player = player;
         this.team = team;
     }
+
+    @Override
+    public LivingEntity getEntity() { return this.entity; }
 
     @Override
     public Game getGame() {

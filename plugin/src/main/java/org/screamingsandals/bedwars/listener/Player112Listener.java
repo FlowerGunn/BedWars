@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
 
 public class Player112Listener implements Listener {
     @EventHandler
@@ -30,6 +31,8 @@ public class Player112Listener implements Listener {
         if (!(event.getEntity() instanceof Player)) {
             return;
         }
+
+        Triggers.pickupItem((Player) event.getEntity(), event);
 
         PlayerListener.onItemPickup((Player) event.getEntity(), event.getItem(), event);
     }

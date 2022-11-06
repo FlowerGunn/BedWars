@@ -534,6 +534,7 @@ public interface Game {
      */
 	boolean getOriginalOrInheritedSpawnerHolograms();
 
+
     /**
      * @return
      */

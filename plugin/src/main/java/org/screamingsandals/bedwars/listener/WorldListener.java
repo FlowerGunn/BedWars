@@ -19,6 +19,7 @@
 
 package org.screamingsandals.bedwars.listener;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,6 +41,7 @@ import org.screamingsandals.bedwars.api.RunningTeam;
 import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GameCreator;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 import java.util.List;
 
@@ -109,6 +111,9 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onExplode(BlockExplodeEvent event) {
+
+        Bukkit.getConsoleSender().sendMessage("OG block explode event");
+
         if (event.isCancelled()) {
             return;
         }
@@ -120,6 +125,8 @@ public class WorldListener implements Listener {
             return;
         }
 
+//        Bukkit.getConsoleSender().sendMessage("explosion happened");
+
         final List<String> explosionExceptionTypeName = Main.getConfigurator().config.getStringList("destroy-placed-blocks-by-explosion-except");
         final boolean destroyPlacedBlocksByExplosion = Main.getConfigurator().config.getBoolean("destroy-placed-blocks-by-explosion", true);
 
@@ -128,6 +135,10 @@ public class WorldListener implements Listener {
             if (GameCreator.isInArea(location, game.getPos1(), game.getPos2())) {
                 if (game.getStatus() == GameStatus.RUNNING || game.getStatus() == GameStatus.GAME_END_CELEBRATING) {
                     blockList.removeIf(block -> {
+                        if ( !GameCreator.isInArea( block.getLocation(), game.getPos1(), game.getPos2() ) ) {
+                            Bukkit.getConsoleSender().sendMessage("Prevent explosion of blocks out of arena");
+                            return true;
+                        }
                         if (!game.isBlockAddedDuringGame(block.getLocation())) {
                             if (game.getOriginalOrInheritedTargetBlockExplosions()) {
                                 for (RunningTeam team : game.getRunningTeams()) {
@@ -139,7 +150,7 @@ public class WorldListener implements Listener {
                             }
                             return true;
                         }
-                        return (explosionExceptionTypeName.contains(block.getType().name())) || !destroyPlacedBlocksByExplosion;
+                        return (game.getCustomBlock(block) != null || FlowerUtils.doubleBlocks.contains(block.getType()) || explosionExceptionTypeName.contains(block.getType().name())) || !destroyPlacedBlocksByExplosion;
                     });
                 } else {
                     cancellable.setCancelled(true);

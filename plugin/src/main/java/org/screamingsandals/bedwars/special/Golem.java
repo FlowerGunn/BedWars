@@ -19,6 +19,7 @@
 
 package org.screamingsandals.bedwars.special;
 
+import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -35,6 +36,7 @@ import org.screamingsandals.bedwars.lib.nms.accessors.EntityPlayerAccessor;
 import org.screamingsandals.bedwars.lib.nms.utils.ClassStorage;
 import org.screamingsandals.bedwars.utils.MiscUtils;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 import static org.screamingsandals.bedwars.lib.lang.I18n.i18nonly;
 
@@ -47,6 +49,8 @@ public class Golem extends SpecialItem implements org.screamingsandals.bedwars.a
     private double health;
     private String name;
     private boolean showName;
+    @Getter
+    private double damage;
 
     public Golem(Game game, Player player, Team team,
                  ItemStack item, Location location, double speed, double followRange, double health,
@@ -59,6 +63,7 @@ public class Golem extends SpecialItem implements org.screamingsandals.bedwars.a
         this.health = health;
         this.name = name;
         this.showName = showName;
+        this.damage = FlowerUtils.golemDamage;
     }
 
     @Override

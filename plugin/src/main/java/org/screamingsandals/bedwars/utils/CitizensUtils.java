@@ -31,6 +31,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.screamingsandals.bedwars.game.GameStore;
 
+
 public class CitizensUtils {
     public static LivingEntity spawnNPC(GameStore store) {
         if (Bukkit.getPluginManager().isPluginEnabled("Citizens")) {

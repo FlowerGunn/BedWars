@@ -19,15 +19,26 @@
 
 package org.screamingsandals.bedwars.placeholderapi;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.api.Team;
 import org.screamingsandals.bedwars.api.statistics.PlayerStatistic;
 import org.screamingsandals.bedwars.game.CurrentTeam;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.game.TeamColor;
+import org.screamingsandals.bedwars.listener.Player116ListenerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.AbilitiesManager;
+
+import java.util.ArrayList;
 
 public class BedwarsExpansion extends PlaceholderExpansion {
 
@@ -225,6 +236,7 @@ public class BedwarsExpansion extends PlaceholderExpansion {
                     }
                 case "team_color":
                     if (Main.isPlayerInGame(player)) {
+//                        Bukkit.getConsoleSender().sendMessage("successfully called team color");
                         GamePlayer gPlayer = Main.getPlayerGameProfile(player);
                         Game game = gPlayer.getGame();
                         if (gPlayer.isSpectator) {
@@ -308,6 +320,185 @@ public class BedwarsExpansion extends PlaceholderExpansion {
                     } else {
                         return "0";
                     }
+                case "health":
+//                    Bukkit.getConsoleSender().sendMessage("call health");
+                    if (Main.isPlayerInGame(player)) {
+                        GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+                        Game game = gPlayer.getGame();
+                        if (gPlayer.isSpectator) {
+                            return "";
+                        } else {
+                            double health = player.getHealth();
+                            int roundedHealth = (int) Math.floor(health);
+                            double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                            int roundedMaxHealth = (int) Math.floor(maxHealth);
+
+
+//                            Bukkit.getConsoleSender().sendMessage("call health " + roundedHealth + " " + roundedMaxHealth);
+
+                            double absorption = player.getAbsorptionAmount();
+                            int roundedAbsorption = (int) Math.floor(absorption);
+                            String healthbar = "";
+
+                            String firstHalfFull = game.getPlayerTeam(gPlayer).teamInfo.color.firstHalfFull;
+                            String firstHalfEmpty = game.getPlayerTeam(gPlayer).teamInfo.color.firstHalfEmpty;
+                            String secondHalfFull = game.getPlayerTeam(gPlayer).teamInfo.color.secondHalfFull;
+                            String secondHalfEmpty = game.getPlayerTeam(gPlayer).teamInfo.color.secondHalfEmpty;
+
+
+
+                            ChatColor currentColor;
+
+//                            Bukkit.getConsoleSender().sendMessage("building healthbar");
+                            for (int i = 1; i <= roundedMaxHealth; i++ ) {
+
+                                if (i <= roundedHealth) {
+                                    if ( i % 2 == 1 ) healthbar += firstHalfFull;
+                                    else healthbar += secondHalfFull;
+                                }
+                                else {
+                                    if ( i % 2 == 1 ) healthbar += firstHalfEmpty;
+                                    else healthbar += secondHalfEmpty;
+                                }
+
+                            }
+
+//                            Bukkit.getConsoleSender().sendMessage("counting absorbtion");
+                            for (int i = 1; i <= roundedAbsorption; i++ ) {
+                                if (i <= roundedAbsorption) {
+                                    if (i % 2 == 1) healthbar += TeamColor.firstHalfAbsorption;
+                                    else healthbar += TeamColor.secondHalfAbsorption;
+                                }
+                            }
+//                            Bukkit.getConsoleSender().sendMessage("returning healthbar");
+                            return healthbar;
+
+                        }
+                    } else {
+                        return "";
+                    }
+                case "statuses":
+//                    Bukkit.getConsoleSender().sendMessage("call health");
+                    if (Main.isPlayerInGame(player)) {
+                        GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+                        Game game = gPlayer.getGame();
+                        if (gPlayer.isSpectator) {
+                            return "";
+                        } else {
+
+//                            Bukkit.getConsoleSender().sendMessage("returning statuses " + player.getPotionEffect(PotionEffectType.SPEED).getAmplifier() );
+
+                            String statuses = "";
+
+//                            statuses += player.getActivePotionEffects().size();
+
+                            for ( PotionEffect potionEffect : player.getActivePotionEffects() ) {
+
+                                String type = potionEffect.getType().getName();
+                                String amplifier = String.valueOf(potionEffect.getAmplifier() + 1);
+
+                                if ( type.equals(PotionEffectType.INCREASE_DAMAGE.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_strength%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.WEAKNESS.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_weakness%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.SPEED.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_speed%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.JUMP.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_jump_boost%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.SLOW.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_slowness%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.FAST_DIGGING.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_haste%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.SLOW_DIGGING.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_mining_fatigue%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.GLOWING.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_glowing%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.DAMAGE_RESISTANCE.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_resistance%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.ABSORPTION.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_absorption%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.HUNGER.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_hunger%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.WITHER.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_wither%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.POISON.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_poison%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.REGENERATION.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_regeneration%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.LUCK.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_luck%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.UNLUCK.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_unluck%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.SLOW_FALLING.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_slow_falling%") +  ChatColor.GRAY + amplifier + " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.LEVITATION.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_levitation%") +  ChatColor.GRAY + amplifier + " " + ChatColor.RESET;
+                                else if (type.equals(PotionEffectType.BLINDNESS.getName()))
+                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_blindness%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                else statuses += type;
+                            }
+
+                            if (statuses.length() > 0) statuses.substring(0, statuses.length() - 1);
+
+                            return statuses;
+
+                        }
+                    } else {
+                        return "";
+                    }
+                case "arena_name":
+//                    Bukkit.getConsoleSender().sendMessage("call health");
+                    if (Main.isPlayerInGame(player)) {
+                        GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+                        Game game = gPlayer.getGame();
+
+                        return game.getName();
+                    }
+                case "arena_players":
+//                    Bukkit.getConsoleSender().sendMessage("call health");
+                    if (Main.isPlayerInGame(player)) {
+                        GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+                        Game game = gPlayer.getGame();
+
+                        return String.valueOf(game.getConnectedGamePlayers().size());
+                    }
+                case "arena_maxplayers":
+//                    Bukkit.getConsoleSender().sendMessage("call health");
+                    if (Main.isPlayerInGame(player)) {
+                        GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+                        Game game = gPlayer.getGame();
+
+                        return String.valueOf(game.getMaxPlayers());
+                    }
+            }
+        }
+
+
+        if (identifier.startsWith("current_team")) {
+            int teamNumber = Integer.parseInt(identifier.substring( identifier.length() - 1 ));
+
+            if (Main.isPlayerInGame(player)) {
+                GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+                Game game = gPlayer.getGame();
+
+                ArrayList<CurrentTeam> teams = new ArrayList<>(game.getCurrentTeams());
+
+                if ( teamNumber >= teams.size() ) { return ""; }
+
+                CurrentTeam team = teams.get(teamNumber);
+
+                return game.formatScoreboardTeam(team, !team.isBed, team.isBed && "RESPAWN_ANCHOR".equals(team.teamInfo.bed.getBlock().getType().name()) && Player116ListenerUtils.isAnchorEmpty(team.teamInfo.bed.getBlock()));
+            }
+        }
+
+        if (identifier.startsWith("ability")) {
+            int slot = Integer.parseInt(identifier.substring( identifier.length() - 1 )) - 1;
+
+            if (Main.isPlayerInGame(player)) {
+                GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+                Game game = gPlayer.getGame();
+
+                return AbilitiesManager.formatLoadedAbilityNameInSlot(gPlayer,slot);
             }
         }
 

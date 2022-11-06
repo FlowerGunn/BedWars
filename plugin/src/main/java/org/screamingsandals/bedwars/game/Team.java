@@ -31,6 +31,8 @@ public class Team implements Cloneable, org.screamingsandals.bedwars.api.Team {
     public int maxPlayers;
     public Game game;
 
+
+
     public Team clone() {
         Team t = new Team();
         t.color = this.color;

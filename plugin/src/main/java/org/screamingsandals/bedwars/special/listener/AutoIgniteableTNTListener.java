@@ -19,6 +19,7 @@
 
 package org.screamingsandals.bedwars.special.listener;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -80,8 +81,13 @@ public class AutoIgniteableTNTListener implements Listener {
 
         if (event.getDamager() instanceof TNTPrimed) {
             TNTPrimed tnt = (TNTPrimed) event.getDamager();
+
+            Bukkit.getConsoleSender().sendMessage( "Damaging " + player.getName() + " with tnt by " + tnt.getMetadata("owner").get(0).asString());
+            event.setDamage(10);
+
             if (tnt.hasMetadata(player.getUniqueId().toString()) && tnt.hasMetadata("autoignited")) {
                 event.setCancelled(true);
+                Bukkit.getConsoleSender().sendMessage( "TNT damage cancelled for " + player.getName());
             }
         }
     }

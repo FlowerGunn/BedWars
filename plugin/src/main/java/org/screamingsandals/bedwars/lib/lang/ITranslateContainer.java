@@ -19,7 +19,7 @@
 
 package org.screamingsandals.bedwars.lib.lang;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 
 public interface ITranslateContainer {
 	String getLocaleCode();

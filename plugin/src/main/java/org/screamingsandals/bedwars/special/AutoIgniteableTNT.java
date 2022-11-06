@@ -68,6 +68,7 @@ public class AutoIgniteableTNT extends SpecialItem implements org.screamingsanda
             tnt.setMetadata(player.getUniqueId().toString(), new FixedMetadataValue(Main.getInstance(), null));
         }
         tnt.setMetadata("autoignited", new FixedMetadataValue(Main.getInstance(), null));
+        tnt.setMetadata("owner", new FixedMetadataValue(Main.getInstance(), player.getName()));
 
         new BukkitRunnable() {
             public void run() {

@@ -19,7 +19,7 @@
 
 package org.screamingsandals.bedwars.lib.debug;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

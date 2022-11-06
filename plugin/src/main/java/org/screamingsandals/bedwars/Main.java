@@ -19,13 +19,14 @@
 
 package org.screamingsandals.bedwars;
 
+import lombok.Getter;
+import net.md_5.bungee.api.ChatColor;
 import org.bstats.charts.SimplePie;
 import org.screamingsandals.bedwars.lib.lang.I18n;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -62,6 +63,7 @@ import org.screamingsandals.bedwars.lib.nms.holograms.HologramManager;
 import org.screamingsandals.bedwars.lib.nms.utils.ClassStorage;
 import org.screamingsandals.bedwars.lib.signmanager.SignListener;
 import org.screamingsandals.bedwars.lib.signmanager.SignManager;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.AbilitiesManager;
 import org.screamingsandals.simpleinventories.listeners.InventoryListener;
 import org.screamingsandals.simpleinventories.utils.MaterialSearchEngine;
 
@@ -114,6 +116,9 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         autoColoredMaterials.add("STAINED_GLASS");
         autoColoredMaterials.add("STAINED_GLASS_PANE");
     }
+
+    @Getter
+    private AbilitiesManager abilitiesManager;
 
     public static Main getInstance() {
         return instance;
@@ -363,6 +368,8 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         isSpigot = ClassStorage.IS_SPIGOT_SERVER;
         colorChanger = new org.screamingsandals.bedwars.utils.ColorChanger();
 
+        this.abilitiesManager = new AbilitiesManager();
+
         if (!getServer().getPluginManager().isPluginEnabled("Vault")) {
             isVault = false;
         } else {
@@ -434,6 +441,7 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         new LeaderboardCommand();
         new DumpCommand();
         new CheatCommand();
+        new InfoCommand();
 
         BwCommandsExecutor cmd = new BwCommandsExecutor();
         getCommand("bw").setExecutor(cmd);
@@ -653,8 +661,9 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         return games.get(name);
     }
 
-    private TreeMap<Integer, org.screamingsandals.bedwars.api.game.Game> filterGames0() {
-        TreeMap<Integer, org.screamingsandals.bedwars.api.game.Game> gameList = new TreeMap<>();
+    private ArrayList<org.screamingsandals.bedwars.api.game.Game> filterGames0() {
+//        TreeMap<Integer, org.screamingsandals.bedwars.api.game.Game> gameList = new TreeMap<>();
+        ArrayList<org.screamingsandals.bedwars.api.game.Game> gameList = new ArrayList<>();
         for (org.screamingsandals.bedwars.api.game.Game game : getGames()) {
             if (game.getStatus() != GameStatus.WAITING) {
                 continue;
@@ -662,21 +671,54 @@ public class Main extends JavaPlugin implements BedwarsAPI {
             if (game.getConnectedPlayers().size() >= game.getMaxPlayers()) {
                 continue;
             }
-            gameList.put(game.countConnectedPlayers(), game);
+            gameList.add(game);
         }
         return gameList;
     }
 
     @Override
     public org.screamingsandals.bedwars.api.game.Game getGameWithHighestPlayers() {
-        final Map.Entry<Integer, org.screamingsandals.bedwars.api.game.Game> entry = filterGames0().lastEntry();
-        return (entry != null) ? entry.getValue() : null;
+        ArrayList<org.screamingsandals.bedwars.api.game.Game> games = filterGames0();
+
+        int maxAmount = 0;
+        org.screamingsandals.bedwars.api.game.Game finalGame = games.get(0);
+
+        for ( org.screamingsandals.bedwars.api.game.Game game : games ) {
+            if ( game.getConnectedPlayers().size() > maxAmount ) {
+                maxAmount = game.getConnectedPlayers().size();
+                finalGame = game;
+            }
+        }
+
+        if (maxAmount == 0) {
+            Collections.shuffle(games);
+            finalGame = games.get(0);
+        }
+
+        return finalGame;
+
     }
 
     @Override
     public org.screamingsandals.bedwars.api.game.Game getGameWithLowestPlayers() {
-        Map.Entry<Integer, org.screamingsandals.bedwars.api.game.Game> entry = filterGames0().firstEntry();
-        return (entry != null) ? entry.getValue() : null;
+        ArrayList<org.screamingsandals.bedwars.api.game.Game> games = filterGames0();
+
+        int minAmount = 1000;
+        org.screamingsandals.bedwars.api.game.Game finalGame = games.get(0);
+
+        for ( org.screamingsandals.bedwars.api.game.Game game : games ) {
+            if ( game.getConnectedPlayers().size() < minAmount ) {
+                minAmount = game.getConnectedPlayers().size();
+                finalGame = game;
+            }
+        }
+
+        if (minAmount == 0) {
+            Collections.shuffle(games);
+            finalGame = games.get(0);
+        }
+
+        return finalGame;
     }
 
     @Override
@@ -752,20 +794,23 @@ public class Main extends JavaPlugin implements BedwarsAPI {
 
     @Override
     public org.screamingsandals.bedwars.api.game.Game getFirstWaitingGame() {
-        final TreeMap<Integer, Game> availableGames = new TreeMap<>();
-        games.values().forEach(game -> {
-            if (game.getStatus() != GameStatus.WAITING) {
-                return;
-            }
 
-            availableGames.put(game.getConnectedPlayers().size(), game);
-        });
+        return getGameWithHighestPlayers();
 
-        if (availableGames.isEmpty()) {
-            return null;
-        }
-
-        return availableGames.lastEntry().getValue();
+//        final TreeMap<Integer, Game> availableGames = new TreeMap<>();
+//        games.values().forEach(game -> {
+//            if (game.getStatus() != GameStatus.WAITING) {
+//                return;
+//            }
+//
+//            availableGames.put(game.getConnectedPlayers().size(), game);
+//        });
+//
+//        if (availableGames.isEmpty()) {
+//            return null;
+//        }
+//
+//        return availableGames.lastEntry().getValue();
     }
 
     public org.screamingsandals.bedwars.api.game.Game getFirstRunningGame() {

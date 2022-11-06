@@ -42,6 +42,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
@@ -60,6 +61,10 @@ import org.screamingsandals.bedwars.statistics.PlayerStatistic;
 import org.screamingsandals.bedwars.utils.*;
 import org.screamingsandals.bedwars.lib.debug.Debug;
 import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.CustomGUI;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
 import org.screamingsandals.simpleinventories.utils.StackParser;
 
 import java.util.*;
@@ -71,22 +76,61 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent event) {
+
+        Triggers.playerDeath(event);
+
         final Player victim = event.getEntity();
 
         if (Main.isPlayerInGame(victim)) {
             GamePlayer gVictim = Main.getPlayerGameProfile(victim);
             Game game = gVictim.getGame();
             CurrentTeam victimTeam = game.getPlayerTeam(gVictim);
-            ChatColor victimColor = victimTeam.teamInfo.color.chatColor;
+
             List<ItemStack> drops = new ArrayList<>(event.getDrops());
             int respawnTime = Main.getConfigurator().config.getInt("respawn-cooldown.time", 5);
 
             event.setKeepInventory(game.getOriginalOrInheritedKeepInventory());
             event.setDroppedExp(0);
 
+
+//            Inventory inventory = victim.getInventory();
+//            ItemMeta itemMeta;
+//
+//            for ( ItemStack itemStack : inventory) {
+//                if ( itemStack == null ) continue;
+//                ItemStack clone = itemStack.clone();
+//                clone.setAmount(1);
+//                if ( FlowerUtils.destroyedResources.contains(clone) ) {
+//                    itemStack.setAmount(0);
+//                    continue;
+//                }
+//                if ( itemStack.getType().getMaxDurability() > 1 ) {
+//                    itemMeta = itemStack.getItemMeta();
+//                    int unbreakingLevel = itemMeta.getEnchantLevel(Enchantment.DURABILITY);
+//                    int currentDamage = ((Damageable) itemMeta).getDamage();
+//                    int maxDamage = itemStack.getType().getMaxDurability();
+//                    ((Damageable)itemMeta).setDamage( currentDamage + (int)(( maxDamage - currentDamage) * (FlowerUtils.durabilityReduction - FlowerUtils.durabilityCounterReductionPerUnbreakingLevel * unbreakingLevel)) );
+//                    itemStack.setItemMeta(itemMeta);
+//                }
+//            }
+
             if (game.getStatus() == GameStatus.RUNNING) {
                 if (!game.getOriginalOrInheritedPlayerDrops()) {
-                    event.getDrops().clear();
+                    //event.getDrops().clear();
+                }
+
+                net.md_5.bungee.api.ChatColor victimColor;
+
+                String victimTeamName;
+
+                if (victimTeam != null) {
+                    victimColor = victimTeam.teamInfo.color.chatColor;
+                    victimTeamName = victimTeam.getName();
+
+                }
+                else {
+                    victimColor = net.md_5.bungee.api.ChatColor.DARK_GRAY;
+                    victimTeamName = "";
                 }
 
                 if (Main.getConfigurator().config.getBoolean("chat.send-death-messages-just-in-game")) {
@@ -95,18 +139,37 @@ public class PlayerListener implements Listener {
                         if (event.getEntity().getKiller() != null) {
                             Player killer = event.getEntity().getKiller();
                             GamePlayer gKiller = Main.getPlayerGameProfile(killer);
-                            CurrentTeam killerTeam = game.getPlayerTeam(gKiller);
-                            ChatColor killerColor = killerTeam.teamInfo.color.chatColor;
 
-                            deathMessage = i18nc("player_killed", game.getCustomPrefix())
-                                    .replace("%victim%", victimColor + victim.getDisplayName())
-                                    .replace("%killer%", killerColor + killer.getDisplayName())
-                                    .replace("%victimTeam%", victimColor + victimTeam.getName())
-                                    .replace("%killerTeam%", killerColor + killerTeam.getName());
+                            CurrentTeam killerTeam = game.getPlayerTeam(gKiller);
+
+                            String killerTeamName = "";
+                            net.md_5.bungee.api.ChatColor killerColor;
+
+
+                            if (killerTeam != null)
+                            {
+                                killerTeamName = killerTeam.getName();
+                                killerColor = killerTeam.teamInfo.color.chatColor;
+                                deathMessage = i18nc("player_killed", game.getCustomPrefix())
+                                        .replace("%victim%", victimColor + victim.getDisplayName())
+                                        .replace("%killer%", killerColor + killer.getDisplayName())
+                                        .replace("%victimTeam%", victimColor + victimTeamName)
+                                        .replace("%killerTeam%", killerColor + killerTeamName);
+                            }
+                            else {
+                                killerColor = net.md_5.bungee.api.ChatColor.DARK_GRAY;
+                                deathMessage = i18nc("player_killed_last_breath", game.getCustomPrefix())
+                                        .replace("%victim%", victimColor + victim.getDisplayName())
+                                        .replace("%killer%", killerColor + killer.getDisplayName())
+                                        .replace("%victimTeam%", victimColor + victimTeamName)
+                                        .replace("%killerTeam%", killerColor + killerTeamName);
+                            }
+
+
                         } else {
                             deathMessage = i18nc("player_self_killed", game.getCustomPrefix())
                                     .replace("%victim%", victimColor + victim.getDisplayName())
-                                    .replace("%victimTeam%", victimColor + victimTeam.getName());
+                                    .replace("%victimTeam%", victimColor + victimTeamName);
                         }
 
                     }
@@ -229,6 +292,11 @@ public class PlayerListener implements Listener {
                         livingTime--;
                         if (livingTime == 0) {
                             game.makePlayerFromSpectator(gamePlayer);
+
+                            //WAYPOINT TOOLS BREAKING
+
+                            Triggers.playerRespawn(game, gamePlayer);
+
                             Sounds.playSound(player, player.getLocation(),
                                     Main.getConfigurator().config.getString("sounds.respawn_cooldown_done.sound"),
                                     Sounds.UI_BUTTON_CLICK, (float) Main.getConfigurator().config.getDouble("sounds.respawn_cooldown_done.volume"), (float) Main.getConfigurator().config.getDouble("sounds.respawn_cooldown_done.pitch"));
@@ -309,7 +377,8 @@ public class PlayerListener implements Listener {
             }
             // clear inventory to fix issue 148
             if (!game.getOriginalOrInheritedKeepInventory()) {
-                event.getPlayer().getInventory().clear();
+                //event.getPlayer().getInventory().clear();
+                Bukkit.getConsoleSender().sendMessage("Dead inventory cleared!");
             }
             if (gPlayer.isSpectator) {
                 if (team == null) {
@@ -434,6 +503,9 @@ public class PlayerListener implements Listener {
                     }
                 }
             }
+        } else if (!event.getPlayer().hasPermission("bw.admin")) {
+            event.setCancelled(true);
+            return;
         } else if (Main.getConfigurator().config.getBoolean("preventArenaFromGriefing")) {
             for (String gameN : Main.getGameNames()) {
                 Game game = Main.getGame(gameN);
@@ -486,7 +558,7 @@ public class PlayerListener implements Listener {
                     if (event.getClick().isLeftClick() || event.getClick().isRightClick()) {
                         ItemStack item = event.getCurrentItem();
                         if (item != null) {
-                            p.closeInventory();
+                            //p.closeInventory();
                             if (item.getType() == Material
                                     .valueOf(Main.getConfigurator().config.getString("items.jointeam", "COMPASS"))) {
                                 if (game.getStatus() == GameStatus.WAITING) {
@@ -547,18 +619,20 @@ public class PlayerListener implements Listener {
             if (gPlayer.getGame().getStatus() != GameStatus.RUNNING) {
                 event.setCancelled(true);
             } else if (!gPlayer.getGame().getOriginalOrInheritedCrafting()) {
+                if ( !FlowerUtils.allowedRecipes.contains(event.getRecipe().getResult().getType()) )
                 event.setCancelled(true);
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onDamage(EntityDamageEvent event) {
         if (event.isCancelled()) {
             if (Main.getConfigurator().config.getBoolean("event-hacks.damage")
                     && event.getEntity() instanceof Player
                     && Main.isPlayerInGame((Player) event.getEntity())) {
                 event.setCancelled(false);
+                Bukkit.getConsoleSender().sendMessage("event hacks enabled");
             } else {
                 return;
             }
@@ -594,6 +668,34 @@ public class PlayerListener implements Listener {
         }
 
         Player player = (Player) event.getEntity();
+
+        Triggers.playerReceiveDamage(event);
+
+        String cause = (double) Math.round(event.getDamage() * 100) / 100 + " | " + (double) Math.round(event.getFinalDamage() * 100) / 100 + " | " + event.getCause().name();
+        if (event instanceof EntityDamageByEntityEvent) {
+            cause += " | " + ((EntityDamageByEntityEvent) event).getDamager().getType().name();
+            if (((EntityDamageByEntityEvent) event).getDamager() instanceof Player) {
+                if ( player.isBlocking() ) {
+                    cause += " | blocking";
+
+                }
+            }
+        }
+
+        if (ChatColor.stripColor(player.getName()).equals("FlowerGun")) {
+            player.sendTitle("", ChatColor.GRAY + cause, 5,40, 5);
+            Bukkit.getConsoleSender().sendMessage(cause);
+        }
+
+
+//        Material underPlayer = player.getWorld().getBlockAt(player.getLocation().add(0, 1, 0)).getType();
+//        if ( event.getCause() == DamageCause.FALL &&  ( underPlayer == Material.SLIME_BLOCK || underPlayer == Material.HONEY_BLOCK ) ){
+//            event.setCancelled(true);
+//            Bukkit.getConsoleSender().sendMessage("removed unncessary fall damage");
+//            return;
+//        }
+
+
         if (Main.isPlayerInGame(player)) {
             GamePlayer gPlayer = Main.getPlayerGameProfile(player);
             Game game = gPlayer.getGame();
@@ -627,6 +729,7 @@ public class PlayerListener implements Listener {
                         if (Main.isPlayerInGame(damager)) {
                             GamePlayer gDamager = Main.getPlayerGameProfile(damager);
                             if (gDamager.isSpectator || (gDamager.getGame().getPlayerTeam(gDamager) == game.getPlayerTeam(gPlayer) && !game.getOriginalOrInheritedFriendlyfire())) {
+//                                Bukkit.getConsoleSender().sendMessage("stopped teammate melee damage");
                                 event.setCancelled(true);
                             }
                         }
@@ -642,7 +745,47 @@ public class PlayerListener implements Listener {
                             if (Main.isPlayerInGame(damager)) {
                                 GamePlayer gDamager = Main.getPlayerGameProfile(damager);
                                 if (gDamager.isSpectator || gDamager.getGame().getPlayerTeam(gDamager) == game.getPlayerTeam(gPlayer) && !game.getOriginalOrInheritedFriendlyfire()) {
+//                                    Bukkit.getConsoleSender().sendMessage("stopped teammate projectile damage");
+
                                     event.setCancelled(true);
+
+                                    if ( gDamager.getGame().getPlayerTeam(gDamager) == game.getPlayerTeam(gPlayer) ) {
+//                                        if (projectile instanceof Firework) {
+//                                            FireworkMeta fireworkMeta = ((Firework) projectile).getFireworkMeta();
+//                                            if (fireworkMeta.)
+//                                        }
+
+                                        if (projectile instanceof Arrow) {
+                                            Arrow arrow = (Arrow) projectile;
+                                            PotionEffectType effect = arrow.getBasePotionData().getType().getEffectType();
+                                            if (effect == null) return;
+//                                            Bukkit.getConsoleSender().sendMessage(effect + " " + effect.getName());
+                                            if ( effect.equals(PotionEffectType.HEAL) || effect.equals(PotionEffectType.REGENERATION)) {
+
+                                                player.addPotionEffect(arrow.getBasePotionData().getType().getEffectType().createEffect(160, arrow.getBasePotionData().isUpgraded()? 1 : 0));
+                                                Ability.playFXHealing(gDamager.player, player,1);
+                                                projectile.remove();
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+                                else if ( gDamager.getGame().getPlayerTeam(gDamager) != game.getPlayerTeam(gPlayer) ) {
+
+                                    if (projectile instanceof Arrow) {
+                                        Arrow arrow = (Arrow) projectile;
+                                        PotionEffectType effect = arrow.getBasePotionData().getType().getEffectType();
+
+                                        if (effect == null) return;
+
+                                        if ( effect.equals(PotionEffectType.HEAL) || effect.equals(PotionEffectType.REGENERATION)) {
+                                            event.setCancelled(true);
+                                        }
+
+                                    }
+
                                 }
                             }
                         }
@@ -711,22 +854,22 @@ public class PlayerListener implements Listener {
         GamePlayer gPlayer = Main.getPlayerGameProfile(player);
         Game game = gPlayer.getGame();
 
+//        if ( event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.CRAFTING_TABLE) {
+//            event.setCancelled(false);
+//            return;
+//        }
+
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.CHEST && game.getStatus() == GameStatus.WAITING) {
             event.setCancelled(true);
             return;
         }
 
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+//            Bukkit.getConsoleSender().sendMessage("Interact RIGHTCLICK");
             if (game.getStatus() == GameStatus.WAITING || gPlayer.isSpectator) {
                 event.setCancelled(true);
                 if (event.getMaterial() == Material
-                        .valueOf(Main.getConfigurator().config.getString("items.jointeam", "COMPASS"))) {
-                    if (game.getStatus() == GameStatus.WAITING) {
-                        game.openTeamSelectorInventory(player);
-                    } else if (gPlayer.isSpectator) {
-                        // TODO
-                    }
-                } else if (event.getMaterial() == Material
                         .valueOf(Main.getConfigurator().config.getString("items.startgame", "DIAMOND"))) {
                     if (game.getStatus() == GameStatus.WAITING && (player.hasPermission("bw.vip.startitem")
                             || player.hasPermission("misat11.bw.vip.startitem"))) {
@@ -739,6 +882,13 @@ public class PlayerListener implements Listener {
                 } else if (event.getMaterial() == Material
                         .valueOf(Main.getConfigurator().config.getString("items.leavegame", "SLIME_BALL"))) {
                     game.leaveFromGame(player);
+                } else if (event.getItem() != null && event.getItem().equals(FlowerUtils.getAbilitiesMenuItemStack())) {
+                    CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
+                    customGUI.load();
+                } else if (event.getItem() != null && event.getMaterial() == Material.BLAZE_POWDER) {
+                    Bukkit.getConsoleSender().sendMessage("FUCK YOU ERROR!!!!!!!!!!!!!!!!!");
+                    CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
+                    customGUI.load();
                 }
             } else if (game.getStatus() == GameStatus.RUNNING) {
                 if (event.getClickedBlock() != null) {
@@ -945,7 +1095,8 @@ public class PlayerListener implements Listener {
                         || event.getInventory().getType() == InventoryType.ANVIL
                         || event.getInventory().getType() == InventoryType.BREWING
                         || event.getInventory().getType() == InventoryType.FURNACE
-                        || event.getInventory().getType() == InventoryType.WORKBENCH) {
+//                        || event.getInventory().getType() == InventoryType.WORKBENCH
+                ) {
                     if (!gProfile.getGame().getOriginalOrInheritedCrafting()) {
                         event.setCancelled(true);
                     }
@@ -1024,11 +1175,14 @@ public class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onChat(AsyncPlayerChatEvent event) {
-        if (event.isCancelled() || !Main.getConfigurator().config.getBoolean("chat.override")) {
-            return;
-        }
+//        Bukkit.getConsoleSender().sendMessage("Message sent: " + event.getMessage());
+//        Bukkit.getConsoleSender().sendMessage("Cancelled: " + event.isCancelled());
+//        Bukkit.getConsoleSender().sendMessage("Recepients amount: " + event.getRecipients());
+//        if (event.isCancelled() || !Main.getConfigurator().config.getBoolean("chat.override")) {
+//            return;
+//        }
 
         Player player = event.getPlayer();
         if (Main.isPlayerInGame(player)) {
@@ -1119,7 +1273,7 @@ public class PlayerListener implements Listener {
             for (Player p : event.getRecipients()) {
                 p.sendMessage(event.getFormat());
             }
-            event.setCancelled(true);
+//            event.setCancelled(true);
         } else {
             if (Main.getConfigurator().config.getBoolean("chat.separate-chat.lobby") || Main.getConfigurator().config.getBoolean("chat.separate-chat.game")) {
                 Iterator<Player> recipients = event.getRecipients().iterator();

@@ -20,6 +20,7 @@
 package org.screamingsandals.bedwars.commands;
 
 import com.google.gson.*;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 import org.screamingsandals.bedwars.VersionInfo;
 import lombok.Data;
@@ -28,7 +29,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -128,6 +128,7 @@ public class DumpCommand extends BaseCommand {
                                                                 "countdown", game.getGameTime(),
                                                                 "pos1", game.getPos1(),
                                                                 "pos2", game.getPos2(),
+                                                                "schematic", game.getSchematicPosition(),
                                                                 "bossbar", game.getGameBossBarColor(),
                                                                 "arenaTime", game.getArenaTime(),
                                                                 "weather", game.getArenaWeather(),

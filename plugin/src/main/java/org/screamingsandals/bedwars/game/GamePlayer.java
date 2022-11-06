@@ -19,6 +19,7 @@
 
 package org.screamingsandals.bedwars.game;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -28,30 +29,126 @@ import org.bukkit.potion.PotionEffect;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.utils.BungeeUtils;
 import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.ShopInstance;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.LoadedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.OwnedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.comparators.SortByRarityOwnedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageRelay;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GamePlayer {
     public final Player player;
+    public DamageRelay damageRelayAttackInstance = DamageRelay.MELEE;
+    public DamageRelay damageRelayDefenceInstance;
     private Game game = null;
+
+    public DamageType damageTypeAttackInstance = DamageType.PHYSICAL;
+    public DamageType damageTypeDefenceInstance = DamageType.PHYSICAL;
     private String latestGame = null;
     private StoredInventory oldInventory = new StoredInventory();
     private List<Player> hiddenPlayers = new ArrayList<>();
+
+    private ShopInstance customGUIShopInstance;
+    public DamageInstance lastReceivedDamageInstance;
+
+    public ShopInstance getCustomGUIShopInstance(){
+        return this.customGUIShopInstance;
+    }
+
+    public void setCustomGUIShopInstance(ShopInstance shopInstance){
+        this.customGUIShopInstance = shopInstance;
+    }
+
+    public List<GameFlag> playerFlags = new ArrayList<>();
+
+    public int lastDeathCounter;
+
+    public boolean blockElytra = false;
 
     public boolean isSpectator = false;
     public boolean isTeleportingFromGame_justForInventoryPlugins = false;
     public boolean mainLobbyUsed = false;
 
+    public ArrayList<LoadedAbility> loadedAbilities = new ArrayList<>();
+    public ArrayList<OwnedAbility> ownedAbilities = new ArrayList<>();
+
+    private int previousFlagCount;
+
     public GamePlayer(Player player) {
+
+        //WAYPOINT TODO load player owned cosmetics
+
+        this.ownedAbilities = new ArrayList<>();
+        for ( Class clazz : Main.getInstance().getAbilitiesManager().getAllAbilities() ) {
+            this.ownedAbilities.add(new OwnedAbility( 0 ,player, Ability.generateAbility(clazz), 3, 1, 0, -1 ));
+        }
+
+        Collections.sort(this.ownedAbilities, new SortByRarityOwnedAbility());
+
         this.player = player;
     }
 
+    public void resetAbilitySlot(int slot) {
+        this.loadedAbilities.set(slot, null);
+    }
+
+    public void resetLoadedAbilityById(String id) {
+        return;
+    }
+
+    public void resetLoadedAbility(OwnedAbility ownedAbility) {
+//        Bukkit.getConsoleSender().sendMessage("step0 " + ownedAbility.getAbility().getId());
+        for ( int i = 0; i < this.loadedAbilities.size(); i++ ) {
+            LoadedAbility loadedAbility = this.loadedAbilities.get(i);
+//            Bukkit.getConsoleSender().sendMessage("step1");
+            if ( loadedAbility == null ) continue;
+//            Bukkit.getConsoleSender().sendMessage("step2 " + loadedAbility.getOwnedAbility().getAbility().getId());
+            if ( loadedAbility.getOwnedAbility().getAbility().getId().equals(ownedAbility.getAbility().getId()) ) {
+                this.loadedAbilities.set(i, null);
+                return;
+            }
+        }
+    }
+
+    public OwnedAbility getOwnedAbilityById(String id) {
+        for ( OwnedAbility ownedAbility : this.ownedAbilities ) {
+            if ( ownedAbility.getAbility().getId().equals(id) ) {
+                return ownedAbility;
+            }
+        }
+        return null;
+    }
+
     public void changeGame(Game game) {
+
+        //WAYPOINT flags reset
+        this.previousFlagCount = -1;
+        this.playerFlags = new ArrayList<>();
+        this.damageTypeAttackInstance = DamageType.PHYSICAL;
+        this.damageTypeDefenceInstance = DamageType.PHYSICAL;
+        this.damageRelayAttackInstance = DamageRelay.MELEE;
+        this.damageRelayDefenceInstance = DamageRelay.MELEE;
+
+        this.lastReceivedDamageInstance = null;
+
+        //WAYPOINT TODO saving loaded abilities between matches
+        this.loadedAbilities = new ArrayList<>();
+        this.loadedAbilities.add(null);
+        this.loadedAbilities.add(null);
+        this.loadedAbilities.add(null);
+
         if (this.game != null && game == null) {
             this.game.internalLeavePlayer(this);
             this.game = null;
             this.isSpectator = false;
+            this.blockElytra = false;
             this.clean();
             if (Game.isBungeeEnabled()) {
                 BungeeUtils.movePlayerToBungeeServer(player, Main.isDisabling());
@@ -213,6 +310,42 @@ public class GamePlayer {
             }
         }
 
+    }
+
+    public List<GameFlag> getAllPlayerFlags() {
+        CurrentTeam team = this.game.getPlayerTeam(this);
+
+        ArrayList<GameFlag> flags = new ArrayList<>();
+
+
+        ArrayList<GameFlag> gameFlags = new ArrayList<>(game.gameFlags);
+        ArrayList<GameFlag> playerFlags = new ArrayList<>(this.playerFlags);
+
+        flags.addAll(gameFlags);
+        flags.addAll(playerFlags);
+
+        if (team == null) return flags;
+        ArrayList<GameFlag> teamFlags = new ArrayList<>(team.teamFlags);
+        flags.addAll(teamFlags);
+
+        return flags;
+    }
+
+    public boolean hasFlag(GameFlag gameFlag) {
+        return getAllPlayerFlags().contains(gameFlag);
+    }
+
+    public boolean didFlagAmountChange() {
+        int currentFlagCount = this.getAllPlayerFlags().size();
+        Bukkit.getConsoleSender().sendMessage(this.previousFlagCount + " < prev | current > " + currentFlagCount + " | " + this.player.getName());
+        if (this.previousFlagCount == currentFlagCount) {
+            this.previousFlagCount = currentFlagCount;
+            return false;
+        }
+        else {
+            this.previousFlagCount = currentFlagCount;
+            return true;
+        }
     }
 
 }

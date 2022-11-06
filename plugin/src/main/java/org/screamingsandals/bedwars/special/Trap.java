@@ -19,6 +19,7 @@
 
 package org.screamingsandals.bedwars.special;
 
+import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.api.RunningTeam;
 import org.screamingsandals.bedwars.utils.MiscUtils;
@@ -60,10 +61,15 @@ public class Trap extends SpecialItem implements org.screamingsandals.bedwars.ap
         this.location = loc;
     }
 
+    public void destroy() {
+        game.unregisterSpecialItem(this);
+        location.getBlock().setType(Material.AIR);
+        return;
+    }
+
     public void process(Player player, RunningTeam runningTeam, boolean forceDestroy) {
         if (runningTeam == this.runningTeam || forceDestroy) {
-            game.unregisterSpecialItem(this);
-            location.getBlock().setType(Material.AIR);
+            this.destroy();
             return;
         }
 
@@ -73,16 +79,12 @@ public class Trap extends SpecialItem implements org.screamingsandals.bedwars.ap
                 Sounds.playSound(player, location, sound, null, 1, 1);
             }
 
-            if (data.containsKey("effect")) {
-                PotionEffect effect = (PotionEffect) data.get("effect");
-                player.addPotionEffect(effect);
-            }
-
             if (data.containsKey("damage")) {
                 double damage = (double) data.get("damage");
                 player.damage(damage);
             }
         }
+
 
         for (Player p : this.runningTeam.getConnectedPlayers()) {
             MiscUtils.sendActionBarMessage(p, i18nonly("specials_trap_caught_team").replace("%player%", player.getDisplayName()));

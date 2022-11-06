@@ -19,6 +19,7 @@
 
 package org.screamingsandals.bedwars.special;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.screamingsandals.bedwars.Main;
@@ -60,6 +61,7 @@ public class ThrowableFireball extends SpecialItem implements org.screamingsanda
         Main.getInstance().registerEntityToGame(fireball, game);
         fireball.setIsIncendiary(incendiary);
         fireball.setYield(damage);
+        Bukkit.getConsoleSender().sendMessage("fireball damage: " + damage);
         fireball.setBounce(false);
         fireball.setShooter(damagesThrower ? null : player);
         if (Main.getVersionNumber() <= 108) {

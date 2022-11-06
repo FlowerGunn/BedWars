@@ -19,6 +19,7 @@
 
 package org.screamingsandals.bedwars.api.special;
 
+import org.bukkit.entity.LivingEntity;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.api.Team;
 import org.bukkit.entity.Player;
@@ -27,6 +28,8 @@ import org.bukkit.entity.Player;
  * @author Bedwars Team
  */
 public interface SpecialItem {
+    LivingEntity getEntity();
+
     /**
      * @return
      */

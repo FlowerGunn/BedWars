@@ -29,6 +29,7 @@ import org.screamingsandals.bedwars.api.RunningTeam;
 import org.screamingsandals.bedwars.api.TeamColor;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.lib.nms.holograms.Hologram;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,13 +46,20 @@ public class CurrentTeam implements RunningTeam {
     private Hologram holo;
     private Hologram protectHolo;
 
+    public List<GameFlag> teamFlags = new ArrayList<>();
+
     public boolean isBed = true;
     public boolean forced = false;
 
     public CurrentTeam(Team team, Game game) {
+        this.teamFlags = new ArrayList<>();
         this.teamInfo = team;
         this.game = game;
         this.chestInventory = Bukkit.createInventory(null, InventoryType.ENDER_CHEST, i18nc("team_chest", game.getCustomPrefix()));
+    }
+
+    public List<GameFlag> getFlags() {
+        return this.teamFlags;
     }
 
     public boolean isDead() {

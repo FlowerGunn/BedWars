@@ -19,7 +19,7 @@
 
 package org.screamingsandals.bedwars.api.game;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -41,6 +41,11 @@ public interface ItemSpawnerType {
      * @return
      */
     int getInterval();
+
+    /**
+     * @return
+     */
+    void setInterval(int interval);
 
     /**
      * @return

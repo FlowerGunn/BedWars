@@ -47,6 +47,10 @@ public interface ItemSpawner extends Upgrade {
      */
     String getCustomName();
 
+    int getInterval();
+
+    void setInterval(int interval);
+
     /**
      * @return
      */

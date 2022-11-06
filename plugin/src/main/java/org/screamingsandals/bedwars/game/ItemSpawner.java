@@ -45,7 +45,9 @@ public class ItemSpawner implements org.screamingsandals.bedwars.api.game.ItemSp
     public boolean rerenderHologram = false;
     public double currentLevelOnHologram = -1;
 
-    public ItemSpawner(Location loc, ItemSpawnerType type, String customName, boolean hologramEnabled, double startLevel, Team team, int maxSpawnedResources) {
+    public int interval;
+
+    public ItemSpawner(Location loc, ItemSpawnerType type, String customName, boolean hologramEnabled, double startLevel, Team team, int maxSpawnedResources, int interval) {
         this.loc = loc;
         this.type = type;
         this.customName = customName;
@@ -54,6 +56,7 @@ public class ItemSpawner implements org.screamingsandals.bedwars.api.game.ItemSp
         this.team = team;
         this.spawnedItems = new ArrayList<>();
         this.maxSpawnedResources = maxSpawnedResources;
+        this.interval = interval;
     }
 
     @Override
@@ -74,6 +77,16 @@ public class ItemSpawner implements org.screamingsandals.bedwars.api.game.ItemSp
     @Override
     public String getCustomName() {
         return customName;
+    }
+
+    @Override
+    public int getInterval() {
+        return interval;
+    }
+
+    @Override
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 
     @Override

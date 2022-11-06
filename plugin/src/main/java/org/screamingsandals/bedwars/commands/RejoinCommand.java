@@ -19,9 +19,12 @@
 
 package org.screamingsandals.bedwars.commands;
 
+import org.bukkit.Bukkit;
 import org.screamingsandals.bedwars.Main;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.screamingsandals.bedwars.game.Game;
+import org.screamingsandals.bedwars.game.GamePlayer;
 
 import java.util.List;
 
@@ -43,10 +46,18 @@ public class RejoinCommand extends BaseCommand {
 
         String name = null;
         if (Main.isPlayerGameProfileRegistered(player)) {
+            Bukkit.getConsoleSender().sendMessage("rejoin profile is available");
             name = Main.getPlayerGameProfile(player).getLatestGameName();
         }
         if (name == null) {
             player.sendMessage(i18n("you_are_not_in_game_yet"));
+
+            for (String gameName: Main.getGameNames()) {
+                for (GamePlayer gamePlayer : Main.getGame(gameName).getConnectedGamePlayers()) {
+                    Bukkit.getConsoleSender().sendMessage( gameName + " " + gamePlayer.getGame().getName() + " " + gamePlayer.player.getName());
+                }
+            }
+            Bukkit.getConsoleSender().sendMessage("cant get game name");
         } else {
             if (Main.isGameExists(name)) {
                 Main.getGame(name).joinToGame(player);

@@ -2,6 +2,8 @@ import org.apache.tools.ant.filters.*
 
 apply plugin: "com.github.gmazzo.buildconfig"
 
+compileJava.options.encoding = 'UTF-8'
+
 dependencies {
     /* PROVIDED */
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
@@ -14,7 +16,7 @@ dependencies {
         exclude group: '*', module: '*'
     }
     compileOnly 'io.netty:netty-all:4.1.79.Final'
-    compileOnly 'net.citizensnpcs:citizens-main:2.0.27-SNAPSHOT'
+    compileOnly 'net.citizensnpcs:citizens-main:2.0.30-SNAPSHOT'
     compileOnly 'com.alessiodp.parties:parties-api:3.2.6'
     compileOnly 'com.viaversion:viaversion-api:4.4.1'
 
@@ -24,6 +26,7 @@ dependencies {
     implementation 'com.zaxxer:HikariCP:3.3.0'
     implementation 'org.screamingsandals.simpleinventories:SimpleInventories-Core:1.0.6.7'
     implementation 'org.bstats:bstats-bukkit:2.2.1'
+//    implementation 'io.papermc.paperweight.userdev:io.papermc.paperweight.userdev.gradle.plugin:1.3.6'
 }
 
 processResources {

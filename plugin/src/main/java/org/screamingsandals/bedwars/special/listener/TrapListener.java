@@ -19,6 +19,10 @@
 
 package org.screamingsandals.bedwars.special.listener;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
 import org.screamingsandals.bedwars.api.game.GameStatus;
@@ -36,6 +40,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.nio.Buffer;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +54,8 @@ public class TrapListener implements Listener {
     public void onTrapRegistered(BedwarsApplyPropertyToBoughtItem event) {
         if (event.getPropertyName().equalsIgnoreCase("trap")) {
             ItemStack stack = event.getStack();
+            Main.getInstance().getLogger().info(String.valueOf((List<Map<String, Object>>) event.getProperty("data")));
+            Main.getInstance().getLogger().info(String.valueOf(event.getProperty("data")));
             Trap trap = new Trap(event.getGame(), event.getPlayer(),
                     event.getGame().getTeamOfPlayer(event.getPlayer()),
                     (List<Map<String, Object>>) event.getProperty("data"));
@@ -126,7 +133,16 @@ public class TrapListener implements Listener {
                 if (trapBlock.isPlaced()) {
                     if (game.getTeamOfPlayer(player) != trapBlock.getTeam()) {
                         if (event.getTo().getBlock().getLocation().equals(trapBlock.getLocation())) {
-                            trapBlock.process(player, game.getPlayerTeam(gPlayer), false);
+//                            Bukkit.getConsoleSender().sendMessage("trap material" + event.getTo().getBlock().getType());
+//                            Bukkit.getConsoleSender().sendMessage("trap material above" + event.getTo().add(0,1,0).getBlock().getType());
+                            if (event.getTo().getBlock().getType() != Material.TRIPWIRE) trapBlock.process(player, game.getPlayerTeam(gPlayer), true);
+                            else {
+                                trapBlock.process(player, game.getPlayerTeam(gPlayer), false);
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 2, true, false, true));
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 100, 2, true, false, true));
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 2, true, false, true));
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 300, 0, true, false, true));
+                            }
                         }
                     }
                 }
