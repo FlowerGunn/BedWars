@@ -369,6 +369,7 @@ public class CustomItem {
         customItem.setItem(new ItemStack(this.getItem()));
         customItem.setItemMeta(this.getItemMeta());
         customItem.setItemData(this.getItemData());
+        customItem.setGadgetType(this.getGadgetType());
         customItem.setFirework(this.isFirework());
         customItem.setCanBeDyed(this.isCanBeDyed());
         customItem.setLoreRemoved(this.isLoreRemoved());

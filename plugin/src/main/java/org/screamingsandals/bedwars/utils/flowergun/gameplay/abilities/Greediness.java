@@ -3,27 +3,21 @@ package org.screamingsandals.bedwars.utils.flowergun.gameplay.abilities;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.screamingsandals.bedwars.Main;
-import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Resource;
-
-import java.util.ArrayList;
-import java.util.Random;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
 
 public class Greediness extends Ability implements IAbility {
 
     public Greediness(){
         this.name = "Жадина";
         this.id = "greediness";
-        this.icon = Material.EMERALD_BLOCK;
+        this.item = Material.EMERALD_BLOCK;
         this.rarity = 3;
+        this.icon = IconType.EMERALD;
         this.description = "Подбирая золото вы получаете Скорость 2#на (values1)&7 секунд, а подбирая#изумруды - Скорость 3 на (values2)&7";
     }
 

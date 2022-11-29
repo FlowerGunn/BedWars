@@ -10,16 +10,18 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageRelay;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageRelay;
 
 public class ForceField extends Ability implements IAbility {
 
     public ForceField(){
         this.name = "Силовое поле";
         this.id = "forcefield";
-        this.icon = Material.PHANTOM_MEMBRANE;
+        this.item = Material.PHANTOM_MEMBRANE;
         this.rarity = 4;
+        this.icon = IconType.FAST_DIGGING;
         this.description = "Блокирование снарядов щитом даст эффект#Cпешки 2 на (values1)&7 секунд";
     }
 

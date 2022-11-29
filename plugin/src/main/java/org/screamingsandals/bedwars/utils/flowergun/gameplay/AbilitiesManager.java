@@ -29,14 +29,27 @@ public class AbilitiesManager {
         this.allAbilities.add( Ultimatum.class );
         this.allAbilities.add( Pickpocket.class );
         this.allAbilities.add( Greediness.class );
+        this.allAbilities.add( Aromatherapy.class );
+        this.allAbilities.add( MagmaSkin.class );
+        this.allAbilities.add( WoolManiac.class );
+        this.allAbilities.add( BloodPact.class );
+        this.allAbilities.add( Lumberjack.class );
+        this.allAbilities.add( Appleperson.class );
+        this.allAbilities.add( Weaponsmaster.class );
+        this.allAbilities.add( SlimeShell.class );
+        this.allAbilities.add( Miner.class );
+        this.allAbilities.add( Gilded.class );
+        this.allAbilities.add( Starling.class );
+        this.allAbilities.add( Mirroring.class );
 
     }
 
 
     public static String formatLoadedAbilityNameInSlot(GamePlayer gPlayer, int slot) {
         ArrayList<LoadedAbility> loadedAbilities = gPlayer.loadedAbilities;
+        if (loadedAbilities.size() <= slot) return "Error";
         LoadedAbility loadedAbility = loadedAbilities.get(slot);
-        if (loadedAbility == null) return ChatColor.GRAY +  "-- " + ChatColor.WHITE + ChatColor.BOLD +  "Пусто" + ChatColor.GRAY + " --";
+        if (loadedAbility.isEmpty()) return ChatColor.GRAY +  "-- " + ChatColor.WHITE + ChatColor.BOLD +  "Пусто" + ChatColor.GRAY + " --";
             return loadedAbility.getOwnedAbility().getAbility().getName() + ChatColor.GRAY +  " Ур." + loadedAbility.activeLevel;
     }
 }

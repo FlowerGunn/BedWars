@@ -27,7 +27,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.Team;
 import org.screamingsandals.bedwars.api.game.Game;
-import org.screamingsandals.bedwars.utils.SpawnEffects;
+import org.screamingsandals.bedwars.utils.external.SpawnEffects;
 import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
 
 import static org.screamingsandals.bedwars.lib.lang.I.i18nc;

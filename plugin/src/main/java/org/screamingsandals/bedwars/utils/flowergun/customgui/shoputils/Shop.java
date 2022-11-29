@@ -86,9 +86,9 @@ public class Shop {
 
 //        CustomItem ironSword1 = new CustomItem().setMaterial(Material.IRON_SWORD).build();
 //        weapons.items.add(new CustomGUIPurchasableItem("ironSword1" , ironSword1, Main.getSpawnerType("gold"), 1).setCategory(ItemCategory.SWORD).build());
-        CustomItem ironSword2 = new CustomItem().setMaterial(Material.IRON_SWORD).addEnchantment(Enchantment.DAMAGE_ALL, 1).addEnchantment(Enchantment.FIRE_ASPECT, 1).build();
+        CustomItem ironSword2 = new CustomItem().setMaterial(Material.IRON_SWORD).addEnchantment(Enchantment.DAMAGE_ALL, 1).addEnchantment(Enchantment.SWEEPING_EDGE, 1).build();
         weapons.items.add(new PurchasableItem("ironSword2" , ironSword2, Main.getSpawnerType("gold"), 3).setCategory(ItemCategory.SWORD).build());
-        CustomItem ironSword3 = new CustomItem().setMaterial(Material.IRON_SWORD).addEnchantment(Enchantment.DAMAGE_ALL, 2).addEnchantment(Enchantment.FIRE_ASPECT, 1).build();
+        CustomItem ironSword3 = new CustomItem().setMaterial(Material.IRON_SWORD).addEnchantment(Enchantment.DAMAGE_ALL, 2).addEnchantment(Enchantment.SWEEPING_EDGE, 3).build();
         weapons.items.add(new PurchasableItem("ironSword3" , ironSword3, Main.getSpawnerType("gold"), 6).setCategory(ItemCategory.SWORD).build());
 //        CustomItem ironSword4 = new CustomItem().setMaterial(Material.IRON_SWORD).addEnchantment(Enchantment.DAMAGE_ALL, 3).build();
 //        weapons.items.add(new CustomGUIPurchasableItem("ironSword4" , ironSword4, Main.getSpawnerType("gold"), 12).setCategory(ItemCategory.SWORD).build());
@@ -151,7 +151,7 @@ public class Shop {
         CustomItem boots_new = new CustomItem().setMaterial(Material.IRON_BOOTS).setName(ChatColor.BLUE + i18n("item_name_magnet_boots_new", "Magnet Boots", false)).addEnchantment(Enchantment.DURABILITY, 2).addKnockbackResistanceModifier(1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET).addMovementSpeedModifier(-0.3, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.FEET).addArmorPointsModifier(1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET).build();
 //        CustomItem boots_new = new CustomItem().setMaterial(Material.IRON_BOOTS).setName(ChatColor.BLUE + i18n("item_name_magnet_boots_new", "Magnet Boots", false)).setGadgetType(GadgetType.NEW_BOOTS).build();
         armour.items.add(new PurchasableItem("boots_new", boots_new, Main.getSpawnerType("emerald"), 2,Main.getSpawnerType("gold"), 10).setCategory(ItemCategory.GADGET).build());
-        CustomItem boots_gymnast = new CustomItem().setMaterial(Material.GOLDEN_BOOTS).setName(ChatColor.BLUE + i18n("item_name_magnet_boots_gymnast", "Gymnast Boots", false)).addEnchantment(Enchantment.DURABILITY, 5).addMovementSpeedModifier(0.5, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.FEET).addKnockbackResistanceModifier(-0.5, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.FEET).build();
+        CustomItem boots_gymnast = new CustomItem().setMaterial(Material.GOLDEN_BOOTS).setName(ChatColor.BLUE + i18n("item_name_magnet_boots_gymnast", "Gymnast Boots", false)).addEnchantment(Enchantment.DURABILITY, 5).addMovementSpeedModifier(0.5, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.FEET).addArmorPointsModifier(-2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET).build();
         armour.items.add(new PurchasableItem("boots_gymnast", boots_gymnast, Main.getSpawnerType("emerald"), 2,Main.getSpawnerType("gold"), 4).setCategory(ItemCategory.GADGET).build());
 
 
@@ -165,10 +165,10 @@ public class Shop {
         CustomItem endstone = new CustomItem().setMaterial(Material.END_STONE).setAmount(3).build();
         blocks.items.add(new PurchasableItem("endstone", endstone, Main.getSpawnerType("iron"), 1).setCategory(ItemCategory.ITEM).build());
         CustomItem planks = new CustomItem().setMaterial(Material.DARK_OAK_PLANKS).setAmount(4).build();
-        blocks.items.add(new PurchasableItem("planks", planks, Main.getSpawnerType("bronze"), 3).setCategory(ItemCategory.ITEM).build());
+        blocks.items.add(new PurchasableItem("planks", planks, Main.getSpawnerType("bronze"), 3).setCategory(ItemCategory.WOOD).build());
         CustomItem glass = new CustomItem().setMaterial(Material.GLASS).setAmount(16).build();
         blocks.items.add(new PurchasableItem("glass", glass, Main.getSpawnerType("bronze"), 12).setCategory(ItemCategory.ITEM).build());
-        CustomItem netherite_ore = new CustomItem().setMaterial(Material.NETHERITE_SCRAP).build();
+        CustomItem netherite_ore = new CustomItem().setMaterial(Material.ANCIENT_DEBRIS).build();
         blocks.items.add(new PurchasableItem("netherite_ore", netherite_ore, Main.getSpawnerType("emerald"), 1,Main.getSpawnerType("gold"), 4).setCategory(ItemCategory.ITEM).build());
         CustomItem chest = new CustomItem().setMaterial(Material.CHEST).setAmount(1).build();
         blocks.items.add(new PurchasableItem("chest", chest, Main.getSpawnerType("iron"), 2).setCategory(ItemCategory.ITEM).build());
@@ -231,7 +231,7 @@ public class Shop {
         CustomItem wall = new CustomItem().setMaterial(Material.SMOOTH_SANDSTONE).setName(ChatColor.BLUE + i18n("item_name_wall", "Auto-wall", false)).setGadgetType(GadgetType.WALL).build();
         gadgets.items.add(new PurchasableItem("wall", wall, Main.getSpawnerType("bronze"), 16).setCategory(ItemCategory.GADGET).build());
 
-        CustomItem elytra = new CustomItem().setMaterial(Material.ELYTRA).build();
+        CustomItem elytra = new CustomItem().setMaterial(Material.ELYTRA).addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 3).addEnchantment(Enchantment.BINDING_CURSE, 1).addArmorPointsModifier(5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST).build();
         gadgets.items.add(new PurchasableItem("elytra", elytra, Main.getSpawnerType("emerald"), 5).setCategory(ItemCategory.GADGET).build());
         CustomItem pearl = new CustomItem().setMaterial(Material.ENDER_PEARL).build();
         gadgets.items.add(new PurchasableItem("pearl", pearl, Main.getSpawnerType("emerald"), 3).setCategory(ItemCategory.GADGET).build());
@@ -372,12 +372,12 @@ public class Shop {
 
 
         CustomItem snow = new CustomItem().setMaterial(Material.SNOWBALL).setAmount(8).build();
-        ranged.items.add(new PurchasableItem("snow", snow, Main.getSpawnerType("iron"), 1).setCategory(ItemCategory.ITEM).setExclusionFlag(GameFlag.AGILITY_LEVEL_3).build());
+        ranged.items.add(new PurchasableItem("snow", snow, Main.getSpawnerType("iron"), 1).setCategory(ItemCategory.SNOWBALL).setExclusionFlag(GameFlag.AGILITY_LEVEL_3).build());
         CustomItem snowdiscounted = new CustomItem().setMaterial(Material.SNOWBALL).setAmount(12).build();
-        ranged.items.add(new PurchasableItem("snowdiscounted", snowdiscounted, Main.getSpawnerType("iron"), 1).setCategory(ItemCategory.ITEM).setVisibility(false).setInclusionFlag(GameFlag.AGILITY_LEVEL_3).build());
+        ranged.items.add(new PurchasableItem("snowdiscounted", snowdiscounted, Main.getSpawnerType("iron"), 1).setCategory(ItemCategory.SNOWBALL).setVisibility(false).setInclusionFlag(GameFlag.AGILITY_LEVEL_3).build());
 
         ShopCategory potions = new ShopCategory("potions", new CustomItem().setMaterial(Material.BREWING_STAND).setName(ChatColor.BLUE + "" + ChatColor.BOLD + i18n("shop_category_potions", "Potions", false)).setLore(null).build());
-        CustomItem pot1 = new CustomItem().setMaterial(Material.LINGERING_POTION).addPotionEffect( new PotionEffect(PotionEffectType.HUNGER, 1200, 100, true, false), Color.GREEN).setName(ChatColor.BLUE + "" + ChatColor.BOLD + i18n("item_potion_hunger", "Potion of hunger", false)).build();
+        CustomItem pot1 = new CustomItem().setMaterial(Material.LINGERING_POTION).addPotionEffect( new PotionEffect(PotionEffectType.HUNGER, 1200, 24, true, false), Color.GREEN).setName(ChatColor.BLUE + "" + ChatColor.BOLD + i18n("item_potion_hunger", "Potion of hunger", false)).build();
         potions.items.add(new PurchasableItem("pot1", pot1, Main.getSpawnerType("iron"), 2).setCategory(ItemCategory.ITEM).build());
 
         CustomItem speed1 = new CustomItem().setMaterial(Material.POTION).addPotionEffect( new PotionEffect(PotionEffectType.SPEED, 1200, 1, true, false), Color.fromRGB(158, 134, 203)).setName(ChatColor.BLUE + "" + ChatColor.BOLD + i18n("item_potion_speed", "Potion of Swiftness", false)).build();
@@ -427,11 +427,11 @@ public class Shop {
         roleplayLore.add(ChatColor.GRAY + i18n("shop_category_roleplay_description", "Crafting out of those items is partially enabled.", false));
         ShopCategory roleplay = new ShopCategory("roleplay", new CustomItem().setMaterial(Material.LANTERN).setName(ChatColor.BLUE + "" + ChatColor.BOLD + i18n("shop_category_roleplay", "Weird", false)).setLore(roleplayLore).build());
         CustomItem log_dark_oak = new CustomItem().setMaterial(Material.DARK_OAK_LOG).build();
-        roleplay.items.add(new PurchasableItem("log_dark_oak", log_dark_oak, Main.getSpawnerType("bronze"), 3).setCategory(ItemCategory.ITEM).build());
+        roleplay.items.add(new PurchasableItem("log_dark_oak", log_dark_oak, Main.getSpawnerType("bronze"), 3).setCategory(ItemCategory.WOOD).build());
         CustomItem log_spruce = new CustomItem().setMaterial(Material.SPRUCE_LOG).build();
-        roleplay.items.add(new PurchasableItem("log_spruce", log_spruce, Main.getSpawnerType("bronze"), 3).setCategory(ItemCategory.ITEM).build());
+        roleplay.items.add(new PurchasableItem("log_spruce", log_spruce, Main.getSpawnerType("bronze"), 3).setCategory(ItemCategory.WOOD).build());
         CustomItem log_birch = new CustomItem().setMaterial(Material.BIRCH_LOG).build();
-        roleplay.items.add(new PurchasableItem("log_birch", log_birch, Main.getSpawnerType("bronze"), 3).setCategory(ItemCategory.ITEM).build());
+        roleplay.items.add(new PurchasableItem("log_birch", log_birch, Main.getSpawnerType("bronze"), 3).setCategory(ItemCategory.WOOD).build());
         CustomItem stone = new CustomItem().setMaterial(Material.STONE).build();
         roleplay.items.add(new PurchasableItem("stone", stone, Main.getSpawnerType("bronze"), 4).setCategory(ItemCategory.ITEM).build());
         CustomItem cobblestone = new CustomItem().setMaterial(Material.COBBLESTONE).build();

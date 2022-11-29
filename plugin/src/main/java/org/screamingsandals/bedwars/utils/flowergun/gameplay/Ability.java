@@ -4,8 +4,11 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -13,10 +16,16 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.GadgetType;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.*;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.AbilityTriggerType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactInstance;
+import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactPolarity;
+import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -30,12 +39,18 @@ public abstract class Ability implements IAbility{
     protected int rarity = 3;
     int maxDuplicates = 6;
 
+
+
     protected String name = "Ability";
     protected String id = "ability";
     protected int cooldownTicks = 100;
     protected int cooldownMilliseconds = 5000;
 
-    public Material icon = Material.PAPER;
+    int maxStacks = 0;
+    int stacks = 0;
+
+    public Material item = Material.PAPER;
+    public IconType icon = IconType.COPPER_INGOT;
 
     protected int customModelData = 0;
 
@@ -59,6 +74,22 @@ public abstract class Ability implements IAbility{
 
     }
 
+    protected static void heal(Player attacker, Player victim, double amount) {
+        double newHealth = victim.getHealth();
+
+        CompoundValueModifier compoundValueModifier = Triggers.healPlayer(attacker, victim);
+
+        newHealth += compoundValueModifier.processValueEffectiveDecrease(amount);
+
+        double maxHealth = victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+
+        if (newHealth > maxHealth) newHealth = maxHealth;
+
+        victim.setHealth(newHealth);
+        playFXHealing(attacker, victim, 1);
+
+    }
+
     public void notifyPlayerOnCooldownEnd( Player player ) {
         if ( Main.isPlayerInGame(player) ) {
             MiscUtils.sendActionBarMessage(player, ChatColor.GRAY + "Способность " + this.getName() + ChatColor.GRAY + " перезаряжена.");
@@ -71,9 +102,16 @@ public abstract class Ability implements IAbility{
         }
     }
 
+    public void notifyPlayerOnStackCount( Player player ) {
+        if ( Main.isPlayerInGame(player) ) {
+            int stacksValue = this.stacks > this.maxStacks ? this.maxStacks : this.stacks;
+            MiscUtils.sendActionBarMessage(player, ChatColor.GRAY + "Заряды способности " + this.getName() + ChatColor.GRAY + " - " + stacksValue + "/" + this.maxStacks);
+        }
+    }
+
     @Override
-    public Material getIcon() {
-        return this.icon;
+    public Material getItem() {
+        return this.item;
     }
 
     @Override
@@ -84,6 +122,11 @@ public abstract class Ability implements IAbility{
     @Override
     public String getId() {
         return this.id;
+    }
+
+    @Override
+    public String getIconString(Player player) {
+        return this.icon.getIcon(player);
     }
 
     @Override
@@ -103,7 +146,8 @@ public abstract class Ability implements IAbility{
         }
     }
 
-
+    @Override
+    public void playerKillAssist(int activeLevel, Player killer, Player victim, Player assistant) {};
 
     @Override
     public void playerDeath(int level, PlayerDeathEvent event) {
@@ -117,7 +161,7 @@ public abstract class Ability implements IAbility{
     }
 
     @Override
-    public void playerKill(int level, PlayerDeathEvent event) {};
+    public void playerKill(int level, Player killer, PlayerDeathEvent event) {};
 
     @Override
     public void playerRespawn(int level, GamePlayer gamePlayer) {
@@ -230,6 +274,17 @@ public abstract class Ability implements IAbility{
     @Override
     public void pickupItem(int level, Player player, EntityPickupItemEvent event) {};
 
+    @Override
+    public void blockBreak(int activeLevel, BlockBreakEvent event) {};
+
+    @Override
+    public void blockPlace(int activeLevel, BlockPlaceEvent event) {};
+
+    @Override
+    public void healPlayer(int activeLevel, Player healer, Player target, CompoundValueModifier compoundValueModifier) {};
+
+    @Override
+    public void healedByPlayer(int activeLevel, Player target, Player healer, CompoundValueModifier compoundValueModifier) {};
 
     @Override
     public void gadgetUsed(int activeLevel, GamePlayer gamePlayer, GadgetType gadgetType, CompoundValueModifier compoundValueModifier){  };
@@ -240,6 +295,7 @@ public abstract class Ability implements IAbility{
     }
 
     public static void playFXHealing(Player source,Player player, int intensity) {
+        Main.getPlayerGameProfile(player).logImpactInstance(new ImpactInstance(Main.getPlayerGameProfile(source), ImpactType.HEALING, ImpactPolarity.ALLY, Main.getPlayerGameProfile(player).getGame().countdown, 1));
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.3F, 0.6F);
         player.getWorld().spawnParticle(Particle.HEART, player.getLocation().clone().add(0, 2.5, 0), intensity,0,0,0);
     }

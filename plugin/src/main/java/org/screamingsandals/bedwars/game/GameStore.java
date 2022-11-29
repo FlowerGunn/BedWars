@@ -28,7 +28,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.screamingsandals.bedwars.Main;
-import org.screamingsandals.bedwars.utils.CitizensUtils;
+import org.screamingsandals.bedwars.utils.external.CitizensUtils;
 
 public class GameStore implements org.screamingsandals.bedwars.api.game.GameStore {
     private final Location loc;

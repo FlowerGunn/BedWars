@@ -10,18 +10,20 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageTarget;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageRelay;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageTarget;
 
 public class Ultimatum extends Ability implements IAbility {
 
     public Ultimatum(){
         this.name = "Ультиматум";
         this.id = "ultimatum";
-        this.icon = Material.CHAIN;
+        this.item = Material.CHAIN;
         this.rarity = 5;
-        this.description = "Раз в (values1)&7 секунд следующая ближняя атака#по игроку с уроном &f6 ед.&7 и выше при удержании SHIFT#наложит на обоих игроков эффект Замедление 4#и отключит прыжки на (values2)&7 секунд";
+        this.icon = IconType.SLOW;
+        this.description = "Раз в (values1)&7 секунд следующая ближняя атака#по игроку с уроном &f3ед.&7 и выше при удержании SHIFT#наложит на обоих игроков эффект Замедление 4#и отключит прыжки на (values2)&7 секунд";
         this.isOnCooldown = false;
     }
 
@@ -50,7 +52,9 @@ public class Ultimatum extends Ability implements IAbility {
 
         if (this.isOnCooldown) return;
 
-        if ( event.getFinalDamage() > 0 && attacker.isSneaking() && damageInstance.damageTarget == DamageTarget.PLAYER && damageInstance.damageRelay == DamageRelay.MELEE)
+        if (event.isCancelled()) return;
+
+        if ( event.getFinalDamage() >= 3 && attacker.isSneaking() && damageInstance.damageTarget == DamageTarget.PLAYER && damageInstance.damageRelay == DamageRelay.MELEE)
 
         if (Main.isPlayerInGame(attacker)) {
 

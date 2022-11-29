@@ -29,7 +29,7 @@ import org.bukkit.event.Listener;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.events.BedwarsPlayerJoinedEvent;
 import org.screamingsandals.bedwars.game.Game;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 
 import java.util.List;
 import java.util.UUID;

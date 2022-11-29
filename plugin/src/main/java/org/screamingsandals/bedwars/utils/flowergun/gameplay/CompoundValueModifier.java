@@ -2,14 +2,20 @@ package org.screamingsandals.bedwars.utils.flowergun.gameplay;
 
 public class CompoundValueModifier {
 
-    int flatIntModifier;
-    double flatDoubleModifier;
-    double exponentialModifier;
+    public int flatIntModifier;
+    public double flatDoubleModifier;
+    public double exponentialModifier;
 
     public CompoundValueModifier() {
         flatIntModifier = 0;
         flatDoubleModifier = 0;
         exponentialModifier = 0;
+    }
+
+    public CompoundValueModifier(int intValue, double doubleValue, double expValue) {
+        flatIntModifier = intValue;
+        flatDoubleModifier = doubleValue;
+        exponentialModifier = expValue;
     }
 
     public void addInt(int value) {
@@ -38,6 +44,12 @@ public class CompoundValueModifier {
 
     public int processValueEffectiveDecrease(int value) {
         return (int) (( value ) * ( 1 + exponentialModifier) + flatIntModifier);
+    }
+
+    public void join(CompoundValueModifier compoundValueModifier) {
+        this.addInt(compoundValueModifier.flatIntModifier);
+        this.addDouble(compoundValueModifier.flatDoubleModifier);
+        this.addExp(compoundValueModifier.exponentialModifier);
     }
 
 

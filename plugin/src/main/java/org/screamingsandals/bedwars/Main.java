@@ -56,8 +56,8 @@ import org.screamingsandals.bedwars.placeholderapi.BedwarsExpansion;
 import org.screamingsandals.bedwars.special.SpecialRegister;
 import org.screamingsandals.bedwars.statistics.PlayerStatisticManager;
 import org.screamingsandals.bedwars.tab.TabManager;
-import org.screamingsandals.bedwars.utils.BedWarsSignOwner;
-import org.screamingsandals.bedwars.utils.UpdateChecker;
+import org.screamingsandals.bedwars.utils.external.BedWarsSignOwner;
+import org.screamingsandals.bedwars.utils.external.UpdateChecker;
 import org.screamingsandals.bedwars.lib.debug.Debug;
 import org.screamingsandals.bedwars.lib.nms.holograms.HologramManager;
 import org.screamingsandals.bedwars.lib.nms.utils.ClassStorage;
@@ -216,6 +216,7 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         if (instance.playersInGame.containsKey(player))
             return instance.playersInGame.get(player);
         GamePlayer gPlayer = new GamePlayer(player);
+        Bukkit.getConsoleSender().sendMessage("NEW GAMEPLAYER CREATED = " + gPlayer.player.getDisplayName());
         instance.playersInGame.put(player, gPlayer);
         return gPlayer;
     }
@@ -366,7 +367,7 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         boolean snapshot = version.toLowerCase().contains("pre") || version.toLowerCase().contains("snapshot");
         isNMS = ClassStorage.NMS_BASED_SERVER;
         isSpigot = ClassStorage.IS_SPIGOT_SERVER;
-        colorChanger = new org.screamingsandals.bedwars.utils.ColorChanger();
+        colorChanger = new org.screamingsandals.bedwars.utils.external.ColorChanger();
 
         this.abilitiesManager = new AbilitiesManager();
 

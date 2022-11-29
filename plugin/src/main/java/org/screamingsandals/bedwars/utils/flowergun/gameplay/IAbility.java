@@ -2,6 +2,8 @@ package org.screamingsandals.bedwars.utils.flowergun.gameplay;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -10,20 +12,20 @@ import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.GadgetType;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageSource;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageTarget;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
 
 import java.util.ArrayList;
 
 public interface IAbility {
 
-    Material getIcon();
+    Material getItem();
 
     String getName();
 
     String getId();
 
+
+    String getIconString(Player player);
 
     int getRarity();
 
@@ -32,7 +34,7 @@ public interface IAbility {
     void shopPurchase(int level, Game game, Player player, PurchasableItem item, int amount);
 
 
-    void playerKill(int level, PlayerDeathEvent event);
+    void playerKill(int level, Player killer, PlayerDeathEvent event);
 
     void playerRespawn(int level, GamePlayer gamePlayer);
 
@@ -69,6 +71,15 @@ public interface IAbility {
 
     void pickupItem(int level, Player player, EntityPickupItemEvent event);
 
+    void blockPlace(int activeLevel, BlockPlaceEvent event);
+
     void gadgetUsed(int activeLevel, GamePlayer gamePlayer, GadgetType gadgetType, CompoundValueModifier compoundValueModifier);
 
+    void blockBreak(int activeLevel, BlockBreakEvent event);
+
+    void healPlayer(int activeLevel, Player healer, Player target, CompoundValueModifier compoundValueModifier);
+
+    void healedByPlayer(int activeLevel, Player target, Player healer, CompoundValueModifier compoundValueModifier);
+
+    void playerKillAssist(int activeLevel, Player killer, Player victim, Player assistant);
 }

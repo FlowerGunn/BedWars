@@ -24,10 +24,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.units.qual.C;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.statistics.PlayerStatistic;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.CustomGUI;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.AbilitiesManager;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.LoadedAbility;
 
@@ -49,14 +51,50 @@ public class InfoCommand extends BaseCommand {
         } else {
             if (args.size() >= 1) {
 
+                if ( sender instanceof Player ) {
+
                     String name = args.get(0);
                     Player player = Bukkit.getPlayer(name);
 
-                if ( player == null || !Main.isPlayerInGame(player))
-                    sender.sendMessage(i18n("info_player_is_not_exists"));
+                    if (player == null || !Main.isPlayerInGame(player))
+                        sender.sendMessage(i18n("info_player_is_not_exists"));
+                    else {
+                        GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+                        if (gamePlayer.getGame().getStatus() == GameStatus.RUNNING) {
+
+                            CustomGUI gui = new CustomGUI((Player) sender, "ABILITIES_READONLY");
+                            gui.setArg1(ChatColor.stripColor(player.getName()));
+                            gui.load();
+
+//                        ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
+//
+//                        sender.sendMessage(ChatColor.WHITE + "" + ChatColor.BOLD + " Способности игрока " + ChatColor.GRAY + player.getDisplayName());
+//                        sender.sendMessage("");
+//
+//                        for (int i = 0; i < loadedAbilities.size(); i++) {
+//                            LoadedAbility loadedAbility = loadedAbilities.get(i);
+//                            sender.sendMessage("   " + AbilitiesManager.formatLoadedAbilityNameInSlot(gamePlayer, i));
+//                            if (!loadedAbility.isEmpty()) {
+//                                ArrayList<String> lore = loadedAbility.getOwnedAbility().getAbility().parseDescription(3, loadedAbility.getActiveLevel(), i + 1);
+//                                for (String line : lore ) {
+//                                    sender.sendMessage("     " + line);
+//                                }
+//                            }
+//                            sender.sendMessage("");
+//                        }
+
+                        } else sender.sendMessage(i18n("info_not_found"));
+                    }
+                }
                 else {
-                    GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
-                    if ( gamePlayer.getGame().getStatus() == GameStatus.RUNNING ) {
+                    String name = args.get(0);
+                    Player player = Bukkit.getPlayer(name);
+
+                    if (player == null || !Main.isPlayerInGame(player))
+                        sender.sendMessage(i18n("info_player_is_not_exists"));
+                    else {
+                        GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+                        if (gamePlayer.getGame().getStatus() == GameStatus.RUNNING) {
 
                         ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
 
@@ -66,7 +104,7 @@ public class InfoCommand extends BaseCommand {
                         for (int i = 0; i < loadedAbilities.size(); i++) {
                             LoadedAbility loadedAbility = loadedAbilities.get(i);
                             sender.sendMessage("   " + AbilitiesManager.formatLoadedAbilityNameInSlot(gamePlayer, i));
-                            if (loadedAbility != null) {
+                            if (!loadedAbility.isEmpty()) {
                                 ArrayList<String> lore = loadedAbility.getOwnedAbility().getAbility().parseDescription(3, loadedAbility.getActiveLevel(), i + 1);
                                 for (String line : lore ) {
                                     sender.sendMessage("     " + line);
@@ -75,7 +113,8 @@ public class InfoCommand extends BaseCommand {
                             sender.sendMessage("");
                         }
 
-                    } else sender.sendMessage(i18n("info_not_found"));
+                        } else sender.sendMessage(i18n("info_not_found"));
+                    }
                 }
 
             } else {
@@ -87,22 +126,26 @@ public class InfoCommand extends BaseCommand {
                         GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
                         if ( gamePlayer.getGame().getStatus() == GameStatus.RUNNING ) {
 
-                            ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
+                            CustomGUI gui = new CustomGUI(player,"ABILITIES_READONLY");
+                            gui.setArg1(ChatColor.stripColor(player.getName()));
+                            gui.load();
 
-                            sender.sendMessage(ChatColor.WHITE + "" + ChatColor.BOLD + " Способности игрока " + ChatColor.GRAY + player.getDisplayName());
-                            sender.sendMessage("");
-
-                            for (int i = 0; i < loadedAbilities.size(); i++) {
-                                LoadedAbility loadedAbility = loadedAbilities.get(i);
-                                sender.sendMessage("   " + AbilitiesManager.formatLoadedAbilityNameInSlot(gamePlayer, i));
-                                if (loadedAbility != null) {
-                                    ArrayList<String> lore = loadedAbility.getOwnedAbility().getAbility().parseDescription(3, loadedAbility.getActiveLevel(), i + 1);
-                                    for (String line : lore ) {
-                                        sender.sendMessage("     " + line);
-                                    }
-                                }
-                                sender.sendMessage("");
-                            }
+//                            ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
+//
+//                            sender.sendMessage(ChatColor.WHITE + "" + ChatColor.BOLD + " Способности игрока " + ChatColor.GRAY + player.getDisplayName());
+//                            sender.sendMessage("");
+//
+//                            for (int i = 0; i < loadedAbilities.size(); i++) {
+//                                LoadedAbility loadedAbility = loadedAbilities.get(i);
+//                                sender.sendMessage("   " + AbilitiesManager.formatLoadedAbilityNameInSlot(gamePlayer, i));
+//                                if (!loadedAbility.isEmpty()) {
+//                                    ArrayList<String> lore = loadedAbility.getOwnedAbility().getAbility().parseDescription(3, loadedAbility.getActiveLevel(), i + 1);
+//                                    for (String line : lore ) {
+//                                        sender.sendMessage("     " + line);
+//                                    }
+//                                }
+//                                sender.sendMessage("");
+//                            }
 
                         } else sender.sendMessage(i18n("info_not_found"));
                     }

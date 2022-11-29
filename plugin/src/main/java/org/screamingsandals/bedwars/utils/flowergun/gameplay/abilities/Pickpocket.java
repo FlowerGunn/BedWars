@@ -10,17 +10,19 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageTarget;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageRelay;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageTarget;
 
 public class Pickpocket extends Ability implements IAbility {
 
     public Pickpocket(){
         this.name = "Карманник";
         this.id = "pickpocket";
-        this.icon = Material.NAME_TAG;
+        this.item = Material.NAME_TAG;
         this.rarity = 4;
+        this.icon = IconType.GOLD_INGOT;
         this.description = "Удары в ближнем бою золотыми#предметами украдут 1 золото из инвентаря#противника раз в (values1)&7 секунд";
     }
 
@@ -40,6 +42,8 @@ public class Pickpocket extends Ability implements IAbility {
     public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
 
         if (this.isOnCooldown) return;
+
+        if (event.isCancelled()) return;
 
 //        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
         if (Main.isPlayerInGame(attacker)) {

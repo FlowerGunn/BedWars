@@ -8,17 +8,19 @@ import org.screamingsandals.bedwars.utils.flowergun.customobjects.GadgetType;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageSource;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageSource;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageType;
 
 public class Slingshooter extends Ability implements IAbility {
 
     public Slingshooter(){
         this.name = "Метатель";
         this.id = "slingshooter";
-        this.icon = Material.STRING;
+        this.item = Material.STRING;
         this.rarity = 4;
+        this.icon = IconType.INCREASE_DAMAGE;
         this.description = "Урон снежков увеличивается на (values1)&7,#кулдаун увеличивает на (values2)&7 секунд";
     }
 

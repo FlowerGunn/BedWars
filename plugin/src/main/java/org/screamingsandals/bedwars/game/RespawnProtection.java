@@ -20,7 +20,7 @@
 package org.screamingsandals.bedwars.game;
 
 import org.screamingsandals.bedwars.Main;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 

@@ -51,7 +51,7 @@ public class FlowerUtils {
     public static int deathmatchWarning = 60;
     public static double golemDamage = 5;
     public static double zoglinDamage = 3;
-    public static double phantomDamage = 3;
+    public static double phantomDamage = 6;
     public static double blazeDamage = 3;
     private static double deathmatchWallPushPower = 0.8;
 

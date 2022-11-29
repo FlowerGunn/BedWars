@@ -1,14 +1,8 @@
 package org.screamingsandals.bedwars.utils.flowergun.gameplay.abilities;
 
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
@@ -16,9 +10,9 @@ import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageSource;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageTarget;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageSource;
 
 import java.util.ArrayList;
 
@@ -27,8 +21,9 @@ public class Willpower extends Ability implements IAbility {
     public Willpower(){
         this.name = "Сила воли";
         this.id = "willpower";
-        this.icon = Material.GLISTERING_MELON_SLICE;
+        this.item = Material.GLISTERING_MELON_SLICE;
         this.rarity = 5;
+        this.icon = IconType.REGENERATION;
         this.description = "Блокирование атак игроков щитом восполнит ближайшему#игроку в радиусе (values1)&7 блоков#(values2)&7 единиц сытости и 1 единицу голода";
     }
 

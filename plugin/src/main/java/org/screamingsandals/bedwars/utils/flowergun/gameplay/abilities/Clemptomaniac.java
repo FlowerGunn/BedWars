@@ -1,16 +1,14 @@
 package org.screamingsandals.bedwars.utils.flowergun.gameplay.abilities;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.Game;
-import org.screamingsandals.bedwars.game.ItemSpawnerType;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
 
 import java.util.Random;
 
@@ -19,7 +17,8 @@ public class Clemptomaniac extends Ability implements IAbility {
     public Clemptomaniac(){
         this.name = "Торгаш";
         this.id = "trader";
-        this.icon = Material.GOLD_NUGGET;
+        this.item = Material.GOLD_NUGGET;
+        this.icon = IconType.GOLD_INGOT;
         this.description = "Вы имеете шанс в (values1)&7% #вернуть 1 золото при покупке любого#предмета требующего золото.";
     }
 

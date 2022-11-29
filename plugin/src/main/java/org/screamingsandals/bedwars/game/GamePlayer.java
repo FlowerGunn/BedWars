@@ -19,25 +19,30 @@
 
 package org.screamingsandals.bedwars.game;
 
+import lombok.Getter;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.screamingsandals.bedwars.Main;
-import org.screamingsandals.bedwars.utils.BungeeUtils;
+import org.screamingsandals.bedwars.api.game.GameStatus;
+import org.screamingsandals.bedwars.utils.external.BungeeUtils;
 import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.ShopInstance;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.LoadedAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.OwnedAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.comparators.SortByRarityOwnedAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageType;
+import org.screamingsandals.bedwars.utils.flowergun.gameplay.*;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.comparators.SortByRarityOwnedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageRelay;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageType;
+import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactInstance;
+import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,15 +50,28 @@ import java.util.List;
 
 public class GamePlayer {
     public final Player player;
+    public boolean isReturning = false;
+    public boolean isDisconnected = false;
+    @Getter
+    private ImpactLog impactLog;
     public DamageRelay damageRelayAttackInstance = DamageRelay.MELEE;
     public DamageRelay damageRelayDefenceInstance;
-    private Game game = null;
+    public Game game = null;
 
     public DamageType damageTypeAttackInstance = DamageType.PHYSICAL;
     public DamageType damageTypeDefenceInstance = DamageType.PHYSICAL;
     private String latestGame = null;
+
+    public CurrentTeam latestCurrentTeam = null;
     private StoredInventory oldInventory = new StoredInventory();
     private List<Player> hiddenPlayers = new ArrayList<>();
+
+    private final double baseMaxHealth = 20.0;
+    private final double baseKnockbackResistance = 1.0;
+    private final double baseMovementSpeed = 1.0;
+    private final double baseAttackSpeed = 1.0;
+    private final double baseArmor = 1.0;
+    private final double baseArmorToughness = 1.0;
 
     private ShopInstance customGUIShopInstance;
     public DamageInstance lastReceivedDamageInstance;
@@ -81,6 +99,8 @@ public class GamePlayer {
 
     private int previousFlagCount;
 
+    private ArrayList<CustomStatusEffect> customStatusEffects = new ArrayList<>();
+
     public GamePlayer(Player player) {
 
         //WAYPOINT TODO load player owned cosmetics
@@ -93,10 +113,11 @@ public class GamePlayer {
         Collections.sort(this.ownedAbilities, new SortByRarityOwnedAbility());
 
         this.player = player;
+        this.impactLog = new ImpactLog();
     }
 
     public void resetAbilitySlot(int slot) {
-        this.loadedAbilities.set(slot, null);
+        this.loadedAbilities.set(slot, LoadedAbility.getEmptyLoadedAbility());
     }
 
     public void resetLoadedAbilityById(String id) {
@@ -108,10 +129,10 @@ public class GamePlayer {
         for ( int i = 0; i < this.loadedAbilities.size(); i++ ) {
             LoadedAbility loadedAbility = this.loadedAbilities.get(i);
 //            Bukkit.getConsoleSender().sendMessage("step1");
-            if ( loadedAbility == null ) continue;
+            if ( loadedAbility.isEmpty() ) continue;
 //            Bukkit.getConsoleSender().sendMessage("step2 " + loadedAbility.getOwnedAbility().getAbility().getId());
             if ( loadedAbility.getOwnedAbility().getAbility().getId().equals(ownedAbility.getAbility().getId()) ) {
-                this.loadedAbilities.set(i, null);
+                this.loadedAbilities.set(i, LoadedAbility.getEmptyLoadedAbility());
                 return;
             }
         }
@@ -137,12 +158,15 @@ public class GamePlayer {
         this.damageRelayDefenceInstance = DamageRelay.MELEE;
 
         this.lastReceivedDamageInstance = null;
+        this.impactLog = new ImpactLog();
+
+        this.isDisconnected = false;
 
         //WAYPOINT TODO saving loaded abilities between matches
         this.loadedAbilities = new ArrayList<>();
-        this.loadedAbilities.add(null);
-        this.loadedAbilities.add(null);
-        this.loadedAbilities.add(null);
+        this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
+        this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
+        this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
 
         if (this.game != null && game == null) {
             this.game.internalLeavePlayer(this);
@@ -286,7 +310,12 @@ public class GamePlayer {
     }
 
     public boolean teleport(Location location, Runnable runnable) {
+        if (location != null)
         return PlayerUtils.teleportPlayer(player, location, runnable);
+        else {
+            runnable.run();
+            return true;
+        }
     }
 
     public void hidePlayer(Player player) {
@@ -348,4 +377,137 @@ public class GamePlayer {
         }
     }
 
+    public void logImpactInstance(ImpactInstance impactInstance) {
+        this.impactLog.getImpactInstances().add(0,impactInstance);
+    }
+
+    public GamePlayer getImpactLogKiller() {
+        return this.impactLog.getKiller(game.countdown);
+    };
+
+    public ArrayList<GamePlayer> getImpactLogAssisters() {
+        return this.impactLog.getAssisters(game.countdown);
+    };
+
+    public void flushImpactLog() {
+        this.impactLog = new ImpactLog();
+    }
+
+    public void recalculateCustomEffects() {
+
+//        Bukkit.getConsoleSender().sendMessage("recalculating custom statuses");
+
+        CompoundValueModifier healthModifier = new CompoundValueModifier();
+        CompoundValueModifier speedModifier = new CompoundValueModifier();
+        CompoundValueModifier armorModifier = new CompoundValueModifier();
+
+        for ( int i = 0; i < this.customStatusEffects.size(); i++ ) {
+            CustomStatusEffect effect = this.customStatusEffects.get(i);
+            if ( !effect.isActive && !effect.isPermanent ) {
+
+//                Bukkit.getConsoleSender().sendMessage("removing expired custom status");
+                this.customStatusEffects.remove(effect);
+                i--;
+            }
+            else {
+                if ( effect.attribute == Attribute.GENERIC_MOVEMENT_SPEED ) {
+                    speedModifier.join( effect.valueChange );
+                } else if ( effect.attribute == Attribute.GENERIC_MAX_HEALTH ) {
+                    healthModifier.join( effect.valueChange );
+                } else if ( effect.attribute == Attribute.GENERIC_ARMOR ) {
+                    armorModifier.join( effect.valueChange );
+                }
+            }
+        }
+
+
+//        Bukkit.getConsoleSender().sendMessage("applying custom status");
+
+        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue( healthModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue()) );
+        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue( healthModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue()) );
+        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue( healthModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue()) );
+
+    }
+
+    public void addCustomStatusEffect(CustomStatusEffect customStatusEffect) {
+//        Bukkit.getConsoleSender().sendMessage("adding custom status");
+        for ( int i = 0; i < this.customStatusEffects.size(); i++ ) {
+            CustomStatusEffect effect = this.customStatusEffects.get(i);
+
+//            Bukkit.getConsoleSender().sendMessage("current status...");
+            if ( effect.effectId.equals(customStatusEffect.effectId) )
+            {
+//                Bukkit.getConsoleSender().sendMessage("removing custom status");
+                this.customStatusEffects.remove(effect);
+                i--;
+            }
+        }
+        this.customStatusEffects.add(customStatusEffect);
+        recalculateCustomEffects();
+        customStatusEffect.runTaskLater(Main.getInstance(), customStatusEffect.ticksDuration);
+    }
+
+    public void removeCustomStatusEffectById( String id ) {
+        for ( int i = 0; i < this.customStatusEffects.size(); i++ ) {
+            CustomStatusEffect effect = this.customStatusEffects.get(i);
+
+//            Bukkit.getConsoleSender().sendMessage("current status...");
+            if ( effect.effectId.equals(id) )
+            {
+                this.customStatusEffects.remove(effect);
+                return;
+            }
+        }
+    }
+
+    public String getAbilitiesIcons() {
+        if (this.getGame() == null) return "";
+        if (this.getGame().getStatus() == GameStatus.RUNNING || this.getGame().getStatus() == GameStatus.GAME_END_CELEBRATING) {
+            String icons = "";
+            for ( LoadedAbility loadedAbility : this.loadedAbilities) {
+                if ( loadedAbility.isEmpty() ) {
+                    icons += ChatColor.DARK_GRAY + "⬛" + ChatColor.RESET;
+                } else {
+                    icons += ChatColor.RESET + loadedAbility.getOwnedAbility().getAbility().getIconString(player);
+                }
+            }
+            icons += " ";
+            return icons;
+        }
+        else return "";
+    }
+
+    public void randomlySelectAllAbilities() {
+        this.randomlySelectAbilityInSlot(0);
+        this.randomlySelectAbilityInSlot(1);
+        this.randomlySelectAbilityInSlot(2);
+    }
+
+    public boolean randomlySelectAbilityInSlot(int slot) {
+        ArrayList<OwnedAbility> rareOwnedAbilities = new ArrayList<>();
+
+        for ( OwnedAbility ownedAbility : this.ownedAbilities ) {
+            if (ownedAbility.getAbility().getRarity() == 3) rareOwnedAbilities.add(ownedAbility);
+        }
+
+        for ( int i = 0; i < this.loadedAbilities.size(); i++ ) {
+            LoadedAbility loadedAbility = this.loadedAbilities.get(i);
+            if ( rareOwnedAbilities.contains(loadedAbility.getOwnedAbility()) ) {
+                rareOwnedAbilities.remove(loadedAbility.getOwnedAbility());
+            }
+        }
+
+        if ( rareOwnedAbilities.size() <= 0 ) {
+            return false;
+        }
+
+        Collections.shuffle(rareOwnedAbilities);
+
+        int level = rareOwnedAbilities.get(0).ownedLevel;
+        if ( slot + 1 < level ) level = slot + 1;
+
+        this.loadedAbilities.set(slot, new LoadedAbility(rareOwnedAbilities.get(0), level));
+        return true;
+
+    }
 }

@@ -1,5 +1,6 @@
 package org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils;
 
+import org.bukkit.inventory.meta.ItemMeta;
 import org.screamingsandals.bedwars.Main;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -29,6 +30,19 @@ public class InventoryGUIClickListener implements Listener {
 
         if (item == null) return;
         if (item.getItemMeta() == null) return;
+
+        for ( ItemStack itemStack : player.getOpenInventory().getTopInventory() ) {
+            if (itemStack != null) {
+                if ( itemStack.getItemMeta() != null ) {
+                    PersistentDataContainer itemData = itemStack.getItemMeta().getPersistentDataContainer();
+                    String type = itemData.get(new NamespacedKey( Main.getInstance() , "GUIActionType"), PersistentDataType.STRING);
+                    if (type == null) continue;
+                    if (type.equals("BLOCKER")) event.setCancelled(true);
+                    break;
+                }
+            }
+        }
+
         PersistentDataContainer itemData = item.getItemMeta().getPersistentDataContainer();
         String type = itemData.get(new NamespacedKey( Main.getInstance() , "GUIActionType"), PersistentDataType.STRING);
         String arg = itemData.get(new NamespacedKey( Main.getInstance(), "GUIActionArg"), PersistentDataType.STRING);

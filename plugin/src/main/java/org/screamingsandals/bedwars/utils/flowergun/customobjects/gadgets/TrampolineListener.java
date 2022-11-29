@@ -10,18 +10,14 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
 import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.game.GamePlayer;
-import org.screamingsandals.bedwars.utils.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomBlock;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomItem;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.GadgetType;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
-
-import static org.screamingsandals.bedwars.lib.lang.I.*;
 
 public class TrampolineListener implements Listener {
 
@@ -55,7 +51,7 @@ public class TrampolineListener implements Listener {
                 return;
             }
 
-//            Bukkit.getConsoleSender().sendMessage(customBlock.getGadgetType().toString());
+            Bukkit.getConsoleSender().sendMessage(customBlock.getGadgetType().toString());
 
             if (customBlock.getGadgetType() == GadgetType.TRAMPOLINE) {
 

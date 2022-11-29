@@ -1,7 +1,7 @@
 package org.screamingsandals.bedwars.utils.flowergun.gameplay;
 
 import lombok.Getter;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.ResourceType;
 
 public class Resource {
 

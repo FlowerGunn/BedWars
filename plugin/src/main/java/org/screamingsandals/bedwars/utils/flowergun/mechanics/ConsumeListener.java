@@ -21,6 +21,8 @@ public class ConsumeListener implements Listener {
         Player player = event.getPlayer();
         GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
 
+        if (gamePlayer.getGame() == null) return;
+
         if ( gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_3) )
             if ( FlowerUtils.consumableItems.contains(event.getItem().getType()) ) {
 

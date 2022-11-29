@@ -31,7 +31,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.screamingsandals.bedwars.utils.CitizensUtils;
+import org.screamingsandals.bedwars.utils.external.CitizensUtils;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.ShopInstance;
 
 public class VillagerListener implements Listener {

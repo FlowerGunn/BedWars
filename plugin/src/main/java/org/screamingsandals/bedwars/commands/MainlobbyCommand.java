@@ -20,7 +20,7 @@
 package org.screamingsandals.bedwars.commands;
 
 import org.screamingsandals.bedwars.Main;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

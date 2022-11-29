@@ -60,7 +60,7 @@ public class SpecialRegister {
         plugin.getServer().getPluginManager().registerEvents(new ConsumeListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new EndgameDamageListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new SnowballListener(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new DealDamageListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new CustomDamageListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new CombustListener(), plugin);
 
         plugin.getServer().getPluginManager().registerEvents(new ElytraListener(), plugin);
@@ -70,6 +70,9 @@ public class SpecialRegister {
         plugin.getServer().getPluginManager().registerEvents(new BlazeListener(), plugin);
 
         plugin.getServer().getPluginManager().registerEvents(new ItemUseListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new MobSpawnListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new PotionThrowListener(), plugin);
     }
 
 }

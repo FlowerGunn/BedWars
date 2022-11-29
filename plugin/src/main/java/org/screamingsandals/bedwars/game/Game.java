@@ -19,7 +19,6 @@
 
 package org.screamingsandals.bedwars.game;
 
-import static com.ibm.icu.impl.ValidIdentifiers.Datatype.x;
 import static org.screamingsandals.bedwars.lib.lang.I.*;
 
 import java.io.File;
@@ -43,6 +42,8 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.*;
 import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.boss.BarColor;
@@ -53,10 +54,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -85,18 +88,20 @@ import org.screamingsandals.bedwars.boss.BossBarSelector;
 import org.screamingsandals.bedwars.boss.XPBar;
 import org.screamingsandals.bedwars.commands.StatsCommand;
 import org.screamingsandals.bedwars.special.Trap;
+import org.screamingsandals.bedwars.utils.external.*;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.Shop;
 import org.screamingsandals.bedwars.inventories.TeamSelectorInventory;
 import org.screamingsandals.bedwars.listener.Player116ListenerUtils;
 import org.screamingsandals.bedwars.region.FlatteningRegion;
 import org.screamingsandals.bedwars.region.LegacyRegion;
 import org.screamingsandals.bedwars.statistics.PlayerStatistic;
-import org.screamingsandals.bedwars.utils.*;
 import org.screamingsandals.bedwars.lib.debug.Debug;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.screamingsandals.bedwars.lib.nms.holograms.Hologram;
 import org.screamingsandals.bedwars.lib.signmanager.SignBlock;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.ShopCategory;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomBlock;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
@@ -144,6 +149,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     private int gameTime;
     private int minPlayers;
     private List<GamePlayer> players = new ArrayList<>();
+
+    private List<GamePlayer> matchedPlayers = new ArrayList<>();
     private World world;
     private List<GameStore> gameStore = new ArrayList<>();
     private ArenaTime arenaTime = ArenaTime.WORLD;
@@ -156,6 +163,11 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
     public Shop shop = null;
     public FlowerUtils deathRules = null;
+
+
+    public List<GamePlayer> getMatchedPlayers() {
+        return this.matchedPlayers;
+    }
 
     private List<CustomBlock> customBlocks = new ArrayList<>();
 
@@ -699,6 +711,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                 return team;
             }
         }
+
         return null;
     }
 
@@ -743,13 +756,17 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
                         SpawnEffects.spawnEffect(this, player.player, "game-effects.beddestroy");
                         if (getPlayerTeam(player) == team) {
-                            Sounds.playSound(player.player, player.player.getLocation(),
-                                    Main.getConfigurator().config.getString("sounds.my_bed_destroyed.sound"),
-                                    Sounds.ENTITY_ENDER_DRAGON_GROWL, (float) Main.getConfigurator().config.getDouble("sounds.my_bed_destroyed.volume"), (float) Main.getConfigurator().config.getDouble("sounds.bed_destroyed.pitch"));
+                            player.player.playSound(player.player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.3F, 0.5F);
+                            player.player.playSound(player.player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.4F, 1.8F);
+//                            Sounds.playSound(player.player, player.player.getLocation(),
+//                                    Main.getConfigurator().config.getString("sounds.my_bed_destroyed.sound"),
+//                                    Sounds.ENTITY_ENDER_DRAGON_GROWL, (float) Main.getConfigurator().config.getDouble("sounds.my_bed_destroyed.volume"), (float) Main.getConfigurator().config.getDouble("sounds.bed_destroyed.pitch"));
                         } else {
-                            Sounds.playSound(player.player, player.player.getLocation(),
-                                    Main.getConfigurator().config.getString("sounds.bed_destroyed.sound"),
-                                    Sounds.ENTITY_ENDER_DRAGON_GROWL, (float) Main.getConfigurator().config.getDouble("sounds.bed_destroyed.volume"), (float) Main.getConfigurator().config.getDouble("sounds.bed_destroyed.pitch"));
+                            player.player.playSound(player.player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.3F, 0.5F);
+                            player.player.playSound(player.player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.4F, 1.8F);
+//                            Sounds.playSound(player.player, player.player.getLocation(),
+//                                    Main.getConfigurator().config.getString("sounds.bed_destroyed.sound"),
+//                                    Sounds.ENTITY_ENDER_DRAGON_GROWL, (float) Main.getConfigurator().config.getDouble("sounds.bed_destroyed.volume"), (float) Main.getConfigurator().config.getDouble("sounds.bed_destroyed.pitch"));
                         }
                     }
 
@@ -800,6 +817,10 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         if (!players.contains(gamePlayer)) {
             players.add(gamePlayer);
         }
+        if (!matchedPlayers.contains(gamePlayer)) {
+            matchedPlayers.add(gamePlayer);
+        }
+
         updateSigns();
 
         if (Main.isPlayerStatisticsEnabled()) {
@@ -883,6 +904,45 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             }
         }
 
+
+        if (status == GameStatus.RUNNING && gamePlayer.isReturning) {
+//            for ( GamePlayer matchedPlayer : this.matchedPlayers ) {
+//                if (matchedPlayer.player.getDisplayName().equals(gamePlayer.player.getDisplayName())) {
+//                    gamePlayer.
+//                    break;
+//                }
+//            }
+            Bukkit.getConsoleSender().sendMessage("applying returning player properties");
+            GamePlayer player = gamePlayer;
+            gamePlayer.latestCurrentTeam.players.add(gamePlayer);
+            gamePlayer.game = this;
+            Bukkit.getConsoleSender().sendMessage("is in game? - " + Main.isPlayerInGame(gamePlayer.player));
+            Bukkit.getConsoleSender().sendMessage("is the game field empty    D.=     - " + (gamePlayer.getGame() == null));
+            this.players.add(gamePlayer);
+
+            CurrentTeam team = this.getPlayerTeam(player);
+            Bukkit.getConsoleSender().sendMessage("is team empty - " + (team == null));
+
+            player.teleport(team.teamInfo.spawn, () -> {
+                player.player.setGameMode(GameMode.SURVIVAL);
+                if (getOriginalOrInheritedGameStartItems()) {
+                    List<ItemStack> givedGameStartItems = StackParser.parseAll((Collection<Object>) Main.getConfigurator().config
+                            .getList("gived-game-start-items"));
+                    if (givedGameStartItems != null) {
+                        MiscUtils.giveItemsToPlayer(givedGameStartItems, player.player, team.getColor());
+                    } else {
+                        Debug.warn("You have wrongly configured gived-player-start-items!", true);
+                    }
+                }
+                SpawnEffects.spawnEffect(this, player.player, "game-effects.start");
+
+                Sounds.playSound(player.player, player.player.getLocation(),
+                        Main.getConfigurator().config.getString("sounds.game_start.sound"),
+                        Sounds.ENTITY_PLAYER_LEVELUP, (float) Main.getConfigurator().config.getDouble("sounds.game_start.volume"), (float) Main.getConfigurator().config.getDouble("sounds.game_start.pitch"));
+            });
+            gamePlayer.isReturning = false;
+        }
+        else
         if (status == GameStatus.RUNNING || status == GameStatus.GAME_END_CELEBRATING) {
             if (Main.getConfigurator().config.getBoolean("tab.enable") && Main.getConfigurator().config.getBoolean("tab.hide-spectators")) {
                 players.stream().filter(p -> p.isSpectator && !isPlayerInAnyTeam(p.player)).forEach(p -> gamePlayer.hidePlayer(p.player));
@@ -969,6 +1029,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             CurrentTeam team = getPlayerTeam(gamePlayer);
             if (team != null) {
                 team.players.remove(gamePlayer);
+//                gamePlayer.isDisconnected = true;
                 if (status == GameStatus.WAITING) {
                     team.getScoreboardTeam().removeEntry(gamePlayer.player.getName());
                     if (team.players.isEmpty()) {
@@ -1718,7 +1779,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     public Location makeSpectator(GamePlayer gamePlayer, boolean leaveItem) {
         Player player = gamePlayer.player;
         gamePlayer.isSpectator = true;
-        gamePlayer.teleport(specSpawn, () -> {
+        Location immidiateTeleportLocation = gamePlayer.player.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.VOID ? specSpawn : gamePlayer.player.getLocation();
+        gamePlayer.teleport(immidiateTeleportLocation, () -> {
             if (!getOriginalOrInheritedKeepInventory() || leaveItem) {
                 gamePlayer.invClean(); // temp fix for inventory issues?
             }
@@ -2049,6 +2111,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                     String gameStartSubtitle = i18nonly("game_start_subtitle").replace("%arena%", this.name);
                     for (GamePlayer player : this.players) {
                         CurrentTeam team = getPlayerTeam(player);
+                        player.latestCurrentTeam = team;
                         player.player.getInventory().clear();
                         // Player still had armor on legacy versions
                         player.player.getInventory().setHelmet(null);
@@ -2057,12 +2120,17 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         player.player.getInventory().setBoots(null);
                         //WAYPOINT FIRST PLAYER SPAWN
 
-                        for ( GamePlayer gamePlayer : this.getConnectedGamePlayers() ) {
-                            int j = gamePlayer.loadedAbilities.size() - 1;
-                            while (j > 0) {
-                                if ( gamePlayer.loadedAbilities.get(j) == null) gamePlayer.loadedAbilities.remove(j);
-                                j--;
-                            }
+
+//                        for ( GamePlayer gamePlayer : this.getConnectedGamePlayers() ) {
+//                            int j = gamePlayer.loadedAbilities.size() - 1;
+//                            while (j > 0) {
+//                                if ( gamePlayer.loadedAbilities.get(j) == null) gamePlayer.loadedAbilities.remove(j);
+//                                j--;
+//                            }
+//                        }
+
+                        if ( player.loadedAbilities.get(0).isEmpty() && player.loadedAbilities.get(1).isEmpty() && player.loadedAbilities.get(2).isEmpty() ) {
+                            player.randomlySelectAllAbilities();
                         }
 
                         Triggers.playerFirstSpawn(player);
@@ -2248,10 +2316,14 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                 for (GamePlayer player : players) {
                                     player.player.sendMessage(message);
                                     if (getPlayerTeam(player) == t) {
+                                        //WAYPOINT PLAYER WON
                                         Title.send(player.player, i18nonly("you_won"), subtitle);
+                                        player.player.playSound(player.player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 1.25F);
+
+
                                         Main.depositPlayer(player.player, Main.getVaultWinReward());
 
-                                        SpawnEffects.spawnEffect(this, player.player, "game-effects.end");
+//                                        SpawnEffects.spawnEffect(this, player.player, "game-effects.end");
 
                                         if (Main.isPlayerStatisticsEnabled()) {
                                             PlayerStatistic statistic = Main.getPlayerStatisticsManager()
@@ -2293,7 +2365,9 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                             }.runTaskLater(Main.getInstance(), (2 + postGameWaiting) * 20);
                                         }
                                     } else {
+                                        //WAYPOINT PLAYER LOST
                                         Title.send(player.player, i18n("you_lost", false), subtitle);
+                                        player.player.playSound(player.player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 0.75F);
 
                                         if (Main.isPlayerStatisticsEnabled() && Main.isHologramsEnabled()) {
                                             Main.getHologramInteraction().updateHolograms(player.player);
@@ -2408,8 +2482,23 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         if (status == GameStatus.GAME_END_CELEBRATING && previousStatus != status) {
             if (statusbar instanceof BossBar) {
                 BossBar bossbar = (BossBar) statusbar;
-                bossbar.setMessage(" ");
+                bossbar.setMessage(i18nonly("game_end_bossbar"));
             }
+        }
+
+        if (status == GameStatus.GAME_END_CELEBRATING) {
+            for (GamePlayer gamePlayer : this.getConnectedGamePlayers()) {
+                if (gamePlayer.isSpectator) continue;
+                Player victim = gamePlayer.player;
+                TeamColor victimTeam = this.getPlayerTeam(gamePlayer).teamInfo.color;
+                Firework firework = (Firework) victim.getWorld().spawnEntity(victim.getLocation().clone().add(0, 1.2, 0), EntityType.FIREWORK);
+                FireworkMeta feuermeta = firework.getFireworkMeta();
+                feuermeta.setPower(1);
+                feuermeta.addEffect(FireworkEffect.builder().withColor(victimTeam.leatherColor).build());
+                feuermeta.addAttributeModifier(Attribute.GENERIC_LUCK, new AttributeModifier("generic.luck", 1, AttributeModifier.Operation.ADD_NUMBER));
+                firework.setFireworkMeta(feuermeta);
+            }
+
         }
 
         // Phase 9: Check if status is rebuilding and rebuild game
@@ -2494,6 +2583,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         isDeathmatch = false;
         isAnnihilation = false;
 
+        this.matchedPlayers = new ArrayList<>();
+
         BedwarsPreRebuildingEvent preRebuildingEvent = new BedwarsPreRebuildingEvent(this);
         Main.getInstance().getServer().getPluginManager().callEvent(preRebuildingEvent);
 
@@ -2561,6 +2652,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         this.countdown = -1;
         updateSigns();
         cancelTask();
+        this.wasMapRestored = false;
+        this.tryToRestore();
 
     }
 
@@ -3955,4 +4048,18 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     public Location getSchematicPosition() {
         return this.schematicPosition;
     }
+
+    public PurchasableItem getShopItemById(String id) {
+
+        for ( ShopCategory category : this.shop.categories ) {
+            for ( PurchasableItem purchasableItem : category.items ) {
+                if ( purchasableItem.getId().equals(id) ) return purchasableItem;
+            }
+        }
+
+        return null;
+
+    }
+
+
 }

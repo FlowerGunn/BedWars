@@ -26,8 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.CurrentTeam;
 import org.screamingsandals.bedwars.game.Game;
-import org.screamingsandals.bedwars.game.Team;
-import org.screamingsandals.bedwars.utils.Sounds;
+import org.screamingsandals.bedwars.utils.external.Sounds;
 
 public class Player116ListenerUtils {
     public static boolean processAnchorDeath(Game game, CurrentTeam team, boolean isBed) {

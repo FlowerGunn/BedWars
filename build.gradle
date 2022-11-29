@@ -38,16 +38,21 @@ subprojects {
         maven { url 'https://repo.viaversion.com' }
         maven { url 'https://maven.enginehub.org/repo/' }
         maven { url "https://repo.papermc.io/repository/maven-public/" }
+        maven { url 'https://jitpack.io/' }
     }
 
     dependencies {
-        compileOnly paperLegacy("1.16.5")
+//        compileOnly paperLegacy("1.16.5")
+        compileOnly("io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT")
         implementation(platform("com.intellectualsites.bom:bom-1.18.x:1.17"))
         compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
         compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit")
+        compileOnly("com.github.LoneDev6:api-itemsadder:3.0.0")
     }
 
-
+    java {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    }
 
     enableShadowPlugin()
 

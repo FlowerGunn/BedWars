@@ -1,28 +1,22 @@
 package org.screamingsandals.bedwars.utils.flowergun.gameplay.abilities;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.screamingsandals.bedwars.Main;
-import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ItemCategory;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-
-import java.util.Random;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
 
 public class Tempered extends Ability implements IAbility {
 
     public Tempered(){
         this.name = "Закалка";
         this.id = "tempering";
-        this.icon = Material.IRON_CHESTPLATE;
+        this.item = Material.IRON_CHESTPLATE;
+        this.icon = IconType.DAMAGE_RESISTANCE;
         this.description = "Все нагрудники в магазине#получают Прочность +(values1)";
     }
 

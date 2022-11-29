@@ -31,7 +31,7 @@ import org.screamingsandals.bedwars.api.APIUtils;
 import org.screamingsandals.bedwars.api.BedwarsAPI;
 import org.screamingsandals.bedwars.api.events.BedwarsApplyPropertyToBoughtItem;
 import org.screamingsandals.bedwars.special.ThrowableFireball;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 public class ThrowableFireballListener implements Listener {

@@ -10,7 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.GamePlayer;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 
 public class ElytraListener implements Listener {
 
@@ -50,7 +50,7 @@ public class ElytraListener implements Listener {
                     MiscUtils.sendActionBarMessage(player, ChatColor.RED + "Элитры заблокированы!");
                 } else {
 //                    Bukkit.getConsoleSender().sendMessage("blocker started");
-                    ElytraBlocker elytraBlocker = new ElytraBlocker(gamePlayer, 12);
+                    ElytraBlocker elytraBlocker = new ElytraBlocker(gamePlayer, 16);
                     elytraBlocker.runTaskTimerAsynchronously(Main.getInstance(), 0L, 5L);
                 }
             }

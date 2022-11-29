@@ -106,6 +106,12 @@ public class PurchasableItem {
         return this;
     }
 
+    public void giveForFree(Player player) {
+        ItemStack buyWhat = this.item.prepareItem(player);
+        player.getInventory().addItem(buyWhat);
+
+    }
+
     public boolean tryToSellTo(Player player, boolean isRight, boolean isLeft, boolean isShift) {
 
         //TODO implement buying items
@@ -315,7 +321,7 @@ public class PurchasableItem {
         }
 
         if (originalPurchasibleItem != null && originalPurchasibleItem.item.getItem().getAmount() != buyWhat.getAmount()) {
-            price.add(ChatColor.GRAY + " "+ ChatColor.STRIKETHROUGH + "" + originalPurchasibleItem.item.getItem().getAmount() + net.md_5.bungee.api.ChatColor.WHITE + " " + buyWhat.getAmount() + " за");
+            price.add(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + "" + originalPurchasibleItem.item.getItem().getAmount() + net.md_5.bungee.api.ChatColor.WHITE + " " + buyWhat.getAmount() + " за");
         }
         else {
             price.add(net.md_5.bungee.api.ChatColor.WHITE + "" + buyWhat.getAmount() + ChatColor.GRAY + " за");

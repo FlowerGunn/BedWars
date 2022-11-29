@@ -28,7 +28,7 @@ import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.game.ItemSpawnerType;
-import org.screamingsandals.bedwars.utils.FakeDeath;
+import org.screamingsandals.bedwars.utils.external.FakeDeath;
 
 import java.util.Arrays;
 import java.util.List;

@@ -23,7 +23,7 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.api.Team;
 import org.screamingsandals.bedwars.game.TeamColor;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;

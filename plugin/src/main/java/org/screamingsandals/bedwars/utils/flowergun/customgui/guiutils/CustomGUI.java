@@ -1,8 +1,8 @@
 package org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils;
 
 
+import dev.lone.itemsadder.api.CustomStack;
 import net.md_5.bungee.api.ChatColor;
-import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -16,7 +16,6 @@ import org.screamingsandals.bedwars.game.CurrentTeam;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.LoadedAbility;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.OwnedAbility;
 
@@ -42,6 +41,72 @@ public class CustomGUI {
     public static final int gobackButtonX = 8;
     public static final int gobackButtonY = 5;
     public static final int cosmeticRows = 4;
+
+    public static ArrayList<CustomGUIButton> abilitiesRedPanes;
+    public static ArrayList<CustomGUIButton> abilitiesGrayPanes1;
+    public static ArrayList<CustomGUIButton> abilitiesGrayPanes2;
+    public static ArrayList<CustomGUIButton> abilitiesOrangePanes;
+    public static ArrayList<CustomGUIButton> abilitiesYellowPanes;
+    public static ArrayList<CustomGUIButton> abilitiesHoppers;
+    public static ArrayList<CustomGUIButton> abilities;
+
+    static {
+        abilitiesRedPanes = new ArrayList<>();
+        abilitiesGrayPanes1 = new ArrayList<>();
+        abilitiesGrayPanes2 = new ArrayList<>();
+        abilitiesOrangePanes = new ArrayList<>();
+        abilitiesYellowPanes = new ArrayList<>();
+        abilitiesHoppers = new ArrayList<>();
+        abilities = new ArrayList<>();
+
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(0,0).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(8,0).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(1,1).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(2,1).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(6,1).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(7,1).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(1,3).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(2,3).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(6,3).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(7,3).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(0,4).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+        abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(8,4).setMaterial(Material.RED_STAINED_GLASS_PANE).setName("").build());
+
+        abilitiesOrangePanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(8,1).setMaterial(Material.ORANGE_STAINED_GLASS_PANE).setName("").build());
+        abilitiesOrangePanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(0,1).setMaterial(Material.ORANGE_STAINED_GLASS_PANE).setName("").build());
+        abilitiesOrangePanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(8,3).setMaterial(Material.ORANGE_STAINED_GLASS_PANE).setName("").build());
+        abilitiesOrangePanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(0,3).setMaterial(Material.ORANGE_STAINED_GLASS_PANE).setName("").build());
+        abilitiesOrangePanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(7,2).setMaterial(Material.ORANGE_STAINED_GLASS_PANE).setName("").build());
+        abilitiesOrangePanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(1,2).setMaterial(Material.ORANGE_STAINED_GLASS_PANE).setName("").build());
+
+        abilitiesYellowPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(0,2).setMaterial(Material.YELLOW_STAINED_GLASS_PANE).setName("").build());
+        abilitiesYellowPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(8,2).setMaterial(Material.YELLOW_STAINED_GLASS_PANE).setName("").build());
+
+        abilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3,1).setMaterial(Material.HOPPER).setName("").build());
+        abilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(4,1).setMaterial(Material.HOPPER).setName("").build());
+        abilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(5,1).setMaterial(Material.HOPPER).setName("").build());
+
+        abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(2,2).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(6,2).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3,3).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(4,3).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(5,3).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3,1).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(4,1).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(5,1).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+
+        abilitiesGrayPanes1.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(4,4).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes1.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(2,5).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes1.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3,5).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes1.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(5,5).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+        abilitiesGrayPanes1.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(6,5).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName("").build());
+
+        abilities.addAll(abilitiesRedPanes);
+        abilities.addAll(abilitiesYellowPanes);
+        abilities.addAll(abilitiesOrangePanes);
+        abilities.addAll(abilitiesGrayPanes2);
+
+    }
 
     public CustomGUI(Player player, String guiId ) {
 
@@ -98,7 +163,7 @@ public class CustomGUI {
 
                 this.buttons.add(new CustomGUIButton("GOGUI").setArgs("TEAM_UPGRADES").setXY(7, 3).setName(i18nonly("team_upgrades_name")).setMaterial(Material.BLAZE_POWDER).setLore(upgradesDescription).build());
 
-                loadButtons(ChatColor.GRAY + "Магазин", buttons, player, 54);
+                loadButtons(ChatColor.DARK_GRAY + "Магазин", buttons, player, 54);
                 break;
             }
             case "SHOP_CATEGORY": {
@@ -221,7 +286,7 @@ public class CustomGUI {
 
                 backButtonPrepare("SHOP");
 
-                loadButtons("Upgrades", buttons, player,  54);
+                loadButtons("Командные улучшения", buttons, player,  54);
 
                 break;
             }
@@ -254,6 +319,51 @@ public class CustomGUI {
 
 
             }
+            case "ABILITIES_READONLY": {
+
+                Player target = Bukkit.getPlayer(arg);
+
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(target);
+                Game game = gamePlayer.getGame();
+                ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
+
+                ArrayList lore;
+
+                LoadedAbility loadedAbility;
+
+                for (int i = 0; i < loadedAbilities.size(); i++) {
+                    loadedAbility = loadedAbilities.get(i);
+                    lore = new ArrayList<>();
+                    Material icon = Material.LIME_STAINED_GLASS_PANE;
+                    String name = ChatColor.WHITE + "Пустой слот";
+
+                    lore.add("");
+//                    lore.add(ChatColor.GRAY + "Максимальная уровень способности");
+//                    lore.add(ChatColor.GRAY + "в этом слоте - " + ChatColor.WHITE + "" + ChatColor.BOLD + (i + 1) );
+//                    lore.add("");
+
+                    if (!loadedAbility.isEmpty()) {
+                        name = loadedAbility.getOwnedAbility().getAbility().getName();
+                        icon = loadedAbility.getOwnedAbility().getAbility().getItem();
+                        lore.addAll(loadedAbility.getOwnedAbility().getAbility().parseDescription(loadedAbility.getOwnedAbility().ownedLevel, Math.min(loadedAbility.getOwnedAbility().ownedLevel, i + 1), i + 1 ));
+                    }
+//                    else {
+//                        lore.add("");
+//                        lore.add(ChatColor.GRAY + "Кликните, чтобы выбрать способность...");
+//                    }
+                    lore.add("");
+                    lore.addAll(FlowerUtils.alphaWarning);
+                    this.buttons.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3 + i, 2).setMaterial(icon).setName(name).setLore(lore).build());
+                }
+
+                this.buttons.addAll(abilities);
+
+                backButtonPrepare("EXIT");
+
+                loadButtons( "Способности игрока " + arg, buttons, player, 54);
+
+                break;
+            }
             case "ABILITIES": {
 
                 GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
@@ -267,7 +377,7 @@ public class CustomGUI {
                 for (int i = 0; i < loadedAbilities.size(); i++) {
                     loadedAbility = loadedAbilities.get(i);
                     lore = new ArrayList<>();
-                    Material icon = Material.BLACK_DYE;
+                    Material icon = Material.LIME_STAINED_GLASS_PANE;
                     String name = ChatColor.WHITE + "Пустой слот";
 
                     lore.add("");
@@ -275,9 +385,9 @@ public class CustomGUI {
                     lore.add(ChatColor.GRAY + "в этом слоте - " + ChatColor.WHITE + "" + ChatColor.BOLD + (i + 1) );
                     lore.add("");
 
-                    if (loadedAbility != null) {
+                    if (!loadedAbility.isEmpty()) {
                         name = loadedAbility.getOwnedAbility().getAbility().getName();
-                        icon = loadedAbility.getOwnedAbility().getAbility().getIcon();
+                        icon = loadedAbility.getOwnedAbility().getAbility().getItem();
                         lore.addAll(loadedAbility.getOwnedAbility().getAbility().parseDescription(loadedAbility.getOwnedAbility().ownedLevel, Math.min(loadedAbility.getOwnedAbility().ownedLevel, i + 1), i + 1 ));
                     }
                     else {
@@ -286,8 +396,15 @@ public class CustomGUI {
                     }
                     lore.add("");
                     lore.addAll(FlowerUtils.alphaWarning);
-                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SELECT_ABILITY", i + "").setXY(3 + i, 1).setMaterial(icon).setName(name).setLore(lore).build());
+                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SELECT_ABILITY", i + "").setXY(3 + i, 2).setMaterial(icon).setName(name).setLore(lore).build());
                 }
+
+
+                this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES").setArgs("").setXY( 4, 5 ).setMaterial(Material.RECOVERY_COMPASS).setName(ChatColor.GOLD + "Выбрать ВСЕ способности случайно...").build());
+
+                this.buttons.addAll(abilities);
+                this.buttons.addAll(abilitiesHoppers);
+                this.buttons.addAll(abilitiesGrayPanes1);
 
                 backButtonPrepare("EXIT");
 
@@ -313,8 +430,11 @@ public class CustomGUI {
                     lore = ownedAbilities.get(i).getAbility().parseDescription(ownedAbilities.get(i).ownedLevel, Math.min(ownedAbilities.get(i).ownedLevel, slot + 1), slot + 1 );
                     lore.add("");
                     lore.addAll(FlowerUtils.alphaWarning);
-                    this.buttons.add(new CustomGUIButton("SELECT_ABILITY_INTO_SLOT").setArgs(ownedAbilities.get(i).getAbility().getId(), arg).setXY( i % 9, i / 9 ).setMaterial(ownedAbilities.get(i).getAbility().getIcon()).setName(ownedAbilities.get(i).getAbility().getName()).setLore(lore).build());
+                    this.buttons.add(new CustomGUIButton("SELECT_ABILITY_INTO_SLOT").setArgs(ownedAbilities.get(i).getAbility().getId(), arg).setXY( i % 9, i / 9 ).setMaterial(ownedAbilities.get(i).getAbility().getItem()).setName(ownedAbilities.get(i).getAbility().getName()).setLore(lore).build());
                 }
+
+                this.buttons.add(new CustomGUIButton("RANDOMIZE_ABILITY_INTO_SLOT").setArgs(arg).setXY( 4, 5 ).setMaterial(Material.RECOVERY_COMPASS).setName(ChatColor.GOLD + "Выбрать случайно...").build());
+                this.buttons.addAll(abilitiesGrayPanes1);
 
                 backButtonPrepare("ABILITIES");
 
@@ -333,7 +453,16 @@ public class CustomGUI {
     }
 
     void backButtonPrepare(String guiName) {
-        buttons.add( new CustomGUIButton( "GOGUI").setArgs(guiName).setXY(gobackButtonX, gobackButtonY).setMaterial( Material.ARROW).setName( ChatColor.RED + "Назад").setCustomModelData(8009).build());
+        ItemStack itemStack = getBackItem();
+        buttons.add( new CustomGUIButton( "GOGUI").setArgs(guiName).setXY(gobackButtonX, gobackButtonY).setItemstack(itemStack).setName( ChatColor.RED + "Назад").build());
+    }
+
+    private ItemStack getBackItem() {
+        return CustomStack.getInstance("anicloud:button_back").getItemStack();
+    }
+
+    private ItemStack getNextItem() {
+        return CustomStack.getInstance("anicloud:button_next").getItemStack();
     }
 
     static void loadButtons(String title,ArrayList<CustomGUIButton> buttons, Player player, int area) {

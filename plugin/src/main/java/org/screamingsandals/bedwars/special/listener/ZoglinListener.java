@@ -21,10 +21,8 @@ package org.screamingsandals.bedwars.special.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -34,8 +32,6 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
@@ -47,8 +43,8 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.screamingsandals.bedwars.special.Golem;
 import org.screamingsandals.bedwars.special.Zoglin;
-import org.screamingsandals.bedwars.utils.DelayFactory;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.DelayFactory;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 import java.util.List;
@@ -188,7 +184,7 @@ public class ZoglinListener implements Listener {
                                 Player player = (Player) event.getEntity();
 
                                 if (golem.getTeam() == game.getTeamOfPlayer(player)) {
-                                        Bukkit.getConsoleSender().sendMessage("Zoglin stopped revenging after being attacked");
+//                                        Bukkit.getConsoleSender().sendMessage("Zoglin stopped revenging after being attacked");
                                         event.setCancelled(true);
                                         ironGolem.setTarget(null);
                                         return;
@@ -196,7 +192,7 @@ public class ZoglinListener implements Listener {
 
 
                                 event.setDamage(FlowerUtils.zoglinDamage);
-                                Bukkit.getConsoleSender().sendMessage("Zoglin damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
+//                                Bukkit.getConsoleSender().sendMessage("Zoglin damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
                             }
 
                         }

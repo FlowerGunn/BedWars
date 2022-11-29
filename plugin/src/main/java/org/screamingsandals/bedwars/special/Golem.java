@@ -33,8 +33,7 @@ import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.game.TeamColor;
 import org.screamingsandals.bedwars.lib.nms.accessors.EntityIronGolemAccessor;
 import org.screamingsandals.bedwars.lib.nms.accessors.EntityPlayerAccessor;
-import org.screamingsandals.bedwars.lib.nms.utils.ClassStorage;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 

@@ -19,6 +19,14 @@ public class LoadedAbility{
         this.activeLevel = activeLevel;
     }
 
+    public static LoadedAbility getEmptyLoadedAbility() {
+        return new LoadedAbility(null, 0);
+    }
+
+    public boolean isEmpty() {
+        return this.ownedAbility == null;
+    }
+
 }
 
 class SortByRarityLoadedAbility implements Comparator<LoadedAbility> {

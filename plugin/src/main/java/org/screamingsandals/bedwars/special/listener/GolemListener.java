@@ -21,7 +21,6 @@ package org.screamingsandals.bedwars.special.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Zombie;
 import org.bukkit.projectiles.ProjectileSource;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
@@ -32,8 +31,8 @@ import org.screamingsandals.bedwars.api.special.SpecialItem;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.special.Golem;
 import org.screamingsandals.bedwars.special.Zoglin;
-import org.screamingsandals.bedwars.utils.DelayFactory;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.DelayFactory;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
@@ -184,7 +183,7 @@ public class GolemListener implements Listener {
                             if ( event.getEntity() instanceof Player ) {
                                 Player player = (Player) event.getEntity();
                                 event.setDamage(FlowerUtils.golemDamage);
-                                Bukkit.getConsoleSender().sendMessage("Golem damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
+//                                Bukkit.getConsoleSender().sendMessage("Golem damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
                             }
 
                         }

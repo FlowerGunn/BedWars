@@ -2,7 +2,6 @@ package org.screamingsandals.bedwars.utils.flowergun.gameplay.abilities;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -12,19 +11,20 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageSource;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageRelay;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageSource;
 
 public class PreciseStrike extends Ability implements IAbility {
 
     public PreciseStrike(){
         this.name = "Уворотливость";
         this.id = "precisestrike";
-        this.icon = Material.FERMENTED_SPIDER_EYE;
+        this.item = Material.FERMENTED_SPIDER_EYE;
         this.rarity = 5;
-        this.description = "Ваш ближний урон уменьшен на 50%,#раз в (values1)&7 секунд противник атакующий вас#в ближнем бою получит Слабость 1 на (values1)&7 секунд";
+        this.icon = IconType.INCREASE_DAMAGE;
+        this.description = "Ваш ближний урон уменьшен на 50%,#раз в (values2)&7 секунд противник атакующий вас#в ближнем бою получит Слабость 1 на (values1)&7 секунд";
         this.isOnCooldown = false;
     }
 
@@ -40,7 +40,7 @@ public class PreciseStrike extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue2(int level) {
-        return 100 + 100 * level;
+        return 500 - 100 * level;
     }
 
     @Override
@@ -54,6 +54,8 @@ public class PreciseStrike extends Ability implements IAbility {
     public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
 
         if (this.isOnCooldown) return;
+
+        if (event.isCancelled()) return;
 
         if (!(event instanceof EntityDamageByEntityEvent)) return;
         EntityDamageByEntityEvent tempEvent = (EntityDamageByEntityEvent) event;

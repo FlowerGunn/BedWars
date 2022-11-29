@@ -2,7 +2,6 @@ package org.screamingsandals.bedwars.utils.flowergun.gameplay.abilities;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -13,18 +12,18 @@ import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageTarget;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageType;
 
 public class FrostKiss extends Ability implements IAbility {
 
     public FrostKiss(){
         this.name = "Ледяной Поцелуй";
         this.id = "frostkiss";
-        this.icon = Material.ICE;
+        this.item = Material.ICE;
         this.rarity = 3;
+        this.icon = IconType.SLOW;
         this.description = "Раз в (values1)&7 секунд попадание#снежком наложит на цель эффект#Замедление 3 на (values2)&7 секунд";
         this.isOnCooldown = false;
     }

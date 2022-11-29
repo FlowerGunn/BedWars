@@ -44,9 +44,8 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.screamingsandals.bedwars.special.Golem;
 import org.screamingsandals.bedwars.special.Phantom;
-import org.screamingsandals.bedwars.special.Zoglin;
-import org.screamingsandals.bedwars.utils.DelayFactory;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.DelayFactory;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 import java.util.List;
@@ -191,7 +190,7 @@ public class PhantomListener implements Listener {
                                 Player player = (Player) event.getEntity();
 
                                 if (golem.getTeam() == game.getTeamOfPlayer(player)) {
-                                        Bukkit.getConsoleSender().sendMessage("Phantom stopped revenging after being attacked");
+//                                        Bukkit.getConsoleSender().sendMessage("Phantom stopped revenging after being attacked");
                                         event.setCancelled(true);
                                         ironGolem.setTarget(null);
                                         return;
@@ -199,7 +198,7 @@ public class PhantomListener implements Listener {
 
 
                                 event.setDamage(FlowerUtils.phantomDamage);
-                                Bukkit.getConsoleSender().sendMessage("Phantom damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
+//                                Bukkit.getConsoleSender().sendMessage("Phantom damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
                             }
 
                         }

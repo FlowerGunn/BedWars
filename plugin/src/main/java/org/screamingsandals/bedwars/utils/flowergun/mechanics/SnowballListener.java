@@ -15,8 +15,8 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.GadgetType;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.enums.DamageType;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageRelay;
+import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageType;
 
 public class SnowballListener implements Listener {
 

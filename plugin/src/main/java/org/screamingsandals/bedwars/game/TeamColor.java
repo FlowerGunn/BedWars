@@ -30,18 +30,19 @@ public enum TeamColor {
     BLACK(ChatColor.BLACK, 0xF, "BLACK", Color.BLACK),
     BLUE(ChatColor.DARK_BLUE, 0xB, "BLUE", Color.fromRGB(0, 0, 170)),
     GREEN(ChatColor.DARK_GREEN, 0xD, "GREEN", Color.fromRGB(0, 170, 0)),
-    RED(ChatColor.of("#d62418"), 0xE, "RED", Color.fromRGB(214, 36, 24),"亀","画","\uF801線","\uF801爲"),
+    RED(ChatColor.of("#d62418"), 0xE, "RED", Color.fromRGB(214, 36, 24),"亀","画","\uF801線","\uF801爲", "画\uF804爲"),
     MAGENTA(ChatColor.DARK_PURPLE, 0x2, "MAGENTA", Color.fromRGB(170, 0, 170)),
     ORANGE(ChatColor.GOLD, 0x1, "ORANGE", Color.fromRGB(255, 170, 0)),
     LIGHT_GRAY(ChatColor.GRAY, 0x8, "LIGHT_GRAY", Color.fromRGB(170, 170, 170)),
     GRAY(ChatColor.DARK_GRAY, 0x7, "GRAY", Color.fromRGB(85, 85, 85)),
-    LIGHT_BLUE(ChatColor.of("#106FDE"), 0x3, "LIGHT_BLUE", Color.fromRGB(16, 111, 222),"綫","為","\uF801线","\uF801为"),
-    LIME(ChatColor.of("#01B70F"), 0x5, "LIME", Color.fromRGB(1, 183, 15 ),"匯","夜","\uF801滙","\uF801亱"),
+    LIGHT_BLUE(ChatColor.of("#106FDE"), 0x3, "LIGHT_BLUE", Color.fromRGB(16, 111, 222),"綫","為","\uF801线","\uF801为", "為\uF804为"),
+    LIME(ChatColor.of("#01B70F"), 0x5, "LIME", Color.fromRGB(1, 183, 15 ),"匯","夜","\uF801滙","\uF801亱", "夜\uF804亱"),
     CYAN(ChatColor.AQUA, 0x9, "CYAN", Color.fromRGB(85, 255, 255)),
     PINK(ChatColor.LIGHT_PURPLE, 0x6, "PINK", Color.fromRGB(255, 85, 255)),
-    YELLOW(ChatColor.of("#F7E109"), 0x4, "YELLOW", Color.fromRGB(247, 225, 9),"龟","畫","\uF801龜","\uF801畵"),
+    YELLOW(ChatColor.of("#F7E109"), 0x4, "YELLOW", Color.fromRGB(247, 225, 9),"龟","畫","\uF801龜","\uF801畵", "畫\uF804畵"),
     WHITE(ChatColor.WHITE, 0x0, "WHITE", Color.WHITE),
-    BROWN(ChatColor.DARK_RED, 0xC, "BROWN", Color.fromRGB(139,69,19));
+    BROWN(ChatColor.DARK_RED, 0xC, "BROWN", Color.fromRGB(139,69,19)),
+    DEFAULT(ChatColor.DARK_GRAY, 0x8, "DARK_GRAY", Color.fromRGB(170, 170, 170));
 
     public final ChatColor chatColor;
     public final String material1_13;
@@ -55,6 +56,7 @@ public enum TeamColor {
     public final String firstHalfEmpty;
     public final String secondHalfFull ;
     public final String secondHalfEmpty;
+    public final String assistCell;
 
     TeamColor(ChatColor chatColor, int woolData, String material1_13, Color leatherColor) {
         this.chatColor = chatColor;
@@ -66,9 +68,10 @@ public enum TeamColor {
         this.firstHalfFull = ChatColor.RED + "[";
         this.secondHalfEmpty = ChatColor.DARK_GRAY + "]";
         this.secondHalfFull = ChatColor.RED + "]";
+        this.assistCell = "_";
     }
 
-    TeamColor(ChatColor chatColor, int woolData, String material1_13, Color leatherColor, String firstHalfEmpty, String firstHalfFull, String secondHalfEmpty, String secondHalfFull) {
+    TeamColor(ChatColor chatColor, int woolData, String material1_13, Color leatherColor, String firstHalfEmpty, String firstHalfFull, String secondHalfEmpty, String secondHalfFull, String assistCell) {
         this.chatColor = chatColor;
         this.woolData = woolData;
         this.material1_13 = material1_13;
@@ -78,7 +81,10 @@ public enum TeamColor {
         this.firstHalfFull = firstHalfFull;
         this.secondHalfEmpty = secondHalfEmpty;
         this.secondHalfFull = secondHalfFull;
+        this.assistCell = assistCell;
     }
+
+
 
     public ItemStack getWool() {
         if (Main.isLegacy()) {

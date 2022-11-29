@@ -99,7 +99,7 @@ public class Action {
                 Game game = gamePlayer.getGame();
                 CurrentTeam team = game.getPlayerTeam(gamePlayer);
 
-                Shop shop = game.shop;
+                Shop shop = gamePlayer.getCustomGUIShopInstance();
 
                 PurchasableItem item = null;
 
@@ -161,10 +161,12 @@ public class Action {
                             }
 
                             team.teamFlags.add(tryingToBuy);
-                            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+
 
                             for ( GamePlayer teamGamePlayer: team.players ) {
                                 teamGamePlayer.player.sendMessage(i18n("team_upgrade_notification", true).replace("%player%", team.teamInfo.color.chatColor + player.getName()).replace("%upgrade%", tryingToBuy.getName()));
+                                teamGamePlayer.player.playSound(teamGamePlayer.player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 0.8F);
+                                teamGamePlayer.player.playSound(teamGamePlayer.player.getLocation(), Sound.UI_LOOM_SELECT_PATTERN, 0.8F, 1.0F);
                             }
 
                             CustomGUI customGUI = new CustomGUI(player, "TEAM_UPGRADES");
@@ -175,7 +177,7 @@ public class Action {
                 }
 
                 //cant buy
-                player.playSound( player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 1.0F, 1.0F );
+                player.playSound( player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.8F, 1.0F );
                 CustomGUI customGUI = new CustomGUI(player, "TEAM_UPGRADES");
                 customGUI.load();
                 break;
@@ -188,10 +190,10 @@ public class Action {
                 ArrayList<Team> teams = new ArrayList<>(game.getTeams());
 
                 if (game.selectTeam(gamePlayer, arg)) {
-                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8F, 1.0F);
                 }
                 else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 1.0F, 1.0F);
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.8F, 1.0F);
                 }
 
                 ArrayList<GamePlayer> gamePlayers = new ArrayList<>(game.getConnectedGamePlayers());
@@ -221,7 +223,7 @@ public class Action {
                 OwnedAbility chosenAbility = gamePlayer.getOwnedAbilityById(id);
                 LoadedAbility currentLoadedAbility = loadedAbilities.get(slot);
 
-                if ( chosenAbility.duplicatesOwned > 0 && (currentLoadedAbility == null || currentLoadedAbility.getOwnedAbility() != chosenAbility)) {
+                if ( chosenAbility.duplicatesOwned > 0 && (currentLoadedAbility.isEmpty() || currentLoadedAbility.getOwnedAbility() != chosenAbility)) {
                     //SUCCESS
 
                     gamePlayer.resetAbilitySlot(slot);
@@ -230,19 +232,40 @@ public class Action {
                     int level = chosenAbility.ownedLevel > slot + 1 ? slot + 1 : chosenAbility.ownedLevel;
                     loadedAbilities.set(slot, new LoadedAbility( chosenAbility, level ));
 
-                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8F, 1.0F);
                     CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
                     customGUI.load();
                 }
                 else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 1.0F, 1.0F);
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.8F, 1.0F);
                 }
 
                 break;
 
             }
+            case "RANDOMIZE_ABILITY_INTO_SLOT": {
+                int slot = Integer.parseInt(arg);
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+
+                gamePlayer.randomlySelectAbilityInSlot(slot);
+
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8F, 1.0F);
+                CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
+                customGUI.load();
+                break;
+            }
+            case "RANDOMIZE_ALL_ABILITIES": {
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+
+                gamePlayer.randomlySelectAllAbilities();
+
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8F, 1.0F);
+                CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
+                customGUI.load();
+                break;
+            }
             case "ERROR": {
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 1.0F, 1.0F);
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.8F, 1.0F);
                 break;
             }
             default: {

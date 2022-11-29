@@ -19,7 +19,7 @@
 
 ---
 lang_name: "Russian"
-prefix: "[BW]"
+prefix: "&7[&4BW&7]"
 item_shop_name: "Магазин"
 join: "%name% &aприсоединился к игре!&r &7[&a%players%&7/&a%maxplayers%&7]"
 leave: "%name% &cпокинул игру!"
@@ -42,7 +42,7 @@ arena_must_be_in_edit_mode: "&cАрена должна быть в режиме 
 arena_removed: "&c&lАрена удалена!"
 arena_added: "&aАрена добавлена!"
 arena_switched_to_edit: "&aАрена теперь в режиме редактирования!"
-bed_is_destroyed: "Кровать команды %team%&r разрушена!"
+bed_is_destroyed: "&7Кровать %team%&7 разрушена!"
 target_is_destroyed: "Главный блок команды %team%&r разрушен!"
 anchor_is_destroyed: "Якорь Возрождения команды %team%&r разрушен!"
 cake_is_destroyed: "Торт команды %team%&r был съеден!"
@@ -81,7 +81,7 @@ team_select_item: "%teamName% &7(&e%inTeam% &f/ &e%maxInTeam%&7)"
 team_select_item_lore: "&f---------------------"
 team_select_item_lore_full: "&fКоманда заполнена!"
 team_select_item_lore_join: "Нажмите для присоединения!"
-you_won: "&aВыша команда победила!"
+you_won: "&aВаша команда победила!"
 you_lost: "&cВаша команда проиграла!"
 team_win: "&aКоманда &r%team%&a победила за &7%time%"
 game_end: "&cИгра окончена! Спасибо за участие!"
@@ -500,6 +500,8 @@ item_potion_slow2: 'Густые телесные жидкости'
 item_potion_poison: 'Едкая кислота'
 item_potion_poison2: 'Парфюм - GUCCI'
 
+item_potion_levitation: '"Ракетное" топливо'
+
 description_support_arrow1: '&7Данные стрелы работают'
 description_support_arrow2: '&7только на союзников'
 description_support_arrow3: '&7и не наносят им урон.'
@@ -603,3 +605,7 @@ upgrade_vitality_level4b_description2: "&7Сопротивления Урону 
 upgrade_vitality_level4b_description3: "&7"
 
 abilities_menu_item_name: "&6Выбор способностей"
+
+game_end_bossbar: "&a...конец игры..."
+
+out_of_arena: '&cВы находитесь вне арены...'

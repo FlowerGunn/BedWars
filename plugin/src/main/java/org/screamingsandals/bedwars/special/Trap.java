@@ -19,15 +19,13 @@
 
 package org.screamingsandals.bedwars.special;
 
-import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.api.RunningTeam;
-import org.screamingsandals.bedwars.utils.MiscUtils;
-import org.screamingsandals.bedwars.utils.Sounds;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.Sounds;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
 
 import java.util.List;
 import java.util.Map;

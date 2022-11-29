@@ -25,7 +25,7 @@ import org.screamingsandals.bedwars.api.ArenaTime;
 import org.screamingsandals.bedwars.api.InGameConfigBooleanConstants;
 import org.screamingsandals.bedwars.region.FlatteningBedUtils;
 import org.screamingsandals.bedwars.region.LegacyBedUtils;
-import org.screamingsandals.bedwars.utils.TeamJoinMetaDataValue;
+import org.screamingsandals.bedwars.utils.external.TeamJoinMetaDataValue;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Bed.Part;

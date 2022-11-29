@@ -58,6 +58,10 @@ public class CurrentTeam implements RunningTeam {
         this.chestInventory = Bukkit.createInventory(null, InventoryType.ENDER_CHEST, i18nc("team_chest", game.getCustomPrefix()));
     }
 
+//    public static CurrentTeam generateNeutralTeam(Game game) {
+//        return new CurrentTeam(Team.generateNeutralTeam(), game);
+//    }
+
     public List<GameFlag> getFlags() {
         return this.teamFlags;
     }

@@ -31,8 +31,11 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
+import org.screamingsandals.bedwars.api.RunningTeam;
 import org.screamingsandals.bedwars.api.events.BedwarsApplyPropertyToBoughtItem;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.game.CurrentTeam;
+import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.api.events.BedwarsPlayerBuildBlock;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.special.AutoIgniteableTNT;
@@ -83,12 +86,31 @@ public class AutoIgniteableTNTListener implements Listener {
             TNTPrimed tnt = (TNTPrimed) event.getDamager();
 
             Bukkit.getConsoleSender().sendMessage( "Damaging " + player.getName() + " with tnt by " + tnt.getMetadata("owner").get(0).asString());
-            event.setDamage(10);
+            event.setDamage(event.getDamage() * 0.25);
 
-            if (tnt.hasMetadata(player.getUniqueId().toString()) && tnt.hasMetadata("autoignited")) {
-                event.setCancelled(true);
-                Bukkit.getConsoleSender().sendMessage( "TNT damage cancelled for " + player.getName());
+
+            if ( tnt.hasMetadata("owner")) {
+                Player owner = Bukkit.getPlayer(tnt.getMetadata("owner").get(0).asString());
+                Player victim = (Player) event.getEntity();
+                GamePlayer gOwner = Main.getPlayerGameProfile(owner);
+                GamePlayer gVictim = Main.getPlayerGameProfile(victim);
+
+                Game game = gVictim.getGame();
+                RunningTeam teamVictim = game.getTeamOfPlayer(victim);
+                RunningTeam teamOwner = game.getTeamOfPlayer(owner);
+
+                if ( teamOwner == teamVictim ) {
+                    event.setCancelled(true);
+                    Bukkit.getConsoleSender().sendMessage( "Same team TNT damage cancelled for " + player.getName());
+                }
             }
+
+
+
+//            if (tnt.hasMetadata(player.getUniqueId().toString()) && tnt.hasMetadata("autoignited")) {
+//                event.setCancelled(true);
+//                Bukkit.getConsoleSender().sendMessage( "TNT damage cancelled for " + player.getName());
+//            }
         }
     }
 

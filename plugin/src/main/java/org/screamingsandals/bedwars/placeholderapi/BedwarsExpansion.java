@@ -37,6 +37,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.game.TeamColor;
 import org.screamingsandals.bedwars.listener.Player116ListenerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.gameplay.AbilitiesManager;
+import org.screamingsandals.bedwars.utils.flowergun.tools.IconsManager;
 
 import java.util.ArrayList;
 
@@ -397,45 +398,10 @@ public class BedwarsExpansion extends PlaceholderExpansion {
                                 String type = potionEffect.getType().getName();
                                 String amplifier = String.valueOf(potionEffect.getAmplifier() + 1);
 
-                                if ( type.equals(PotionEffectType.INCREASE_DAMAGE.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_strength%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.WEAKNESS.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_weakness%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.SPEED.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_speed%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.JUMP.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_jump_boost%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.SLOW.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_slowness%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.FAST_DIGGING.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_haste%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.SLOW_DIGGING.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_mining_fatigue%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.GLOWING.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_glowing%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.DAMAGE_RESISTANCE.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_resistance%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.ABSORPTION.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_absorption%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.HUNGER.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_hunger%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.WITHER.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_wither%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.POISON.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_poison%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.REGENERATION.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_regeneration%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.LUCK.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_luck%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.UNLUCK.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_unluck%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.SLOW_FALLING.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_slow_falling%") +  ChatColor.GRAY + amplifier + " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.LEVITATION.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_levitation%") +  ChatColor.GRAY + amplifier + " " + ChatColor.RESET;
-                                else if (type.equals(PotionEffectType.BLINDNESS.getName()))
-                                    statuses += PlaceholderAPI.setPlaceholders(player, "%img_blindness%") +  ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
-                                else statuses += type;
+                                String icon = IconsManager.requestIcon(type, player);
+
+                                statuses += icon + ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+
                             }
 
                             if (statuses.length() > 0) statuses.substring(0, statuses.length() - 1);
@@ -446,6 +412,12 @@ public class BedwarsExpansion extends PlaceholderExpansion {
                     } else {
                         return "";
                     }
+
+                case "abilities": {
+                    if (Main.isPlayerInGame(player)) {
+                        return Main.getPlayerGameProfile(player).getAbilitiesIcons();
+                    }
+                }
                 case "arena_name":
 //                    Bukkit.getConsoleSender().sendMessage("call health");
                     if (Main.isPlayerInGame(player)) {

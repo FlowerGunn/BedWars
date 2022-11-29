@@ -21,8 +21,6 @@ package org.screamingsandals.bedwars.special.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -45,8 +43,8 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.screamingsandals.bedwars.special.Golem;
 import org.screamingsandals.bedwars.special.Blaze;
-import org.screamingsandals.bedwars.utils.DelayFactory;
-import org.screamingsandals.bedwars.utils.MiscUtils;
+import org.screamingsandals.bedwars.utils.external.DelayFactory;
+import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 import java.util.List;
@@ -194,7 +192,7 @@ public class BlazeListener implements Listener {
 
 
                                 event.setDamage(FlowerUtils.blazeDamage);
-                                Bukkit.getConsoleSender().sendMessage("Blaze damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
+//                                Bukkit.getConsoleSender().sendMessage("Blaze damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
                             }
 
                         }
