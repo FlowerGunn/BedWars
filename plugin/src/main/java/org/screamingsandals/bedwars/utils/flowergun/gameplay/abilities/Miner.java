@@ -22,7 +22,7 @@ import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
             this.item = Material.STONE_PICKAXE;
             this.rarity = 3;
             this.icon = IconType.FAST_DIGGING;
-            this.description = "Вы получаете неломаемую каменную#кирку на Эффективность (values1)&7# и (values2)&7 булыжника при первом спавне";
+            this.description = "Вы получаете неломаемую каменную#кирку на Эффективность (values1)&7#и (values2)&7 булыжника при первом спавне";
         }
 
         @Override

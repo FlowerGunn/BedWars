@@ -17,7 +17,7 @@ public class AbilitiesManager {
         this.allAbilities.add( CopperManiac.class );
         this.allAbilities.add( Clemptomaniac.class );
         this.allAbilities.add( Levitator.class );
-        this.allAbilities.add( Tempered.class );
+//        this.allAbilities.add( Tempered.class );
         this.allAbilities.add( Friendlyness.class );
         this.allAbilities.add( Willpower.class );
         this.allAbilities.add( Sniper.class );

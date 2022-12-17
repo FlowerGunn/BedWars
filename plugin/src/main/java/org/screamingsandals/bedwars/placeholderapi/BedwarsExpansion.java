@@ -416,7 +416,7 @@ public class BedwarsExpansion extends PlaceholderExpansion {
                 case "abilities": {
                     if (Main.isPlayerInGame(player)) {
                         return Main.getPlayerGameProfile(player).getAbilitiesIcons();
-                    }
+                    } else return "";
                 }
                 case "arena_name":
 //                    Bukkit.getConsoleSender().sendMessage("call health");

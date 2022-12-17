@@ -94,6 +94,7 @@ public class Triggers {
                 assistersList += ChatColor.RESET + IconsManager.requestIcon("THUMBS_UP", victim) + IconsManager.requestIcon("OFFSET-3", victim);
                 String assistNotification = killerTeam.chatColor + killer.getName() + " " + ChatColor.RESET + IconsManager.requestIcon("THUMBS_UP", victim) + " " + IconsManager.requestIcon("SKULL", victim) + " " + victimTeam.chatColor + victim.getName();
                 for ( GamePlayer assister : assisters ) {
+                    if (game.getPlayerTeam(assister) == null) continue;
                     assistersList += game.getPlayerTeam(assister).teamInfo.color.assistCell;
                     if (assister.player != null) {
                         assister.player.sendTitle("", assistNotification, 10, 30, 10);
@@ -349,11 +350,11 @@ public class Triggers {
             durabilityToRemove = FlowerUtils.toolsDamageScaleStartValue + (FlowerUtils.toolsDamageScaleEndValue - FlowerUtils.toolsDamageScaleStartValue) * (double) ( survivedFor - FlowerUtils.toolsDamageScaleStartSeconds ) / ( FlowerUtils.toolsDamageScaleEndSeconds - FlowerUtils.toolsDamageScaleStartSeconds );
         }
 
-        ArrayList<ItemStack> modifiedDestroyedResources = new ArrayList<>(FlowerUtils.destroyedResources);
+        ArrayList<ItemStack> modifiedDestroyedItems = new ArrayList<>(FlowerUtils.destroyedItems);
         ArrayList<Material> modifiedNonBreakingItems = new ArrayList<>();
 
-        if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_1)) modifiedDestroyedResources.remove(Main.getSpawnerType("bronze").getStack());
-        if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_2)) modifiedDestroyedResources.remove(Main.getSpawnerType("iron").getStack());
+        if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_1)) modifiedDestroyedItems.remove(Main.getSpawnerType("bronze").getStack());
+        if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_2)) modifiedDestroyedItems.remove(Main.getSpawnerType("iron").getStack());
 
         if (gamePlayer.hasFlag(GameFlag.VITALITY_LEVEL_2)) {
             modifiedNonBreakingItems.add(Material.LEATHER_CHESTPLATE);
@@ -368,7 +369,11 @@ public class Triggers {
             if ( itemStack == null ) continue;
             ItemStack clone = itemStack.clone();
             clone.setAmount(1);
-            if ( modifiedDestroyedResources.contains(clone) ) {
+            if ( modifiedDestroyedItems.contains(clone) ) {
+                itemStack.setAmount(0);
+                continue;
+            }
+            if ( FlowerUtils.destroyedResources.contains(clone.getType()) ) {
                 itemStack.setAmount(0);
                 continue;
             }

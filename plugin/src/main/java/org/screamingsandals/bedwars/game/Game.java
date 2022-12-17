@@ -735,6 +735,9 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                     if (broker != null) {
                         colored_broker = getPlayerTeam(Main.getPlayerGameProfile(broker)).teamInfo.color.chatColor + broker.getDisplayName();
                     }
+
+                    Bukkit.getConsoleSender().sendMessage("Кровать команды " + team.teamInfo.color.chatColor + team.getName() + ChatColor.RESET + " сломана игроком " + colored_broker + ChatColor.RESET + " за " + (gameTime - countdown) / 60 + ":" + (gameTime - countdown) % 60 + " на арене " + name);
+
                     for (GamePlayer player : players) {
                         final String key = isItBedBlock ? "bed_is_destroyed" : (isItAnchor ? "anchor_is_destroyed" : (isItCake ? "cake_is_destroyed" : "target_is_destroyed"));
                         Title.send(player.player,
@@ -817,9 +820,9 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         if (!players.contains(gamePlayer)) {
             players.add(gamePlayer);
         }
-        if (!matchedPlayers.contains(gamePlayer)) {
-            matchedPlayers.add(gamePlayer);
-        }
+//        if (!matchedPlayers.contains(gamePlayer)) {
+//            matchedPlayers.add(gamePlayer);
+//        }
 
         updateSigns();
 
@@ -831,6 +834,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         if (arenaTime.time >= 0) {
             gamePlayer.player.setPlayerTime(arenaTime.time, false);
         }
+
 
         if (arenaWeather != null) {
             gamePlayer.player.setPlayerWeather(arenaWeather);
@@ -904,45 +908,45 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             }
         }
 
-
-        if (status == GameStatus.RUNNING && gamePlayer.isReturning) {
-//            for ( GamePlayer matchedPlayer : this.matchedPlayers ) {
-//                if (matchedPlayer.player.getDisplayName().equals(gamePlayer.player.getDisplayName())) {
-//                    gamePlayer.
-//                    break;
+//
+//        if (status == GameStatus.RUNNING && gamePlayer.isReturning) {
+////            for ( GamePlayer matchedPlayer : this.matchedPlayers ) {
+////                if (matchedPlayer.player.getDisplayName().equals(gamePlayer.player.getDisplayName())) {
+////                    gamePlayer.
+////                    break;
+////                }
+////            }
+//            Bukkit.getConsoleSender().sendMessage("applying returning player properties");
+//            GamePlayer player = gamePlayer;
+//            gamePlayer.latestCurrentTeam.players.add(gamePlayer);
+//            gamePlayer.game = this;
+//            Bukkit.getConsoleSender().sendMessage("is in game? - " + Main.isPlayerInGame(gamePlayer.player));
+//            Bukkit.getConsoleSender().sendMessage("is the game field empty    D.=     - " + (gamePlayer.getGame() == null));
+//            this.players.add(gamePlayer);
+//
+//            CurrentTeam team = this.getPlayerTeam(player);
+//            Bukkit.getConsoleSender().sendMessage("is team empty - " + (team == null));
+//
+//            player.teleport(team.teamInfo.spawn, () -> {
+//                player.player.setGameMode(GameMode.SURVIVAL);
+//                if (getOriginalOrInheritedGameStartItems()) {
+//                    List<ItemStack> givedGameStartItems = StackParser.parseAll((Collection<Object>) Main.getConfigurator().config
+//                            .getList("gived-game-start-items"));
+//                    if (givedGameStartItems != null) {
+//                        MiscUtils.giveItemsToPlayer(givedGameStartItems, player.player, team.getColor());
+//                    } else {
+//                        Debug.warn("You have wrongly configured gived-player-start-items!", true);
+//                    }
 //                }
-//            }
-            Bukkit.getConsoleSender().sendMessage("applying returning player properties");
-            GamePlayer player = gamePlayer;
-            gamePlayer.latestCurrentTeam.players.add(gamePlayer);
-            gamePlayer.game = this;
-            Bukkit.getConsoleSender().sendMessage("is in game? - " + Main.isPlayerInGame(gamePlayer.player));
-            Bukkit.getConsoleSender().sendMessage("is the game field empty    D.=     - " + (gamePlayer.getGame() == null));
-            this.players.add(gamePlayer);
-
-            CurrentTeam team = this.getPlayerTeam(player);
-            Bukkit.getConsoleSender().sendMessage("is team empty - " + (team == null));
-
-            player.teleport(team.teamInfo.spawn, () -> {
-                player.player.setGameMode(GameMode.SURVIVAL);
-                if (getOriginalOrInheritedGameStartItems()) {
-                    List<ItemStack> givedGameStartItems = StackParser.parseAll((Collection<Object>) Main.getConfigurator().config
-                            .getList("gived-game-start-items"));
-                    if (givedGameStartItems != null) {
-                        MiscUtils.giveItemsToPlayer(givedGameStartItems, player.player, team.getColor());
-                    } else {
-                        Debug.warn("You have wrongly configured gived-player-start-items!", true);
-                    }
-                }
-                SpawnEffects.spawnEffect(this, player.player, "game-effects.start");
-
-                Sounds.playSound(player.player, player.player.getLocation(),
-                        Main.getConfigurator().config.getString("sounds.game_start.sound"),
-                        Sounds.ENTITY_PLAYER_LEVELUP, (float) Main.getConfigurator().config.getDouble("sounds.game_start.volume"), (float) Main.getConfigurator().config.getDouble("sounds.game_start.pitch"));
-            });
-            gamePlayer.isReturning = false;
-        }
-        else
+//                SpawnEffects.spawnEffect(this, player.player, "game-effects.start");
+//
+//                Sounds.playSound(player.player, player.player.getLocation(),
+//                        Main.getConfigurator().config.getString("sounds.game_start.sound"),
+//                        Sounds.ENTITY_PLAYER_LEVELUP, (float) Main.getConfigurator().config.getDouble("sounds.game_start.volume"), (float) Main.getConfigurator().config.getDouble("sounds.game_start.pitch"));
+//            });
+//            gamePlayer.isReturning = false;
+//        }
+//        else
         if (status == GameStatus.RUNNING || status == GameStatus.GAME_END_CELEBRATING) {
             if (Main.getConfigurator().config.getBoolean("tab.enable") && Main.getConfigurator().config.getBoolean("tab.hide-spectators")) {
                 players.stream().filter(p -> p.isSpectator && !isPlayerInAnyTeam(p.player)).forEach(p -> gamePlayer.hidePlayer(p.player));
@@ -2136,7 +2140,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         Triggers.playerFirstSpawn(player);
 
                         player.lastDeathCounter = this.gameTime;
-                        Title.send(player.player, gameStartTitle, gameStartSubtitle);
+//                        Title.send(player.player, gameStartTitle, gameStartSubtitle);
+                        player.player.sendTitle(gameStartTitle, gameStartSubtitle, 20, 40, 20);
                         if (team == null) {
                             makeSpectator(player, true);
 
@@ -2317,7 +2322,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                     player.player.sendMessage(message);
                                     if (getPlayerTeam(player) == t) {
                                         //WAYPOINT PLAYER WON
-                                        Title.send(player.player, i18nonly("you_won"), subtitle);
+//                                        Title.send(player.player, i18nonly("you_won"), subtitle);
+                                        player.player.sendTitle(i18n("you_won", false), subtitle, 20, 40, 20);
                                         player.player.playSound(player.player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 1.25F);
 
 
@@ -2366,7 +2372,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                         }
                                     } else {
                                         //WAYPOINT PLAYER LOST
-                                        Title.send(player.player, i18n("you_lost", false), subtitle);
+//                                        Title.send(player.player, i18n("you_lost", false), subtitle);
+                                        player.player.sendTitle(i18n("you_lost", false), subtitle, 20, 40, 20);
                                         player.player.playSound(player.player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 0.75F);
 
                                         if (Main.isPlayerStatisticsEnabled() && Main.isHologramsEnabled()) {
@@ -2384,6 +2391,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
                         tick.setNextCountdown(postGameWaiting);
                         tick.setNextStatus(GameStatus.GAME_END_CELEBRATING);
+
+                        Bukkit.getConsoleSender().sendMessage("Команда " + winner.teamInfo.color.chatColor + winner.getName() + ChatColor.RESET + " победила за " + (this.getGameTime() - this.countdown) / 60 + ":" + (this.getGameTime() - this.countdown) % 60 + " на арене " + this.getName());
                     } else {
                         tick.setNextStatus(GameStatus.REBUILDING);
                         tick.setNextCountdown(0);

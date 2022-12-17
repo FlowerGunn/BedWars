@@ -232,7 +232,7 @@ public class ZoglinListener implements Listener {
 
                                     if (activeZoglin.getTeam() == game.getTeamOfPlayer(player)) {
                                         if (event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY) {
-                                            Bukkit.getConsoleSender().sendMessage("Zoglin stopped revenging after being attacked");
+//                                            Bukkit.getConsoleSender().sendMessage("Zoglin stopped revenging after being attacked");
                                             EntityUtils.makeMobForgetTarget(entityZoglin);
                                             event.setCancelled(true);
                                             return;

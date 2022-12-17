@@ -184,7 +184,7 @@ public class BlazeListener implements Listener {
                                 Player player = (Player) event.getEntity();
 
                                 if (golem.getTeam() == game.getTeamOfPlayer(player)) {
-                                        Bukkit.getConsoleSender().sendMessage("Blaze stopped revenging after being attacked");
+//                                        Bukkit.getConsoleSender().sendMessage("Blaze stopped revenging after being attacked");
                                         event.setCancelled(true);
                                         ironGolem.setTarget(null);
                                         return;
@@ -233,7 +233,7 @@ public class BlazeListener implements Listener {
 
                                     if (activeBlaze.getTeam() == game.getTeamOfPlayer(player)) {
                                         if (event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY) {
-                                            Bukkit.getConsoleSender().sendMessage("Blaze stopped revenging after being attacked");
+//                                            Bukkit.getConsoleSender().sendMessage("Blaze stopped revenging after being attacked");
                                             EntityUtils.makeMobForgetTarget(entityBlaze);
                                             event.setCancelled(true);
                                             return;

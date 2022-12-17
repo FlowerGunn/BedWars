@@ -24,7 +24,7 @@ public class Clemptomaniac extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue1(int level) {
-        return 25 + level * 5;
+        return 25 + level * 10;
     }
 
     @Override

@@ -28,7 +28,7 @@ public class ShopInstance extends Shop {
 
         ArrayList<GameFlag> flags = new ArrayList<>(gamePlayer.getAllPlayerFlags());
 
-        Bukkit.getConsoleSender().sendMessage("shop instance generated with flags " + flags.size() + " " + flags);
+//        Bukkit.getConsoleSender().sendMessage("shop instance generated with flags " + flags.size() + " " + flags);
 
         for ( int i = 0; i < this.categories.size(); i++ ) {
             ShopCategory category = this.categories.get(i);

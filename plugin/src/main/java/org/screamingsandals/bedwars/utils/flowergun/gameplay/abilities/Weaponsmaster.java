@@ -29,7 +29,7 @@ public class Weaponsmaster extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue1(int level) {
-        return 2 + 1 * level;
+        return 3 * level;
     }
 
     @Override

@@ -22,7 +22,7 @@ import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
             this.item = Material.GOLDEN_CHESTPLATE;
             this.rarity = 4;
             this.icon = IconType.DAMAGE_RESISTANCE;
-            this.description = "Вы получаете неломаемый золотой нагрудник#на Защиту 2 и Защиту от Снарядов (values1)&7#при первом спавне";
+            this.description = "Вы получаете неломаемый золотой нагрудник#на Защиту 1 и Защиту от Снарядов (values1)&7#при первом спавне";
         }
 
         @Override
@@ -42,7 +42,7 @@ import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
             ItemStack kit2 = new ItemStack(Material.GOLDEN_CHESTPLATE);
             ItemMeta itemMeta2 = kit2.getItemMeta();
             itemMeta2.setUnbreakable(true);
-            itemMeta2.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 2, true);
+            itemMeta2.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
             itemMeta2.addEnchant(Enchantment.PROTECTION_PROJECTILE, calculateIntValue1(level), true);
     //        itemMeta2.addEnchant(Enchantment.BINDING_CURSE, 1, true);
             kit2.setItemMeta(itemMeta2);

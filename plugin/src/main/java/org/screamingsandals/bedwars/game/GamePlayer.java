@@ -50,8 +50,8 @@ import java.util.List;
 
 public class GamePlayer {
     public final Player player;
-    public boolean isReturning = false;
-    public boolean isDisconnected = false;
+//    public boolean isReturning = false;
+//    public boolean isDisconnected = false;
     @Getter
     private ImpactLog impactLog;
     public DamageRelay damageRelayAttackInstance = DamageRelay.MELEE;
@@ -160,7 +160,7 @@ public class GamePlayer {
         this.lastReceivedDamageInstance = null;
         this.impactLog = new ImpactLog();
 
-        this.isDisconnected = false;
+//        this.isDisconnected = false;
 
         //WAYPOINT TODO saving loaded abilities between matches
         this.loadedAbilities = new ArrayList<>();
@@ -366,7 +366,7 @@ public class GamePlayer {
 
     public boolean didFlagAmountChange() {
         int currentFlagCount = this.getAllPlayerFlags().size();
-        Bukkit.getConsoleSender().sendMessage(this.previousFlagCount + " < prev | current > " + currentFlagCount + " | " + this.player.getName());
+//        Bukkit.getConsoleSender().sendMessage(this.previousFlagCount + " < prev | current > " + currentFlagCount + " | " + this.player.getName());
         if (this.previousFlagCount == currentFlagCount) {
             this.previousFlagCount = currentFlagCount;
             return false;

@@ -17,7 +17,7 @@ public class Tempered extends Ability implements IAbility {
         this.id = "tempering";
         this.item = Material.IRON_CHESTPLATE;
         this.icon = IconType.DAMAGE_RESISTANCE;
-        this.description = "Все нагрудники в магазине#получают Прочность +(values1)";
+        this.description = "Все нагрудники в магазине получают#Прочность +(values1)&7 и Защиту от снарядов +2";
     }
 
     @Override
@@ -32,8 +32,11 @@ public class Tempered extends Ability implements IAbility {
 //            Bukkit.getConsoleSender().sendMessage("item is a chestplate");
             ItemMeta im = item.item.getItemMeta(); //.changeDeal( item.item.getItem().getAmount() + activeLevel, 0, 0 );
             int currentLevel = im.getEnchantLevel(Enchantment.DURABILITY);
-            currentLevel += 2 + calculateIntValue1(activeLevel);
-            im.addEnchant(Enchantment.DURABILITY, activeLevel, true);
+            int currentLevel2 = im.getEnchantLevel(Enchantment.PROTECTION_PROJECTILE);
+            currentLevel += calculateIntValue1(activeLevel);
+            currentLevel2 += 2;
+            im.addEnchant(Enchantment.DURABILITY, currentLevel, true);
+            im.addEnchant(Enchantment.PROTECTION_PROJECTILE, currentLevel2, true);
         }
     }
 

@@ -30,7 +30,7 @@ public class FrostKiss extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue1(int level) {
-        return 260 + -20 * level;
+        return 260 + -40 * level;
     }
     @Override
     public int calculateIntValue2(int level) {

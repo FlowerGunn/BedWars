@@ -23,12 +23,12 @@ public class Greediness extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue1(int level) {
-        return 40 + level * 10;
+        return 50 + level * 30;
     }
 
     @Override
     public int calculateIntValue2(int level) {
-        return 40 + level * 10;
+        return 50 + level * 30;
     }
 
 

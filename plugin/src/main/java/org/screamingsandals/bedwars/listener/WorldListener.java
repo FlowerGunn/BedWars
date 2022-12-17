@@ -125,7 +125,7 @@ public class WorldListener implements Listener {
             return;
         }
 
-        Bukkit.getConsoleSender().sendMessage("explosion happened at " + location.toString());
+//        Bukkit.getConsoleSender().sendMessage("explosion happened at " + location.toString());
 
         final List<String> explosionExceptionTypeName = Main.getConfigurator().config.getStringList("destroy-placed-blocks-by-explosion-except");
         final boolean destroyPlacedBlocksByExplosion = Main.getConfigurator().config.getBoolean("destroy-placed-blocks-by-explosion", true);
@@ -136,7 +136,7 @@ public class WorldListener implements Listener {
             Game game = Main.getGame(gameName);
             if (GameCreator.isInArea(location, game.getPos1(), game.getPos2())) {
                 gameFound = true;
-                Bukkit.getConsoleSender().sendMessage("explosion is in the box : " + GameCreator.isInArea(location, game.getPos1(), game.getPos2()));
+//                Bukkit.getConsoleSender().sendMessage("explosion is in the box : " + GameCreator.isInArea(location, game.getPos1(), game.getPos2()));
                 if (game.getStatus() == GameStatus.RUNNING || game.getStatus() == GameStatus.GAME_END_CELEBRATING) {
                     blockList.removeIf(block -> {
 //                        Bukkit.getConsoleSender().sendMessage("block is in the box : " + GameCreator.isInArea(block.getLocation(), game.getPos1(), game.getPos2()));

@@ -30,7 +30,8 @@ import static org.screamingsandals.bedwars.lib.lang.I.i18nonly;
 
 public class FlowerUtils {
 
-    public static ArrayList<ItemStack> destroyedResources;
+    public static ArrayList<ItemStack> destroyedItems;
+    public static ArrayList<Material> destroyedResources;
     public static double durabilityReduction;
     public static double durabilityCounterReductionPerUnbreakingLevel;
 
@@ -93,12 +94,13 @@ public class FlowerUtils {
 
 
         destroyedResources = new ArrayList<>();
+        destroyedItems = new ArrayList<>();
 
-        destroyedResources.add(Main.getSpawnerType("bronze").getStack());
-        destroyedResources.add(Main.getSpawnerType("iron").getStack());
-        destroyedResources.add(Main.getSpawnerType("gold").getStack());
-        destroyedResources.add(Main.getSpawnerType("emerald").getStack());
-        destroyedResources.add(new ItemStack(Material.ELYTRA));
+        destroyedItems.add(Main.getSpawnerType("bronze").getStack());
+        destroyedItems.add(Main.getSpawnerType("iron").getStack());
+        destroyedItems.add(Main.getSpawnerType("gold").getStack());
+        destroyedItems.add(Main.getSpawnerType("emerald").getStack());
+        destroyedResources.add(Material.ELYTRA);
 
         chestplates.add(Material.LEATHER_CHESTPLATE);
         chestplates.add(Material.CHAINMAIL_CHESTPLATE);
@@ -303,10 +305,10 @@ public class FlowerUtils {
         for (Player player : game.getConnectedPlayers()) {
             player.sendTitle("", ChatColor.GOLD + i18n("event1_text", "Gold and Emerald activated!", false), 5, 40, 5);
         }
-        Bukkit.getConsoleSender().sendMessage("event1 happened " + game.gameFlags.size() + " "  + game.gameFlags);
+//        Bukkit.getConsoleSender().sendMessage("event1 happened " + game.gameFlags.size() + " "  + game.gameFlags);
         game.gameFlags.add(GameFlag.GOLD_AND_EMERALDS_SPAWN);
 
-        Bukkit.getConsoleSender().sendMessage("event1 end " + game.gameFlags.size() + " " + game.gameFlags);
+//        Bukkit.getConsoleSender().sendMessage("event1 end " + game.gameFlags.size() + " " + game.gameFlags);
 
         BossBar bossbar = (BossBar) game.statusbar;
         if (bossbar instanceof BossBar19) {
@@ -315,6 +317,8 @@ public class FlowerUtils {
 //            bossbar19.setMessage("Stage 2: Gold and Emerald Spawn");
             bossbar19.setMessage(i18nonly("event1_bossbar"));
         }
+
+        Bukkit.getConsoleSender().sendMessage("Спавн золота на арене " + game.getName());
 
     }
 
@@ -338,6 +342,8 @@ public class FlowerUtils {
         for (Player player : game.getConnectedPlayers()) {
             player.sendTitle("", ChatColor.GOLD + i18n("event2_text", "Gold and Emerald sped UP!", false), 5, 40, 5);
         }
+
+        Bukkit.getConsoleSender().sendMessage("Ускорение генераторов на арене " + game.getName());
     }
 
     public static void thirdEventRun(Game game) {
@@ -360,6 +366,8 @@ public class FlowerUtils {
         for (Player player : game.getConnectedPlayers()) {
             player.sendTitle("", ChatColor.GOLD + i18n("event3_text", "Gold and Emerald on OVERDRIVE!", false), 5, 40, 5);
         }
+
+        Bukkit.getConsoleSender().sendMessage("Перегрев генераторов на арене " + game.getName());
     }
 
     public static void deathmatchStart(Game game) {

@@ -202,6 +202,10 @@ public class PlayerListener implements Listener {
 
                     }
                     game.updateScoreboard();
+
+                    if (team.players.size() <= 0) {
+                        Bukkit.getConsoleSender().sendMessage("Команда " + team.teamInfo.color.chatColor + team.getName() + ChatColor.RESET + " полностью уничтожена за " + (game.getGameTime() - game.countdown) / 60 + ":" + (game.getGameTime() - game.countdown) % 60 + " на арене " + game.getName());
+                    }
                 }
 
                 boolean onlyOnBedDestroy = Main.getConfigurator().config.getBoolean("statistics.bed-destroyed-kills",
@@ -315,7 +319,7 @@ public class PlayerListener implements Listener {
             GamePlayer gPlayer = Main.getPlayerGameProfile(event.getPlayer());
             if (gPlayer.isInGame())
                 gPlayer.changeGame(null);
-            //Main.unloadPlayerGameProfile(event.getPlayer());
+            Main.unloadPlayerGameProfile(event.getPlayer());
         }
 
         if (Main.isPlayerStatisticsEnabled()) {
@@ -335,24 +339,24 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        Bukkit.getConsoleSender().sendMessage("playerjoining " + player.getDisplayName());
-
-        boolean foundUnfinishedGame = false;
-        for ( String gameName : Main.getGameNames() ) {
-            Game game = Main.getGame(gameName);
-            Bukkit.getConsoleSender().sendMessage("checking game " + game.getName());
-            for ( GamePlayer gamePlayer : game.getMatchedPlayers() ) {
-                Bukkit.getConsoleSender().sendMessage("checking matched player " + gamePlayer.player.getDisplayName());
-                if ( gamePlayer.player.getDisplayName().equals(player.getDisplayName()) ) {
-                    gamePlayer.isReturning = true;
-                    Bukkit.getConsoleSender().sendMessage(player.displayName() + " reconnecting to game " + game.getName());
-                    foundUnfinishedGame = true;
-                    game.internalJoinPlayer(gamePlayer);
-                }
-            }
-        }
-
-        if ( !foundUnfinishedGame )
+//        Bukkit.getConsoleSender().sendMessage("playerjoining " + player.getDisplayName());
+//
+//        boolean foundUnfinishedGame = false;
+//        for ( String gameName : Main.getGameNames() ) {
+//            Game game = Main.getGame(gameName);
+//            Bukkit.getConsoleSender().sendMessage("checking game " + game.getName());
+//            for ( GamePlayer gamePlayer : game.getMatchedPlayers() ) {
+//                Bukkit.getConsoleSender().sendMessage("checking matched player " + gamePlayer.player.getDisplayName());
+//                if ( gamePlayer.player.getDisplayName().equals(player.getDisplayName()) ) {
+//                    gamePlayer.isReturning = true;
+//                    Bukkit.getConsoleSender().sendMessage(player.displayName() + " reconnecting to game " + game.getName());
+//                    foundUnfinishedGame = true;
+//                    game.internalJoinPlayer(gamePlayer);
+//                }
+//            }
+//        }
+//
+//        if ( !foundUnfinishedGame )
         if (Game.isBungeeEnabled() && Main.getConfigurator().config.getBoolean("bungee.auto-game-connect", false)) {
             new BukkitRunnable() {
                 public void run() {
@@ -704,8 +708,9 @@ public class PlayerListener implements Listener {
         }
 
         if (ChatColor.stripColor(player.getName()).equals("FlowerGun")) {
-            player.sendTitle("", ChatColor.GRAY + cause, 5,40, 5);
-            Bukkit.getConsoleSender().sendMessage(cause);
+            //WAYPOINT DAMAGE LOG
+//            player.sendTitle("", ChatColor.GRAY + cause, 5,40, 5);
+//            Bukkit.getConsoleSender().sendMessage(cause);
         }
 
 
@@ -750,7 +755,7 @@ public class PlayerListener implements Listener {
                         if (Main.isPlayerInGame(damager)) {
                             GamePlayer gDamager = Main.getPlayerGameProfile(damager);
                             if (gDamager.isSpectator || (gDamager.getGame().getPlayerTeam(gDamager) == game.getPlayerTeam(gPlayer) && !game.getOriginalOrInheritedFriendlyfire())) {
-                                Bukkit.getConsoleSender().sendMessage("stopped teammate melee damage");
+//                                Bukkit.getConsoleSender().sendMessage("stopped teammate melee damage");
                                 event.setCancelled(true);
                             }
                         }
@@ -766,7 +771,7 @@ public class PlayerListener implements Listener {
                             if (Main.isPlayerInGame(damager)) {
                                 GamePlayer gDamager = Main.getPlayerGameProfile(damager);
                                 if (gDamager.isSpectator || gDamager.getGame().getPlayerTeam(gDamager) == game.getPlayerTeam(gPlayer) && !game.getOriginalOrInheritedFriendlyfire()) {
-                                    Bukkit.getConsoleSender().sendMessage("stopped teammate projectile damage");
+//                                    Bukkit.getConsoleSender().sendMessage("stopped teammate projectile damage");
 
                                     event.setCancelled(true);
 

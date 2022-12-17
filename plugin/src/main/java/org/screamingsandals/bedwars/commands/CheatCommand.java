@@ -51,7 +51,7 @@ public class CheatCommand extends BaseCommand {
         }
 
 
-        Bukkit.getConsoleSender().sendMessage("Arg0 = " + args.get(0));
+//        Bukkit.getConsoleSender().sendMessage("Arg0 = " + args.get(0));
         if (args.get(0).equalsIgnoreCase("setcountdown")) {
             Player player = (Player) sender;
             Game game = Main.getPlayerGameProfile(player).getGame();

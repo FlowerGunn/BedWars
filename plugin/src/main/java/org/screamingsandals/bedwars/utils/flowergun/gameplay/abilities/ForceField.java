@@ -22,7 +22,7 @@ public class ForceField extends Ability implements IAbility {
         this.item = Material.PHANTOM_MEMBRANE;
         this.rarity = 4;
         this.icon = IconType.FAST_DIGGING;
-        this.description = "Блокирование снарядов щитом даст эффект#Cпешки 2 на (values1)&7 секунд";
+        this.description = "Блокирование снарядов щитом даст эффекты#Сопротивления 1 и Cпешки 2 на (values1)&7 секунд";
     }
 
     @Override
@@ -46,6 +46,7 @@ public class ForceField extends Ability implements IAbility {
                 playFXDefensiveUtility(victim, 1);
                 notifyPlayerOnAbilityActivation(victim);
                 victim.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 1));
+                victim.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, calculateIntValue1(level), 0));
             }
         }
 

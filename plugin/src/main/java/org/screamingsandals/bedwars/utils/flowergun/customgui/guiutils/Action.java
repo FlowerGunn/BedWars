@@ -163,11 +163,14 @@ public class Action {
                             team.teamFlags.add(tryingToBuy);
 
 
+                            String message = i18n("team_upgrade_notification", true).replace("%player%", team.teamInfo.color.chatColor + player.getName()).replace("%upgrade%", tryingToBuy.getName());
                             for ( GamePlayer teamGamePlayer: team.players ) {
-                                teamGamePlayer.player.sendMessage(i18n("team_upgrade_notification", true).replace("%player%", team.teamInfo.color.chatColor + player.getName()).replace("%upgrade%", tryingToBuy.getName()));
+                                teamGamePlayer.player.sendMessage(message);
                                 teamGamePlayer.player.playSound(teamGamePlayer.player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 0.8F);
                                 teamGamePlayer.player.playSound(teamGamePlayer.player.getLocation(), Sound.UI_LOOM_SELECT_PATTERN, 0.8F, 1.0F);
                             }
+
+                            Bukkit.getConsoleSender().sendMessage(message + ChatColor.RESET + " на арене " + gamePlayer.getGame().getName());
 
                             CustomGUI customGUI = new CustomGUI(player, "TEAM_UPGRADES");
                             customGUI.load();

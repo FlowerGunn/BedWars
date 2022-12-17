@@ -23,7 +23,7 @@ public class Lumberjack extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue1(int level) {
-        return 40 + level * 20;
+        return 40 + level * 40;
     }
 
     @Override

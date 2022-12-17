@@ -85,7 +85,7 @@ public class AutoIgniteableTNTListener implements Listener {
         if (event.getDamager() instanceof TNTPrimed) {
             TNTPrimed tnt = (TNTPrimed) event.getDamager();
 
-            Bukkit.getConsoleSender().sendMessage( "Damaging " + player.getName() + " with tnt by " + tnt.getMetadata("owner").get(0).asString());
+//            Bukkit.getConsoleSender().sendMessage( "Damaging " + player.getName() + " with tnt by " + tnt.getMetadata("owner").get(0).asString());
             event.setDamage(event.getDamage() * 0.25);
 
 
@@ -101,7 +101,7 @@ public class AutoIgniteableTNTListener implements Listener {
 
                 if ( teamOwner == teamVictim ) {
                     event.setCancelled(true);
-                    Bukkit.getConsoleSender().sendMessage( "Same team TNT damage cancelled for " + player.getName());
+//                    Bukkit.getConsoleSender().sendMessage( "Same team TNT damage cancelled for " + player.getName());
                 }
             }
 

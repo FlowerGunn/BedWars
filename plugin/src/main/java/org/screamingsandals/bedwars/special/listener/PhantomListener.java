@@ -238,7 +238,7 @@ public class PhantomListener implements Listener {
 
                                     if (activePhantom.getTeam() == game.getTeamOfPlayer(player)) {
                                         if (event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY) {
-                                            Bukkit.getConsoleSender().sendMessage("Phantom stopped revenging after being attacked");
+//                                            Bukkit.getConsoleSender().sendMessage("Phantom stopped revenging after being attacked");
                                             EntityUtils.makeMobForgetTarget(entityPhantom);
                                             event.setCancelled(true);
                                             return;

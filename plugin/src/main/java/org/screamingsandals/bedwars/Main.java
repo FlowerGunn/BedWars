@@ -216,7 +216,7 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         if (instance.playersInGame.containsKey(player))
             return instance.playersInGame.get(player);
         GamePlayer gPlayer = new GamePlayer(player);
-        Bukkit.getConsoleSender().sendMessage("NEW GAMEPLAYER CREATED = " + gPlayer.player.getDisplayName());
+//        Bukkit.getConsoleSender().sendMessage("NEW GAMEPLAYER CREATED = " + gPlayer.player.getDisplayName());
         instance.playersInGame.put(player, gPlayer);
         return gPlayer;
     }
