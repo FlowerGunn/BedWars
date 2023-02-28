@@ -91,7 +91,7 @@ public class GameStore implements org.screamingsandals.bedwars.api.game.GameStor
             }
 
             if (entity instanceof Villager) {
-                ((Villager) entity).setProfession(Villager.Profession.FARMER);
+                ((Villager) entity).setProfession(Villager.Profession.WEAPONSMITH);
             }
 
             if (entity instanceof Ageable) {

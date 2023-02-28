@@ -19,6 +19,8 @@
 
 package org.screamingsandals.bedwars.special;
 
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.api.Team;
@@ -44,7 +46,7 @@ public class ArrowBlocker extends SpecialItem implements org.screamingsandals.be
         this.game = game;
         this.player = player;
         this.item = item;
-        this.protectionTime = protectionTime;
+        this.protectionTime = protectionTime * 4;
     }
 
     @Override
@@ -76,14 +78,17 @@ public class ArrowBlocker extends SpecialItem implements org.screamingsandals.be
                     game.unregisterSpecialItem(ArrowBlocker.this);
                     this.cancel();
                 }
+                player.getLocation().getWorld().spawnParticle(Particle.SMOKE_LARGE, player.getLocation().add(0, 1, 0), 5, 0.5, 0.5, 0.5, 0);
             }
-        }.runTaskTimer(Main.getInstance(), 0L, 20L);
+        }.runTaskTimer(Main.getInstance(), 0L, 5L);
     }
 
     public void activate() {
         if (protectionTime > 0) {
             game.registerSpecialItem(this);
             runTask();
+
+            player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5F, 0.6F);
 
             if (item.getAmount() > 1) {
                 item.setAmount(item.getAmount() - 1);
@@ -100,7 +105,7 @@ public class ArrowBlocker extends SpecialItem implements org.screamingsandals.be
             }
             player.updateInventory();
 
-            MiscUtils.sendActionBarMessage(player, i18nonly("specials_arrow_blocker_started").replace("%time%", Integer.toString(protectionTime)));
+            MiscUtils.sendActionBarMessage(player, i18nonly("specials_arrow_blocker_started").replace("%time%", Integer.toString(protectionTime / 4)));
         }
     }
 }

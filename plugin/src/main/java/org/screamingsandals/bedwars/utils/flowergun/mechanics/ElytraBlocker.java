@@ -3,9 +3,11 @@ package org.screamingsandals.bedwars.utils.flowergun.mechanics;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
 
 public class ElytraBlocker extends BukkitRunnable {
 
@@ -39,11 +41,14 @@ public class ElytraBlocker extends BukkitRunnable {
             String durationString = "";
 
             for ( int i = 0; i < allowedDuration; i++) {
-                if ( i < allowedDuration - timer) durationString += ChatColor.GOLD + "|";
-                else durationString += ChatColor.DARK_GRAY + "|";
+                if ( i < allowedDuration - timer) durationString += ColoursManager.elytra + "|";
+                else durationString += ColoursManager.darkGray + "|";
             }
 
-            player.sendTitle("", durationString, 1, 5, 1);
+            player.sendTitle("", durationString, 0, 6, 1);
+            player.getLocation().getWorld().spawnParticle(Particle.END_ROD, player.getLocation().add(0, -1, 0), 10, 0.5, 0.5, 0.5, 0.05);
+            player.getLocation().getWorld().spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, player.getLocation(), 5, 1, 1, 1, 0);
+
 
             if (timer == allowedDuration) {
                 player.setGliding(false);
@@ -58,7 +63,8 @@ public class ElytraBlocker extends BukkitRunnable {
             Location location = player.getLocation().clone();
             location.add(0, -1, 0);
 
-            if (location.getBlock().getType() == Material.AIR) {
+//            if (location.getBlock().getType() == Material.AIR) {
+            if (!player.isOnGround()) {
                 player.sendTitle("", net.md_5.bungee.api.ChatColor.RED + "Вернитесь на землю!", 0, 20, 5);
             } else {
                 player.sendTitle("", net.md_5.bungee.api.ChatColor.GOLD + "...энергия восполнена...", 0, 20, 5);

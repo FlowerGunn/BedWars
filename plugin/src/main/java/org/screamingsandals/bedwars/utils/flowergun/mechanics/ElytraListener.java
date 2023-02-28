@@ -32,7 +32,7 @@ public class ElytraListener implements Listener {
 //                Bukkit.getConsoleSender().sendMessage("player stopped the fly");
                 if (location.getBlock().getType() == Material.AIR) {
                     gamePlayer.blockElytra = true;
-                    Bukkit.getConsoleSender().sendMessage("AIR STOP!");
+//                    Bukkit.getConsoleSender().sendMessage("AIR STOP!");
                 }
             }
             else {

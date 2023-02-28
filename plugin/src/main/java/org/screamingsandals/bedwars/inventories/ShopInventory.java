@@ -526,7 +526,7 @@ public class ShopInventory implements Listener {
                 UpgradeStorage upgradeStorage = UpgradeRegistry.getUpgrade(configuredType);
                 if (upgradeStorage != null) {
 
-                    // TODO: Learn SimpleGuiFormat upgrades pre-parsing and automatic renaming old
+                    // IDK: Learn SimpleGuiFormat upgrades pre-parsing and automatic renaming old
                     // variables
                     Team team = game.getTeamOfPlayer(event.getPlayer());
                     double addLevels = mapEntity.getDouble("add-levels",

@@ -104,7 +104,7 @@ public class Phantom extends SpecialItem implements org.screamingsandals.bedwars
         game.registerSpecialItem(this);
         Main.registerGameEntity(golem, (org.screamingsandals.bedwars.game.Game) game);
         if (!Main.getConfigurator().config.getBoolean("specials.dont-show-success-messages")) {
-            MiscUtils.sendActionBarMessage(player, i18nonly("specials_golem_created"));
+            MiscUtils.sendActionBarMessage(player, i18nonly("specials_phantom_created"));
         }
 
         //TODO - make this better by checking full inventory

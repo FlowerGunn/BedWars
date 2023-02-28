@@ -42,9 +42,9 @@ public class EntityUtils {
 			selector.clearSelector();
 			selector.registerPathfinder(0, PathfinderGoalMeleeAttackAccessor.getConstructor0().newInstance(handler, 1.0D, false));
 			
-			entityLiving.setAttribute(Attribute.MOVEMENT_SPEED, speed);
-			entityLiving.setAttribute(Attribute.FOLLOW_RANGE, follow);
-			entityLiving.setAttribute(Attribute.ATTACK_DAMAGE, attackDamage);
+			entityLiving.setAttribute(CustomAttribute.MOVEMENT_SPEED, speed);
+			entityLiving.setAttribute(CustomAttribute.FOLLOW_RANGE, follow);
+			entityLiving.setAttribute(CustomAttribute.ATTACK_DAMAGE, attackDamage);
 			
 			entityLiving.getTargetSelector().clearSelector();
 			
@@ -97,9 +97,9 @@ public class EntityUtils {
 			selector.registerPathfinder(2, PathfinderGoalRandomStrollAccessor.getConstructor0().newInstance(handler, 1.0D));
 			selector.registerPathfinder(3, PathfinderGoalRandomLookaroundAccessor.getConstructor0().newInstance(handler));
 
-			entityLiving.setAttribute(Attribute.MOVEMENT_SPEED, speed);
-			entityLiving.setAttribute(Attribute.FOLLOW_RANGE, follow);
-			entityLiving.setAttribute(Attribute.ATTACK_DAMAGE, attackDamage);
+			entityLiving.setAttribute(CustomAttribute.MOVEMENT_SPEED, speed);
+			entityLiving.setAttribute(CustomAttribute.FOLLOW_RANGE, follow);
+			entityLiving.setAttribute(CustomAttribute.ATTACK_DAMAGE, attackDamage);
 
 			entityLiving.getTargetSelector().clearSelector();
 

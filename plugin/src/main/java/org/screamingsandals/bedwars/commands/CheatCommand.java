@@ -30,6 +30,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.game.ItemSpawnerType;
 import org.screamingsandals.bedwars.utils.external.FakeDeath;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -53,26 +54,53 @@ public class CheatCommand extends BaseCommand {
 
 //        Bukkit.getConsoleSender().sendMessage("Arg0 = " + args.get(0));
         if (args.get(0).equalsIgnoreCase("setcountdown")) {
-            Player player = (Player) sender;
-            Game game = Main.getPlayerGameProfile(player).getGame();
-            if (args.size() != 2) {
+
+            if (args.size() < 2 || args.size() > 3) {
                 sender.sendMessage(i18n("unknown_usage"));
                 return true;
             }
-
-            int time = Integer.parseInt(args.get(1));
+            Game game;
+            int time;
+            if ( args.size() == 2 ) {
+                if (!( sender instanceof Player ))
+                {
+                    sender.sendMessage("You are not a player and thus don't have a game.");
+                    return true;
+                }
+                game = Main.getPlayerGameProfile((Player) sender).getGame();
+                time = Integer.parseInt(args.get(1));
+            } else {
+                game = Main.getGame(args.get(1));
+                time = Integer.parseInt(args.get(2));
+            }
 
             if (game == null) {
                 sender.sendMessage("Game is null...");
                 return true;
             }
             game.countdown = time;
-            sender.sendMessage("Countdown set to " + time);
+            sender.sendMessage("Countdown set to " + time + " on arena " + game.getName());
             return true;
         }
 
+
         if (args.size() >= 1) {
             Player player = (Player) sender;
+
+            if (args.get(0).equalsIgnoreCase("tpall")) {
+                ArrayList<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+
+                for (Player target : players) {
+                    if ( target != player )
+                    target.teleport(player);
+                }
+
+                if (players.size() > 1)
+                player.sendMessage("Teleported " + (players.size() - 1) + " players to you!");
+                else player.sendMessage("You are alone here =D");
+                return true;
+            }
+
             if (!Main.isPlayerInGame(player)) {
                 sender.sendMessage(i18n("you_arent_in_game"));
                 return true;
@@ -95,23 +123,22 @@ public class CheatCommand extends BaseCommand {
             switch (args.get(0).toLowerCase()) {
                 case "give":
                     {
-                        if (args.size() < 2) {
-                            sender.sendMessage(i18n("unknown_usage"));
-                            return true;
-                        }
                         String resource = args.get(1);
                         ItemSpawnerType type = Main.getSpawnerType(resource);
-                        if (type == null) {
-                            sender.sendMessage(i18n("admin_command_invalid_spawner_type"));
+                        Player player1 = player;
+                        if (type == null || args.size() < 2) {
+                            player1.getInventory().addItem(Main.getSpawnerType("bronze").getStack(64));
+                            player1.getInventory().addItem(Main.getSpawnerType("iron").getStack(64));
+                            player1.getInventory().addItem(Main.getSpawnerType("gold").getStack(64));
+                            player1.getInventory().addItem(Main.getSpawnerType("emerald").getStack(64));
                             return true;
                         }
-                        int stack = 1;
+                        int stack = 64;
                         if (args.size() > 2) {
                             try {
                                 stack = Integer.parseInt(args.get(2));
                             } catch (Throwable ignored) {}
                         }
-                        Player player1 = player;
                         if (args.size() > 3) {
                             player1 = Bukkit.getPlayer(args.get(3));
                             if (player1 == null || !game.isPlayerInAnyTeam(player1)) {
@@ -169,7 +196,9 @@ public class CheatCommand extends BaseCommand {
         }
 
         if (args.size() == 1) {
-            completion.addAll(Arrays.asList("give", "kill", "startemptygame","setcountdown"));
+            completion.addAll(Arrays.asList("give", "kill", "startemptygame","setcountdown","tpall"));
+        } else if (args.get(0).equals("setcountdown") && args.size() == 2) {
+            completion.addAll(Main.getGameNames());
         }
         if (Main.isPlayerInGame((Player) sender)) {
             if (args.size() > 1 && args.get(0).equals("give")) {

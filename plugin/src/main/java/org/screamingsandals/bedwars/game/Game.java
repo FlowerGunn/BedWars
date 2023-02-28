@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -89,8 +92,16 @@ import org.screamingsandals.bedwars.boss.XPBar;
 import org.screamingsandals.bedwars.commands.StatsCommand;
 import org.screamingsandals.bedwars.special.Trap;
 import org.screamingsandals.bedwars.utils.external.*;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.PurchasableItem;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.Shop;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.managers.AbilitiesManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.IconsManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.NotificationManager;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.MenuType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
+import org.screamingsandals.bedwars.utils.flowergun.shoputils.Shop;
 import org.screamingsandals.bedwars.inventories.TeamSelectorInventory;
 import org.screamingsandals.bedwars.listener.Player116ListenerUtils;
 import org.screamingsandals.bedwars.region.FlatteningRegion;
@@ -100,18 +111,17 @@ import org.screamingsandals.bedwars.lib.debug.Debug;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.screamingsandals.bedwars.lib.nms.holograms.Hologram;
 import org.screamingsandals.bedwars.lib.signmanager.SignBlock;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.ShopCategory;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
+import org.screamingsandals.bedwars.utils.flowergun.shoputils.ShopCategory;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomBlock;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
 import org.screamingsandals.simpleinventories.utils.MaterialSearchEngine;
 import org.screamingsandals.simpleinventories.utils.StackParser;
 
 import com.onarandombox.MultiverseCore.api.Core;
 
 public class Game implements org.screamingsandals.bedwars.api.game.Game {
-
     @Getter
     private File file;
     private String name;
@@ -162,7 +172,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     private String customPrefix = null;
 
     public Shop shop = null;
-    public FlowerUtils deathRules = null;
+    private String gameId;
 
 
     public List<GamePlayer> getMatchedPlayers() {
@@ -209,6 +219,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     private InGameConfigBooleanConstants lobbybossbar = InGameConfigBooleanConstants.INHERIT;
 
     public static final String GLOBAL_GAME_BOSSBAR = "bossbar.game.enable";
+
+    public static final String ALL_ABILITIES_MODE = "all-abilities-mode";
     public static final String GAME_BOSSBAR = "bossbar";
     private InGameConfigBooleanConstants gamebossbar = InGameConfigBooleanConstants.INHERIT;
 
@@ -302,8 +314,6 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     private Game() {
 
         this.shop = new Shop(this);
-
-        this.deathRules = new FlowerUtils();
 
         this.gameFlags = new ArrayList<>();
 
@@ -736,7 +746,11 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         colored_broker = getPlayerTeam(Main.getPlayerGameProfile(broker)).teamInfo.color.chatColor + broker.getDisplayName();
                     }
 
+                    //WAYPOINT BED BROKEN BED DESTROYED
+
                     Bukkit.getConsoleSender().sendMessage("Кровать команды " + team.teamInfo.color.chatColor + team.getName() + ChatColor.RESET + " сломана игроком " + colored_broker + ChatColor.RESET + " за " + (gameTime - countdown) / 60 + ":" + (gameTime - countdown) % 60 + " на арене " + name);
+
+                    Main.getStatsManager().addResourceToPlayer(broker, ResourceType.SILK_COCOON, 50);
 
                     for (GamePlayer player : players) {
                         final String key = isItBedBlock ? "bed_is_destroyed" : (isItAnchor ? "anchor_is_destroyed" : (isItCake ? "cake_is_destroyed" : "target_is_destroyed"));
@@ -1292,7 +1306,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                 // We're using 1.8
             }
 
-            game.tryToRestore();
+            //game.tryToRestore();
 
             Main.addGame(game);
             game.start();
@@ -1485,6 +1499,10 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
     public void start() {
         if (status == GameStatus.DISABLED) {
+
+            Random random = new Random();
+            this.gameId = ((long) Math.floor(random.nextDouble() * 10000000) + (long) Math.floor(random.nextDouble() * 10000000) * 10000000) + "";
+
             preparing = true;
             status = GameStatus.WAITING;
             countdown = -1;
@@ -2113,6 +2131,18 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
                     String gameStartTitle = i18nonly("game_start_title");
                     String gameStartSubtitle = i18nonly("game_start_subtitle").replace("%arena%", this.name);
+
+                    Timestamp logTime = Timestamp.valueOf(LocalDateTime.now());
+
+
+                    ComponentBuilder chatMessage = Component.text();
+
+                    for (GamePlayer player : this.players) {
+                        chatMessage.append(Component.newline());
+                        chatMessage.append(Component.text("   ")).append(NotificationManager.generatePlayerNameWithAbilitiesComponent( player, this.getPlayerTeam(player).teamInfo.color.chatColor));
+                    }
+                    chatMessage.append(Component.newline());
+
                     for (GamePlayer player : this.players) {
                         CurrentTeam team = getPlayerTeam(player);
                         player.latestCurrentTeam = team;
@@ -2122,7 +2152,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         player.player.getInventory().setChestplate(null);
                         player.player.getInventory().setLeggings(null);
                         player.player.getInventory().setBoots(null);
-                        //WAYPOINT FIRST PLAYER SPAWN
+                        // WAYPOINT FIRST PLAYER SPAWN
 
 
 //                        for ( GamePlayer gamePlayer : this.getConnectedGamePlayers() ) {
@@ -2137,7 +2167,26 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                             player.randomlySelectAllAbilities();
                         }
 
+                        //TODO save ability slots
+
+                        Bukkit.getScheduler().runTaskAsynchronously( Main.getInstance(), () -> {
+                            Main.getInstance().getAbilitiesManager().saveChosenAbilitiesSlots(player);
+                        });
+
+                        Bukkit.getScheduler().runTaskAsynchronously( Main.getInstance(), () -> {
+                            for (LoadedAbility loadedAbility : player.loadedAbilities ) {
+                                if (!loadedAbility.isEmpty())
+                                Main.getDatabaseManager().storeDatabaseLog("gamestart", FlowerUtils.versionName, player.player.getUniqueId() + "", loadedAbility.getOwnedAbility().getAbility().getRawName(), loadedAbility.activeLevel + "", loadedAbility.getOwnedAbility().ownedLevel + "", team.getName(), gameId, logTime);
+                            }
+                        });
+
+
+
                         Triggers.playerFirstSpawn(player);
+
+                        player.player.sendMessage("");
+                        player.player.sendMessage(IconsManager.blue_excl + ColoursManager.gray + " Способности игроков: (наведите курсор на иконки)");
+                        player.player.sendMessage(chatMessage);
 
                         player.lastDeathCounter = this.gameTime;
 //                        Title.send(player.player, gameStartTitle, gameStartSubtitle);
@@ -2310,6 +2359,13 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         for (CurrentTeam t : teamsInGame) {
                             if (t.isAlive()) {
                                 winner = t;
+
+
+                                Timestamp logTime = Timestamp.valueOf(LocalDateTime.now());
+                                Bukkit.getScheduler().runTaskAsynchronously( Main.getInstance(), () -> {
+                                      Main.getDatabaseManager().storeDatabaseLog("gameend", FlowerUtils.versionName, this.gameId , t.getName(), this.countdown + "", this.name, "", "", logTime);
+                                });
+
                                 String time = getFormattedTimeLeft(gameTime - countdown);
                                 String message = i18nc("team_win", customPrefix)
                                         .replace("%team%", TeamColor.fromApiColor(t.getColor()).chatColor + t.getName())
@@ -2319,8 +2375,15 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                         .replace("%time%", time);
                                 boolean madeRecord = processRecord(t, gameTime - countdown);
                                 for (GamePlayer player : players) {
+                                    //WAYPOINT GAME END
+
                                     player.player.sendMessage(message);
                                     if (getPlayerTeam(player) == t) {
+
+                                        int amount = (this.getGameTime() - this.countdown) / 120;
+                                        Main.getStatsManager().addResourceToPlayer(player.player, ResourceType.EXP_CRYSTAL_LVL1, amount + 10);
+                                        Main.getStatsManager().reward(player.player);
+
                                         //WAYPOINT PLAYER WON
 //                                        Title.send(player.player, i18nonly("you_won"), subtitle);
                                         player.player.sendTitle(i18n("you_won", false), subtitle, 20, 40, 20);
@@ -2380,6 +2443,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                             Main.getHologramInteraction().updateHolograms(player.player);
                                         }
                                     }
+
+
                                 }
                                 break;
                             }
@@ -2662,7 +2727,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         updateSigns();
         cancelTask();
         this.wasMapRestored = false;
-        this.tryToRestore();
+        //this.tryToRestore();
 
     }
 
@@ -3475,6 +3540,10 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     public boolean getOriginalOrInheritedGameBossbar() {
         return gamebossbar.isOriginal() ? gamebossbar.getValue()
                 : Main.getConfigurator().config.getBoolean(GLOBAL_GAME_BOSSBAR);
+    }
+
+    public static boolean getAllAbilitiesMode() {
+        return Main.getConfigurator().config.getBoolean(ALL_ABILITIES_MODE);
     }
 
     @Override

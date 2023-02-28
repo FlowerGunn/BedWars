@@ -20,6 +20,7 @@
 package org.screamingsandals.bedwars.special.listener;
 
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -93,6 +94,8 @@ public class ThrowableFireballListener implements Listener {
                 }
                 player.updateInventory();
                 player.setCooldown(event.getItem().getType(), FlowerUtils.fireballCooldown);
+                player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_GHAST_WARN, 1.0F, 1.0F);
+                player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1.0F, 1.0F);
             }
         }
     }

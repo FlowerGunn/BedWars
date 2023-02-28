@@ -39,6 +39,8 @@ import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.api.events.BedwarsPlayerBuildBlock;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.special.AutoIgniteableTNT;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class AutoIgniteableTNTListener implements Listener {
     private static final String AUTO_IGNITEABLE_TNT_PREFIX = "Module:AutoIgniteableTnt:";
@@ -86,12 +88,17 @@ public class AutoIgniteableTNTListener implements Listener {
             TNTPrimed tnt = (TNTPrimed) event.getDamager();
 
 //            Bukkit.getConsoleSender().sendMessage( "Damaging " + player.getName() + " with tnt by " + tnt.getMetadata("owner").get(0).asString());
-            event.setDamage(event.getDamage() * 0.25);
+
 
 
             if ( tnt.hasMetadata("owner")) {
+
                 Player owner = Bukkit.getPlayer(tnt.getMetadata("owner").get(0).asString());
                 Player victim = (Player) event.getEntity();
+
+                double distance = victim.getLocation().distance(event.getDamager().getLocation());
+                event.setDamage(FlowerUtils.TNTDamage * ( 1 - ( distance / FlowerUtils.TNTRadius) ) );
+
                 GamePlayer gOwner = Main.getPlayerGameProfile(owner);
                 GamePlayer gVictim = Main.getPlayerGameProfile(victim);
 
@@ -99,9 +106,12 @@ public class AutoIgniteableTNTListener implements Listener {
                 RunningTeam teamVictim = game.getTeamOfPlayer(victim);
                 RunningTeam teamOwner = game.getTeamOfPlayer(owner);
 
-                if ( teamOwner == teamVictim ) {
+                if ( teamOwner == teamVictim && victim != owner ) {
                     event.setCancelled(true);
 //                    Bukkit.getConsoleSender().sendMessage( "Same team TNT damage cancelled for " + player.getName());
+                } else {
+                    DamageInstance damageInstance = new DamageInstance(DamageSource.PLAYER, DamageTarget.PLAYER, DamageRelay.CONTACT, DamageType.EXPLOSION);
+                    gOwner.lastDealtDamageInstance = damageInstance;
                 }
             }
 

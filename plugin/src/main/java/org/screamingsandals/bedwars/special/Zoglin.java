@@ -106,10 +106,10 @@ public class Zoglin extends SpecialItem implements org.screamingsandals.bedwars.
         game.registerSpecialItem(this);
         Main.registerGameEntity(golem, (org.screamingsandals.bedwars.game.Game) game);
         if (!Main.getConfigurator().config.getBoolean("specials.dont-show-success-messages")) {
-            MiscUtils.sendActionBarMessage(player, i18nonly("specials_golem_created"));
+            MiscUtils.sendActionBarMessage(player, i18nonly("specials_zoglin_created"));
         }
 
-        //TODO - make this better by checking full inventory
+        //IDK - make this better by checking full inventory
         if (item.getAmount() > 1) {
             item.setAmount(item.getAmount() - 1);
         } else {

@@ -1,16 +1,10 @@
 package org.screamingsandals.bedwars.utils.flowergun.mechanics;
 
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.screamingsandals.bedwars.Main;
-import org.screamingsandals.bedwars.game.CurrentTeam;
-import org.screamingsandals.bedwars.game.GamePlayer;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
 
 import static org.screamingsandals.bedwars.lib.lang.I.i18n;
 

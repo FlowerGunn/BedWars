@@ -20,6 +20,7 @@
 package org.screamingsandals.bedwars.game;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -33,24 +34,34 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.utils.external.BungeeUtils;
 import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.ShopInstance;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.*;
-import org.screamingsandals.bedwars.utils.flowergun.tools.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.tools.comparators.SortByRarityOwnedAbility;
-import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageType;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.*;
+import org.screamingsandals.bedwars.utils.flowergun.managers.AbilitiesManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.ForgeManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.NewPlayerExperienceManager;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
+import org.screamingsandals.bedwars.utils.flowergun.shoputils.ShopInstance;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.OwnedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.other.comparators.SortByRarityOwnedAbility;
 import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactInstance;
 import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+
+import static org.screamingsandals.bedwars.game.Game.ALL_ABILITIES_MODE;
 
 public class GamePlayer {
     public final Player player;
-//    public boolean isReturning = false;
+    public ArrayList<ActiveForgeRecipe> activeForgeRecipes;
+    public ArrayList<ForgeRecipe> availableRecipes;
+    public DamageInstance lastDealtDamageInstance;
+    //    public boolean isReturning = false;
 //    public boolean isDisconnected = false;
     @Getter
     private ImpactLog impactLog;
@@ -58,8 +69,6 @@ public class GamePlayer {
     public DamageRelay damageRelayDefenceInstance;
     public Game game = null;
 
-    public DamageType damageTypeAttackInstance = DamageType.PHYSICAL;
-    public DamageType damageTypeDefenceInstance = DamageType.PHYSICAL;
     private String latestGame = null;
 
     public CurrentTeam latestCurrentTeam = null;
@@ -75,6 +84,9 @@ public class GamePlayer {
 
     private ShopInstance customGUIShopInstance;
     public DamageInstance lastReceivedDamageInstance;
+    @Getter
+    @Setter
+    private MenuType lastMenuVisited;
 
     public ShopInstance getCustomGUIShopInstance(){
         return this.customGUIShopInstance;
@@ -85,6 +97,8 @@ public class GamePlayer {
     }
 
     public List<GameFlag> playerFlags = new ArrayList<>();
+
+    public OwnedResourceBundle ownedResourceBundle = new OwnedResourceBundle();
 
     public int lastDeathCounter;
 
@@ -103,17 +117,34 @@ public class GamePlayer {
 
     public GamePlayer(Player player) {
 
-        //WAYPOINT TODO load player owned cosmetics
+        this.player = player;
+        //WAYPOINT DONE load player owned abilities
 
-        this.ownedAbilities = new ArrayList<>();
-        for ( Class clazz : Main.getInstance().getAbilitiesManager().getAllAbilities() ) {
-            this.ownedAbilities.add(new OwnedAbility( 0 ,player, Ability.generateAbility(clazz), 3, 1, 0, -1 ));
+        this.ownedAbilities = Main.getInstance().getAbilitiesManager().getAllAbilitiesByUUID(player.getUniqueId());
+
+
+        for ( Class clazz : Main.getInstance().getAbilitiesManager().getAllAbilitiesClasses() ) {
+            IAbility ability = Ability.generateAbility(clazz);
+            if ( !AbilitiesManager.abilitiesContainId(this.ownedAbilities, ability.getId()) )
+            this.ownedAbilities.add(new OwnedAbility( -1 ,player, ability, 0, 0, 0, -1 ));
         }
 
         Collections.sort(this.ownedAbilities, new SortByRarityOwnedAbility());
 
-        this.player = player;
         this.impactLog = new ImpactLog();
+
+        Main.getForgeManager().loadActiveForgeRecipes(this);
+        loadAllResources();
+        ForgeManager.loadAvailableRecipes(this);
+
+        Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+        NewPlayerExperienceManager.loadPlayerStarterGoodies(this);
+        }, 100L);
+
+    }
+
+    private void loadAllResources() {
+        ownedResourceBundle.addAllResources(Main.getInstance().getResourceManager().getAllResourcesByUUID(this.player.getUniqueId()));
     }
 
     public void resetAbilitySlot(int slot) {
@@ -152,23 +183,33 @@ public class GamePlayer {
         //WAYPOINT flags reset
         this.previousFlagCount = -1;
         this.playerFlags = new ArrayList<>();
-        this.damageTypeAttackInstance = DamageType.PHYSICAL;
-        this.damageTypeDefenceInstance = DamageType.PHYSICAL;
-        this.damageRelayAttackInstance = DamageRelay.MELEE;
-        this.damageRelayDefenceInstance = DamageRelay.MELEE;
-
         this.lastReceivedDamageInstance = null;
         this.impactLog = new ImpactLog();
 
 //        this.isDisconnected = false;
 
-        //WAYPOINT TODO saving loaded abilities between matches
+        //WAYPOINT DONE saving loaded abilities between matches
+//        Bukkit.getConsoleSender().sendMessage("resetting abilities for " + player.getName());
         this.loadedAbilities = new ArrayList<>();
         this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
         this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
         this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
 
-        if (this.game != null && game == null) {
+
+        for ( OwnedAbility ownedAbility : this.ownedAbilities ) {
+            if ( ownedAbility.lastEquippedSlot >= 0 ) {
+
+                int slot = ownedAbility.lastEquippedSlot;
+                int level = ownedAbility.ownedLevel;
+
+                if (slot + 1 < level) level = slot + 1;
+
+                this.loadedAbilities.set(slot, new LoadedAbility(ownedAbility, level));
+
+            }
+        }
+
+        if (this.game != null && game == null) { // leaving the game
             this.game.internalLeavePlayer(this);
             this.game = null;
             this.isSpectator = false;
@@ -179,7 +220,7 @@ public class GamePlayer {
             } else {
                 this.restoreInv();
             }
-        } else if (this.game == null && game != null) {
+        } else if (this.game == null && game != null) { // joining the game
             this.storeInv();
             this.clean();
             this.game = game;
@@ -189,7 +230,7 @@ public class GamePlayer {
             if (this.game != null) {
                 this.latestGame = this.game.getName();
             }
-        } else if (this.game != null) {
+        } else if (this.game != null) { // switching between games
             this.game.internalLeavePlayer(this);
             this.game = game;
             this.isSpectator = false;
@@ -423,9 +464,20 @@ public class GamePlayer {
 
 //        Bukkit.getConsoleSender().sendMessage("applying custom status");
 
+//        Bukkit.getConsoleSender().sendMessage("base hp = " + player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() );
+//        Bukkit.getConsoleSender().sendMessage("value hp = " + player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() );
         player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue( healthModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue()) );
-        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue( healthModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue()) );
-        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue( healthModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue()) );
+//        Bukkit.getConsoleSender().sendMessage("default speed = " + player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getDefaultValue() );
+//        Bukkit.getConsoleSender().sendMessage("base speed = " + player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue() );
+//        Bukkit.getConsoleSender().sendMessage("value speed = " + player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue() );
+//        Bukkit.getConsoleSender().sendMessage("modified speed = " + speedModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getDefaultValue()) );
+//        Bukkit.getConsoleSender().sendMessage("modifier 1 -> " + speedModifier.processValueEffectiveDecrease(1.0) );
+        player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue( speedModifier.processValueEffectiveDecrease(FlowerUtils.defaultSpeedValue) );
+//        Bukkit.getConsoleSender().sendMessage("value speed AGAIN = " + player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue() );
+//
+//        Bukkit.getConsoleSender().sendMessage("base armor = " + player.getAttribute(Attribute.GENERIC_ARMOR).getBaseValue() );
+//        Bukkit.getConsoleSender().sendMessage("value armor = " + player.getAttribute(Attribute.GENERIC_ARMOR).getValue() );
+        player.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue( armorModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_ARMOR).getDefaultValue()) );
 
     }
 
@@ -466,7 +518,7 @@ public class GamePlayer {
             String icons = "";
             for ( LoadedAbility loadedAbility : this.loadedAbilities) {
                 if ( loadedAbility.isEmpty() ) {
-                    icons += ChatColor.DARK_GRAY + "⬛" + ChatColor.RESET;
+                    icons += ChatColor.RESET + IconType.SLOT_LOCKED.getIcon(player) + ChatColor.RESET;
                 } else {
                     icons += ChatColor.RESET + loadedAbility.getOwnedAbility().getAbility().getIconString(player);
                 }
@@ -487,7 +539,7 @@ public class GamePlayer {
         ArrayList<OwnedAbility> rareOwnedAbilities = new ArrayList<>();
 
         for ( OwnedAbility ownedAbility : this.ownedAbilities ) {
-            if (ownedAbility.getAbility().getRarity() == 3) rareOwnedAbilities.add(ownedAbility);
+            if (ownedAbility.getAbility().getRarity() == 3 && ownedAbility.isAvailable()) rareOwnedAbilities.add(ownedAbility);
         }
 
         for ( int i = 0; i < this.loadedAbilities.size(); i++ ) {
@@ -503,11 +555,18 @@ public class GamePlayer {
 
         Collections.shuffle(rareOwnedAbilities);
 
-        int level = rareOwnedAbilities.get(0).ownedLevel;
-        if ( slot + 1 < level ) level = slot + 1;
+        int effectiveOwnedLevel = Main.getConfigurator().config.getBoolean(ALL_ABILITIES_MODE) ? 3 : rareOwnedAbilities.get(0).ownedLevel;
+
+        int level = Math.min( effectiveOwnedLevel, slot + 1 );
 
         this.loadedAbilities.set(slot, new LoadedAbility(rareOwnedAbilities.get(0), level));
         return true;
 
     }
+
+
+    public void updateShop() {
+        this.setCustomGUIShopInstance(new ShopInstance( this.player, game.shop ));
+    }
+
 }

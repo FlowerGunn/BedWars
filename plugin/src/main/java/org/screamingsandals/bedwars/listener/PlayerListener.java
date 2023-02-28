@@ -19,8 +19,16 @@
 
 package org.screamingsandals.bedwars.listener;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.util.RGBLike;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -41,9 +49,12 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
 import org.screamingsandals.bedwars.api.RunningTeam;
@@ -60,10 +71,15 @@ import org.screamingsandals.bedwars.statistics.PlayerStatistic;
 import org.screamingsandals.bedwars.lib.debug.Debug;
 import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
 import org.screamingsandals.bedwars.utils.external.*;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.CustomGUI;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.CustomGUI;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Ability;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.NotificationManager;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 import org.screamingsandals.simpleinventories.utils.StackParser;
 
 import java.util.*;
@@ -73,7 +89,7 @@ import static org.screamingsandals.bedwars.commands.BaseCommand.ADMIN_PERMISSION
 
 public class PlayerListener implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDeath(PlayerDeathEvent event) {
 
 
@@ -200,6 +216,10 @@ public class PlayerListener implements Listener {
                         statistic.addLoses(1);
                         statistic.addScore(Main.getConfigurator().config.getInt("statistics.scores.lose", 0));
 
+
+                        int amount = (game.getGameTime() - game.countdown) / 120;
+                        Main.getStatsManager().addResourceToPlayer(victim, ResourceType.EXP_CRYSTAL_LVL1, amount);
+                        Main.getStatsManager().reward(victim);
                     }
                     game.updateScoreboard();
 
@@ -220,6 +240,8 @@ public class PlayerListener implements Listener {
                                     Main.getConfigurator().config.getInt("statistics.scores.kill", 10));
                         }
                         if (!isBed) {
+                            //WAYPOINT FINAL KILL
+
                             game.dispatchRewardCommands("player-final-kill", killer,
                                     Main.getConfigurator().config.getInt("statistics.scores.final-kill", 0));
                         }
@@ -320,6 +342,7 @@ public class PlayerListener implements Listener {
             if (gPlayer.isInGame())
                 gPlayer.changeGame(null);
             Main.unloadPlayerGameProfile(event.getPlayer());
+
         }
 
         if (Main.isPlayerStatisticsEnabled()) {
@@ -338,6 +361,10 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+
+        Main.getPlayerGameProfile(player).recalculateCustomEffects();
+
+
 
 //        Bukkit.getConsoleSender().sendMessage("playerjoining " + player.getDisplayName());
 //
@@ -526,6 +553,8 @@ public class PlayerListener implements Listener {
                     } catch (Throwable t) {
                         block.setType(Material.AIR);
                     }
+                } else if ( block.getType() == Material.FIRE ) {
+                    event.setCancelled(false);
                 }
             }
         } else if (!event.getPlayer().hasPermission("bw.admin")) {
@@ -589,7 +618,7 @@ public class PlayerListener implements Listener {
                                 if (game.getStatus() == GameStatus.WAITING) {
                                     game.openTeamSelectorInventory(p);
                                 } else if (gPlayer.isSpectator) {
-                                    // TODO
+                                    // IDK
                                 }
                             } else if (item.getType() == Material
                                     .valueOf(Main.getConfigurator().config.getString("items.startgame", "DIAMOND"))) {
@@ -646,6 +675,26 @@ public class PlayerListener implements Listener {
             } else if (!gPlayer.getGame().getOriginalOrInheritedCrafting()) {
                 if ( !FlowerUtils.allowedRecipes.contains(event.getRecipe().getResult().getType()) )
                 event.setCancelled(true);
+
+                if ( event.getRecipe() instanceof ShapelessRecipe )
+                {
+                    ShapelessRecipe shapelessRecipe = (ShapelessRecipe) event.getRecipe();
+
+                    ArrayList<ItemStack> input = new ArrayList<>(shapelessRecipe.getIngredientList());
+                    boolean isDye = false;
+                    for ( ItemStack item : input ) {
+                        if ( item.getType().toString().toLowerCase().contains("dye")) {
+                            isDye = true;
+                            break;
+                        }
+                    }
+                    if (shapelessRecipe.getResult().getType().toString().toLowerCase().contains("dye") || isDye) {
+                        Main.getStatsManager().addResourceToPlayer((Player) player, ResourceType.GLOW_INK_SAC, 1);
+                    }
+
+                }
+
+
             }
         }
     }
@@ -709,8 +758,8 @@ public class PlayerListener implements Listener {
 
         if (ChatColor.stripColor(player.getName()).equals("FlowerGun")) {
             //WAYPOINT DAMAGE LOG
-//            player.sendTitle("", ChatColor.GRAY + cause, 5,40, 5);
-//            Bukkit.getConsoleSender().sendMessage(cause);
+            player.sendTitle("", ChatColor.GRAY + cause, 5,40, 5);
+            Bukkit.getConsoleSender().sendMessage(cause);
         }
 
 
@@ -741,6 +790,16 @@ public class PlayerListener implements Listener {
                 if (gPlayer.isSpectator) {
                     event.setCancelled(true);
                 }
+                if (event instanceof EntityDamageByEntityEvent) {
+                    EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) event;
+                    if (edbee.getDamager() instanceof Player) {
+                        if (game.isProtectionActive((Player) edbee.getDamager())) {
+                            game.removeProtectedPlayer((Player) edbee.getDamager());
+                            Bukkit.getConsoleSender().sendMessage("trying to remove protection from " + edbee.getDamager().getName());
+                        }
+                    }
+                }
+
                 if (game.isProtectionActive(player) && event.getCause() != DamageCause.VOID) {
                     event.setCancelled(true);
                     return;
@@ -763,10 +822,8 @@ public class PlayerListener implements Listener {
                         event.setCancelled(true);
                     } else if (edbee.getDamager() instanceof Projectile) {
                         Projectile projectile = (Projectile) edbee.getDamager();
-                        if (projectile instanceof Fireball  && game.getStatus() == GameStatus.RUNNING) {
-                            final double damage = Main.getConfigurator().config.getDouble("specials.throwable-fireball.damage");
-                            event.setDamage(damage);
-                        } else if (projectile.getShooter() instanceof Player) {
+//                        Bukkit.getConsoleSender().sendMessage("shooter = " + projectile.getShooter());
+                        if (projectile.getShooter() instanceof Player) {
                             Player damager = (Player) projectile.getShooter();
                             if (Main.isPlayerInGame(damager)) {
                                 GamePlayer gDamager = Main.getPlayerGameProfile(damager);
@@ -786,10 +843,16 @@ public class PlayerListener implements Listener {
                                             PotionEffectType effect = arrow.getBasePotionData().getType().getEffectType();
                                             if (effect == null) return;
 //                                            Bukkit.getConsoleSender().sendMessage(effect + " " + effect.getName());
-                                            if ( effect.equals(PotionEffectType.HEAL) || effect.equals(PotionEffectType.REGENERATION)) {
-
-                                                player.addPotionEffect(arrow.getBasePotionData().getType().getEffectType().createEffect(160, arrow.getBasePotionData().isUpgraded()? 1 : 0));
-                                                Ability.playFXHealing(gDamager.player, player,1);
+                                            if ( effect.equals(PotionEffectType.HEAL)) {
+                                                if (player != damager)
+                                                Ability.healHealth(gDamager.player, player, ((arrow.getBasePotionData().isUpgraded()? 1 : 0 ) + 1 ) * FlowerUtils.healingArrowHealPerLevel );
+                                                else player.sendActionBar(ColoursManager.pink + "Лечение не сработало, но вам уже намного лучше...");
+                                                projectile.remove();
+                                            }
+                                            else if (effect.equals(PotionEffectType.REGENERATION)) {
+                                                if (player != damager)
+                                                Ability.healRegen(gDamager.player, player, new PotionEffect(PotionEffectType.REGENERATION, FlowerUtils.regenArrowDuration, arrow.getBasePotionData().isUpgraded()? 1 : 0, false, false) );
+                                                else player.sendActionBar(ColoursManager.pink + "Лечение не сработало, но вам уже намного лучше...");
                                                 projectile.remove();
                                             }
 
@@ -814,6 +877,58 @@ public class PlayerListener implements Listener {
 
                                 }
                             }
+                        }
+                        if (projectile instanceof Fireball && game.getStatus() == GameStatus.RUNNING) {
+                            final double damage = FlowerUtils.fireballDamage;
+
+                            event.setDamage(1.0);
+
+                            if ( projectile.getShooter() instanceof Player ) {
+                                double radius = 4.0;
+
+                                double power = 2.0;
+                                double powerY = 1.0;
+
+                                Location explosionLocation = projectile.getLocation();
+
+                                double userZ = explosionLocation.getZ();
+                                double userX = explosionLocation.getX();
+                                double userY = explosionLocation.getY();
+                                Player target;
+                                double targetZ;
+                                double targetX;
+                                double targetY;
+                                double targetZdirection;
+                                double targetXdirection;
+                                double targetYdirection;
+
+                                target = player;
+
+                                targetZ = target.getLocation().getZ();
+                                targetX = target.getLocation().getX();
+                                targetY = target.getLocation().getY();
+                                targetZdirection = targetZ - userZ;
+                                targetXdirection = targetX - userX;
+                                targetYdirection = targetY - userY;
+                                org.bukkit.util.Vector boom = new Vector(targetXdirection,targetYdirection,targetZdirection);
+
+                                if ( boom.length() < radius )
+                                {
+                                    if (boom.length() < 0.6) boom = explosionLocation.getDirection();
+
+                                    boom = boom.setY(0).normalize().multiply(power * ( 1 - ( boom.length() / radius ))).setY(powerY);
+                                    event.setDamage( Math.max( 1.0, damage * ( 1 - ( boom.length() / radius ))) );
+
+//                                    target.teleport(target.getLocation().add(0, 0.5, 0));
+                                    target.setSneaking(false);
+//                                    double elytraMultiplier = player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType() == Material.ELYTRA ? 0.5 : 1;
+                                    double elytraMultiplier = player.isGliding() ? 0.5 : 1;
+                                    target.setVelocity(boom.multiply(elytraMultiplier).multiply(Math.max(1.0 - target.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue(), 0.0 )));
+                                }
+
+                            }
+
+
                         }
                     }
                 }
@@ -1041,7 +1156,7 @@ public class PlayerListener implements Listener {
                                                     stack.setAmount(stack.getAmount() - 1);
                                                 }
                                                 if (!player.isSneaking()) {
-                                                    // TODO get right block place sound
+                                                    // IDK get right block place sound
                                                     Sounds.BLOCK_STONE_PLACE.playSound(player, block.getLocation(), 1, 1);
                                                 }
                                             }
@@ -1218,8 +1333,11 @@ public class PlayerListener implements Listener {
 //            return;
 //        }
 
+
         Player player = event.getPlayer();
         if (Main.isPlayerInGame(player)) {
+
+            event.setCancelled(true);
             GamePlayer gPlayer = Main.getPlayerGameProfile(player);
             Game game = gPlayer.getGame();
             CurrentTeam team = game.getPlayerTeam(gPlayer);
@@ -1230,39 +1348,23 @@ public class PlayerListener implements Listener {
             String displayName = player.getDisplayName();
             String playerListName = player.getPlayerListName();
 
-            String format =
-                    ChatColor.translateAlternateColorCodes('&',
-                            Main.getConfigurator().config.getString("chat.format", "<%teamcolor%%name%&r> ")
-                    );
-            if (team != null) {
-                format = format.replace("%teamcolor%", team.teamInfo.color.chatColor.toString());
-                format = format.replace("%team%", team.teamInfo.name);
-                format = format.replace("%coloredteam%", team.teamInfo.color.chatColor + team.teamInfo.name);
-            } else if (spectator) {
-                format = format.replace("%teamcolor%", ChatColor.GRAY.toString());
-                format = format.replace("%team%", "SPECTATOR");
-                format = format.replace("%coloredteam%", ChatColor.GRAY.toString() + "SPECTATOR");
-            } else {
-                format = format.replace("%teamcolor%", ChatColor.GRAY.toString());
-                format = format.replace("%team%", "");
-                format = format.replace("%coloredteam%", ChatColor.GRAY.toString());
-            }
-            format = format.replace("%name%", playerName);
-            format = format.replace("%displayName%", displayName);
-            format = format.replace("%playerListName%", playerListName);
+//            TextComponent textComponent = Component.text().append(Component.text("sex")).build();
 
-            if (Main.isVault()) {
-                Chat chat = Bukkit.getServer().getServicesManager().load(Chat.class);
-                if (chat != null) {
-                    format = format.replace("%prefix%", chat.getPlayerPrefix(player));
-                    format = format.replace("%suffix%", chat.getPlayerSuffix(player));
-                }
-            }
+//            player.sendMessage(Component.text("meow").color(TextColor.fromHexString("#112299")));
+//            player.sendMessage(Component.text("meow").color(TextColor.color(218, 255, 0)));
+//            player.sendMessage(Component.text("meow").color(TextColor.color(0xFF8F20)));
+//            player.sendMessage(Component.text("meow").color(ColoursManager.getComponent(ColoursManager.orange)));
+//            player.sendMessage(Component.text("meow").color(ColoursManager.getComponent(ColoursManager.darkRed)));
+//            player.sendMessage(Component.text("meow").color(ColoursManager.getComponent(ColoursManager.light_blue)));
+//            player.sendMessage(net.md_5.bungee.api.ChatColor.of("#112299").getColor().toString() + " meow");
+//            player.sendMessage(net.md_5.bungee.api.ChatColor.of("#112299").getColor().getRed() + " meow");
+//            player.sendMessage(net.md_5.bungee.api.ChatColor.of("#112299").getColor().getGreen() + " meow");
+//            player.sendMessage(net.md_5.bungee.api.ChatColor.of("#112299").getColor().getBlue() + " meow");
+//            player.sendMessage("test = " + ColoursManager.red.toString());
 
-            format = format.replace("%prefix%", "");
-            format = format.replace("%suffix%", "");
+//            player.sendMessage(textComponent);
 
-            format = ChatColor.translateAlternateColorCodes('&', format);
+//            player.sendMessage(gPlayer.ownedAbilities.get(0).parseDescriptionComponent(1));
 
             boolean teamChat = Main.getConfigurator().config.getBoolean("chat.default-team-chat-while-running", true)
                     && game.getStatus() == GameStatus.RUNNING && (team != null || spectator);
@@ -1278,17 +1380,33 @@ public class PlayerListener implements Listener {
                 message = message.substring(tChat.length()).trim();
             }
 
+            ComponentBuilder chatMessage = Component.text();
+
             if (teamChat) {
-                if (spectator) {
-                    format = ChatColor.translateAlternateColorCodes('&', Main.getConfigurator().config.getString("chat.death-chat", "[DEATH] ")) + format;
-                } else {
-                    format = ChatColor.translateAlternateColorCodes('&', Main.getConfigurator().config.getString("chat.team-chat", "[TEAM] ").replace("%teamcolor%", team.teamInfo.color.chatColor + "") + format);
-                }
+                chatMessage.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
+                        .append(Component.text(team.teamInfo.name).color(ColoursManager.getComponent(team.teamInfo.color.chatColor)))
+                        .append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)));
+            } else if (spectator) {
+                chatMessage.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
+                        .append(Component.text("ПРИЗРАКИ").color(ColoursManager.getComponent(ColoursManager.darkGray)))
+                        .append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)));
             } else {
-                format = ChatColor.translateAlternateColorCodes('&', Main.getConfigurator().config.getString("chat.all-chat", "[ALL] ") + format);
+                chatMessage.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
+                        .append(Component.text("ВСЕ").color(ColoursManager.getComponent(ColoursManager.white)))
+                        .append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)));
             }
 
-            event.setFormat(format + message.replaceAll("%", "%%")); // Fix using % in chat
+            chatMessage.append(Component.text(" "));
+
+
+            chatMessage.append(NotificationManager.generatePlayerNameWithAbilitiesComponent( gPlayer, team != null ? team.teamInfo.color.chatColor : ColoursManager.white));
+            chatMessage.append(Component.text(" » ").color(ColoursManager.getComponent(ColoursManager.gray)));
+
+
+//            event.setFormat(format + message.replaceAll("%", "%%")); // Fix using % in chat
+
+            chatMessage.append(Component.text(message));
+
             Iterator<Player> recipients = event.getRecipients().iterator();
             while (recipients.hasNext()) {
                 Player recipient = recipients.next();
@@ -1305,7 +1423,8 @@ public class PlayerListener implements Listener {
             }
 
             for (Player p : event.getRecipients()) {
-                p.sendMessage(event.getFormat());
+                p.sendMessage(chatMessage.build());
+//                p.sendMessage(event.getFormat());
             }
 //            event.setCancelled(true);
         } else {

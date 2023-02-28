@@ -19,6 +19,8 @@
 
 package org.screamingsandals.bedwars.special.listener;
 
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
 import org.screamingsandals.bedwars.api.game.Game;
@@ -42,6 +44,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 import org.screamingsandals.simpleinventories.utils.MaterialSearchEngine;
 
 import java.util.ArrayList;
@@ -103,6 +107,16 @@ public class RescuePlatformListener implements Listener {
                                 game.registerDelay(delayFactory);
                             }
 
+                            if ( material == Material.SLIME_BLOCK )
+                            {
+                                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_SLIME_BLOCK_PLACE, 1F, 0.5F);
+                                Triggers.gadgetUsed(player, GadgetType.PLATFORM_SLIME);
+                            }
+                            else {
+                                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 1F, 0.5F);
+                                Triggers.gadgetUsed(player, GadgetType.PLATFORM);
+                            }
+
                             rescuePlatform.createPlatform(isBreakable, breakTime, distance, material, damage);
                         } else {
                             event.setCancelled(true);
@@ -120,34 +134,34 @@ public class RescuePlatformListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onFallDamage(EntityDamageEvent event) {
-        Entity entity = event.getEntity();
-        if (event.isCancelled() || !(entity instanceof Player)) {
-            return;
-        }
-
-        Player player = ((Player) entity).getPlayer();
-        if (!Main.isPlayerInGame(player)) {
-            return;
-        }
-
-        GamePlayer gPlayer = Main.getPlayerGameProfile(player);
-        Game game = gPlayer.getGame();
-        if (gPlayer.isSpectator) {
-            return;
-        }
-
-        RescuePlatform rescuePlatform = (RescuePlatform) game.getFirstActivedSpecialItemOfPlayer(player, RescuePlatform.class);
-        if (rescuePlatform != null && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
-            Block block = player.getLocation().getBlock().getRelative(BlockFace.DOWN);
-            if (block != null) {
-                if (block.getType() == rescuePlatform.getMaterial()) {
-                    event.setCancelled(true);
-                }
-            }
-        }
-    }
+//    @EventHandler
+//    public void onFallDamage(EntityDamageEvent event) {
+//        Entity entity = event.getEntity();
+//        if (event.isCancelled() || !(entity instanceof Player)) {
+//            return;
+//        }
+//
+//        Player player = ((Player) entity).getPlayer();
+//        if (!Main.isPlayerInGame(player)) {
+//            return;
+//        }
+//
+//        GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+//        Game game = gPlayer.getGame();
+//        if (gPlayer.isSpectator) {
+//            return;
+//        }
+//
+//        RescuePlatform rescuePlatform = (RescuePlatform) game.getFirstActivedSpecialItemOfPlayer(player, RescuePlatform.class);
+//        if (rescuePlatform != null && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+//            Block block = player.getLocation().getBlock().getRelative(BlockFace.DOWN);
+//            if (block != null) {
+//                if (block.getType() == rescuePlatform.getMaterial()) {
+//                    event.setCancelled(true);
+//                }
+//            }
+//        }
+//    }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {

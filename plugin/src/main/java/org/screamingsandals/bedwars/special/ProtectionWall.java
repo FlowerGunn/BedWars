@@ -19,6 +19,8 @@
 
 package org.screamingsandals.bedwars.special;
 
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.api.Team;
@@ -256,5 +258,10 @@ public class ProtectionWall extends SpecialItem implements org.screamingsandals.
             }
             player.updateInventory();
         }
+
+        player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.4F, 1.5F);
+
+        player.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, wallLocation.add(0, 1, 0), 1, 0, 0, 0, 0);
+
     }
 }

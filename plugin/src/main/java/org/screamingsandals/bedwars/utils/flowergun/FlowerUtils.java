@@ -4,7 +4,6 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -15,10 +14,10 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.boss.BossBar;
 import org.screamingsandals.bedwars.api.boss.BossBar19;
 import org.screamingsandals.bedwars.api.game.ItemSpawner;
-import org.screamingsandals.bedwars.boss.BossBar18;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
+import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -54,7 +53,25 @@ public class FlowerUtils {
     public static double zoglinDamage = 3;
     public static double phantomDamage = 6;
     public static double blazeDamage = 3;
-    private static double deathmatchWallPushPower = 0.8;
+    public static String upgradeAvailableMarker = ColoursManager.gray + " [" + ColoursManager.purple + "⏏" + ColoursManager.gray + "]";
+    public static int maxForgeSlots = 7;
+    public static int maxAbilityLevel = 3;
+    public static double copperShoppingValue = 0.1;
+    public static double ironShoppingValue = 0.5;
+    public static double goldShoppingValue = 1.5;
+    public static double emeraldShoppingValue = 4;
+    public static int defaultResourceLimit = 100;
+    public static int bwInventoryRows = 5;
+    public static int defaultForgeSlots = 3;
+    public static int healingArrowHealPerLevel = 4;
+    public static int regenArrowDuration = 160;
+    public static double defaultSpeedValue = 0.1;
+    public static double defaultResourceMultiplier = 1.0;
+    public static String teamSelectionMenuName = "Выбор Команды";
+    public static double fireballDamage = 8;
+    private static final double deathmatchWallPushPower = 0.8;
+    public static double TNTRadius = 6;
+    public static double TNTDamage = 15;
 
     public boolean destroyResources;
 
@@ -71,7 +88,8 @@ public class FlowerUtils {
     public static final int axesChance = 80;
     public static final int swordsChance = 40;
     public static int swordOnShieldCooldown = 25;
-    public static List<String> alphaWarning = Arrays.asList(ChatColor.DARK_RED + "" + ChatColor.BOLD + "АЛЬФА ТЕСТ!!!", ChatColor.RED + "Всем игрокам доступны все", ChatColor.RED + "способности на максимальном уровне.");
+    public static String versionName = "0.1";
+    public static List<String> alphaWarning = Arrays.asList(ColoursManager.darkRed + "" + ChatColor.BOLD + "ПРИВАТНЫЙ СЕРВЕР!!!", ColoursManager.darkRed + "Всем игрокам доступны все", ColoursManager.darkRed + "способности на максимальном уровне.");
 
     public static DecimalFormat singleDecimal = new DecimalFormat("#.#");
     public static DecimalFormat doubleDecimal = new DecimalFormat("#.##");
@@ -416,7 +434,7 @@ public class FlowerUtils {
             bossbar19.setMessage(i18nonly("event_annihilation_bossbar"));
         }
         for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ChatColor.GOLD + i18n("event_annihilation_text", "Annihilation!", false), 5, 40, 5);
+            player.sendTitle("", ColoursManager.annihilation + i18n("event_annihilation_text", "Annihilation!", false), 5, 40, 5);
             player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0F, 1.0F);
         }
     }
@@ -536,7 +554,7 @@ public class FlowerUtils {
 
     public static void deathmatchWarning(Game game) {
         for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ChatColor.GOLD + i18n("event_deathmatch_warning", "Deathmatch in 60 seconds!", false), 5, 40, 5);
+            player.sendTitle("", ColoursManager.purple + i18n("event_deathmatch_warning", "Deathmatch in 60 seconds!", false), 5, 80, 5);
             player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0F, 1.0F);
         }
     }

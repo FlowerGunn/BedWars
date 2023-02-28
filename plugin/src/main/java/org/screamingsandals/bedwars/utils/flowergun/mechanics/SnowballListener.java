@@ -13,10 +13,8 @@ import org.screamingsandals.bedwars.game.CurrentTeam;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.customobjects.GadgetType;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
-import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.tools.enums.DamageType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
 
 public class SnowballListener implements Listener {
 
@@ -55,13 +53,14 @@ public class SnowballListener implements Listener {
                     if (gamePlayerVictim.isSpectator) return;
 
                     double damage = FlowerUtils.snowballDamage;
-                    if (victim.isBlocking()) damage = 0;
-                    else victim.setVelocity( snowball.getVelocity().clone().multiply( Math.max(1.0 - victim.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue(), 0.0 ) ));
 
-                    gamePlayerShooter.damageTypeAttackInstance = DamageType.SNOWBALL;
-                    gamePlayerShooter.damageRelayAttackInstance = DamageRelay.PROJECTILE;
-                    gamePlayerShooter.damageTypeDefenceInstance = DamageType.SNOWBALL;
-                    gamePlayerShooter.damageRelayDefenceInstance = DamageRelay.PROJECTILE;
+                    //TODO do proper snowball blocking
+
+                    if (victim.isBlocking()) damage = 0;
+                    else victim.setVelocity( snowball.getVelocity().clone().multiply( 0.8 * Math.max(1.0 - victim.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue(), 0.0 ) ));
+
+                    gamePlayerShooter.lastDealtDamageInstance = new DamageInstance(DamageSource.PLAYER, DamageTarget.PLAYER, DamageRelay.PROJECTILE, DamageType.SNOWBALL);
+
                     victim.damage(damage, shooter);
 //                    Bukkit.getConsoleSender().sendMessage( "knockback res " + victim.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue() + "");
 
@@ -81,8 +80,6 @@ public class SnowballListener implements Listener {
 
                     double damage = FlowerUtils.snowballDamage;
 
-                    gamePlayerShooter.damageTypeAttackInstance = DamageType.SNOWBALL;
-                    gamePlayerShooter.damageRelayAttackInstance = DamageRelay.PROJECTILE;
                     ((LivingEntity) event.getHitEntity()).damage(damage, shooter);
                     event.getHitEntity().setVelocity( snowball.getVelocity().clone() );
 

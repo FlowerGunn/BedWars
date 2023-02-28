@@ -21,17 +21,15 @@ package org.screamingsandals.bedwars.commands;
 
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.C;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.statistics.PlayerStatistic;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.CustomGUI;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.AbilitiesManager;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.LoadedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.CustomGUI;
+import org.screamingsandals.bedwars.utils.flowergun.managers.AbilitiesManager;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,7 @@ import static org.screamingsandals.bedwars.lib.lang.I18n.i18n;
 public class InfoCommand extends BaseCommand {
 
     public InfoCommand() {
-        super("info", STATS_PERMISSION, true, Main.getConfigurator().config.getBoolean("default-permissions.stats"));
+        super("info", INFO_PERMISSION, true, Main.getConfigurator().config.getBoolean("default-permissions.stats"));
     }
 
     @Override
@@ -160,32 +158,11 @@ public class InfoCommand extends BaseCommand {
     @Override
     public void completeTab(List<String> completion, CommandSender sender, List<String> args) {
         if (args.size() == 1 && Main.isPlayerStatisticsEnabled()
-                && (hasPermission(sender, OTHER_STATS_PERMISSION, false) && hasPermission(sender, ADMIN_PERMISSION, false))) {
+                && (hasPermission(sender, STATS_PERMISSION, false) && hasPermission(sender, ADMIN_PERMISSION, false))) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 completion.add(p.getName());
             }
         }
-    }
-
-    public static void sendStats(CommandSender player, PlayerStatistic statistic) {
-        player.sendMessage(i18n("statistics_header").replace("%player%", statistic.getName()));
-
-        player.sendMessage(i18n("statistics_kills", false).replace("%kills%",
-                Integer.toString(statistic.getKills())));
-        player.sendMessage(i18n("statistics_deaths", false).replace("%deaths%",
-                Integer.toString(statistic.getDeaths())));
-        player.sendMessage(i18n("statistics_kd", false).replace("%kd%",
-                Double.toString(statistic.getKD())));
-        player.sendMessage(i18n("statistics_wins", false).replace("%wins%",
-                Integer.toString(statistic.getWins())));
-        player.sendMessage(i18n("statistics_loses", false).replace("%loses%",
-                Integer.toString(statistic.getLoses())));
-        player.sendMessage(i18n("statistics_games", false).replace("%games%",
-                Integer.toString(statistic.getGames())));
-        player.sendMessage(i18n("statistics_beds", false).replace("%beds%",
-                Integer.toString(statistic.getDestroyedBeds())));
-        player.sendMessage(i18n("statistics_score", false).replace("%score%",
-                Integer.toString(statistic.getScore())));
     }
 
 }

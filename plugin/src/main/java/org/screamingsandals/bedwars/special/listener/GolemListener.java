@@ -46,6 +46,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 
 import java.util.List;
 
@@ -105,6 +107,7 @@ public class GolemListener implements Listener {
                             game.registerDelay(delayFactory);
                         }
 
+                        Triggers.gadgetUsed(player, GadgetType.GOLEM);
                         golem.spawn();
                     } else {
                         event.setCancelled(true);
@@ -124,7 +127,7 @@ public class GolemListener implements Listener {
             return;
         }
 
-        Bukkit.getConsoleSender().sendMessage("Golem is damaged =( for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
+//        Bukkit.getConsoleSender().sendMessage("Golem is damaged =( for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
 
         IronGolem ironGolem = (IronGolem) event.getEntity();
         for (String name : Main.getGameNames()) {

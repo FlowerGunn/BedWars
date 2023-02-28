@@ -19,6 +19,9 @@
 
 package org.screamingsandals.bedwars.special.listener;
 
+import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
@@ -97,6 +100,26 @@ public class WarpPowderListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+
+
+        Player player = (Player) event.getWhoClicked();
+        if (!Main.isPlayerInGame(player)) {
+            return;
+        }
+        GamePlayer gPlayer = Main.getPlayerGameProfile(player);
+        Game game = gPlayer.getGame();
+//        Bukkit.getConsoleSender().sendMessage("player clicked under tp");
+        WarpPowder warpPowder = (WarpPowder) game.getFirstActivedSpecialItemOfPlayer(player, WarpPowder.class);
+        if (warpPowder != null) {
+//            Bukkit.getConsoleSender().sendMessage("tp cancelled");
+            warpPowder.cancelTeleport(true);
+        }
+    }
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {

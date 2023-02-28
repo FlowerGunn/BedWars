@@ -37,6 +37,8 @@ softdepend:
   - Citizens
   - Parties
   - ViaVersion
+depend:
+  - ItemsAdder
 commands:
   bw:
     description: Command of BW plugin

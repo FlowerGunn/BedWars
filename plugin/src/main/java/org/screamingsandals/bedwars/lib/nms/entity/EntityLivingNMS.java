@@ -50,8 +50,8 @@ public class EntityLivingNMS extends EntityNMS {
 		return new GoalSelector(handler);
 	}
 	
-	public boolean hasAttribute(Attribute attribute) {
-		return hasAttribute(attribute.getObject().get());
+	public boolean hasAttribute(CustomAttribute customAttribute) {
+		return hasAttribute(customAttribute.getObject().get());
 	}
 	
 	public boolean hasAttribute(Object attr) {
@@ -64,8 +64,8 @@ public class EntityLivingNMS extends EntityNMS {
 		return false;
 	}
 	
-	public double getAttribute(Attribute attribute) {
-		return getAttribute(attribute.getObject().get());
+	public double getAttribute(CustomAttribute customAttribute) {
+		return getAttribute(customAttribute.getObject().get());
 	}
 	
 	public double getAttribute(Object attr) {
@@ -78,8 +78,8 @@ public class EntityLivingNMS extends EntityNMS {
 		return 0;
 	}
 	
-	public void setAttribute(Attribute attribute, double value) {
-		setAttribute(attribute.getObject().get(), value);
+	public void setAttribute(CustomAttribute customAttribute, double value) {
+		setAttribute(customAttribute.getObject().get(), value);
 	}
 	
 	public void setAttribute(Object attr, double value) {

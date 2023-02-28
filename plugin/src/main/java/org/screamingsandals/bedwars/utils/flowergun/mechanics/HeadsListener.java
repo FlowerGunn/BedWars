@@ -1,5 +1,6 @@
 package org.screamingsandals.bedwars.utils.flowergun.mechanics;
 
+import com.fastasyncworldedit.core.util.MainUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.CurrentTeam;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
 
 import java.util.Random;
 
@@ -35,6 +37,10 @@ public class HeadsListener implements Listener {
 //            Bukkit.getConsoleSender().sendMessage("cause " + player.getLastDamageCause().getCause() + " " + (entityKiller instanceof Player));
             if ( player.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK && entityKiller instanceof Player) {
                 Player killer = (Player) entityKiller;
+
+                GamePlayer gKiller = Main.getPlayerGameProfile(killer);
+
+                if (gKiller.hasFlag(GameFlag.NO_PLAYER_HEADS)) return;
 
                 ItemStack weapon = killer.getInventory().getItemInMainHand();
 

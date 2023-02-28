@@ -1,10 +1,8 @@
 package org.screamingsandals.bedwars.utils.flowergun.mechanics;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.bukkit.entity.Player;
-import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.ImpactPolarity;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.ImpactType;
 
 public class ImpactInstance {
 

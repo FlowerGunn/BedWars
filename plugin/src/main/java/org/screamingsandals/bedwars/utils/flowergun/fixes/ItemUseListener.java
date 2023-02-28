@@ -1,20 +1,16 @@
 package org.screamingsandals.bedwars.utils.flowergun.fixes;
 
 import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
-import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.CustomGUI;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.CustomGUI;
 
 public class ItemUseListener implements Listener {
 
@@ -31,7 +27,7 @@ public class ItemUseListener implements Listener {
             if (event.getMaterial() == Material
                     .valueOf(Main.getConfigurator().config.getString("items.jointeam", "COMPASS"))) {
                 if (game.getStatus() == GameStatus.WAITING) {
-                    // TODO WAYPOINT Team selection
+                    // DONE WAYPOINT Team selection
                     //game.openTeamSelectorInventory(player);
                     CustomGUI customGUI = new CustomGUI(player, "TEAM_SELECTION");
                     customGUI.load();

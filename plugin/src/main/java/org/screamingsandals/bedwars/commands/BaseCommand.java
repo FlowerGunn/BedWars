@@ -40,6 +40,9 @@ public abstract class BaseCommand {
     public static final List<String> LEADERBOARD_PERMISSION =  Arrays.asList("misat11.bw.cmd.leaderboard", "bw.cmd.leaderboard");
     public static final List<String> ALL_JOIN_PERMISSION =  Arrays.asList("misat11.bw.admin.alljoin", "bw.admin.alljoin");
     public static final List<String> PARTY_PERMISSION =  Arrays.asList("misat11.bw.cmd.party", "bw.cmd.party");
+    public static final List<String> INV_PERMISSION =  Arrays.asList("bw.cmd.inv");
+    public static final List<String> FORGE_PERMISSION =  Arrays.asList("bw.cmd.forge");
+    public static final List<String> INFO_PERMISSION =  Arrays.asList("bw.cmd.info");
 
     private String name;
     private List<String> permissions;

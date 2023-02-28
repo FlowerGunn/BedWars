@@ -21,6 +21,7 @@ package org.screamingsandals.bedwars.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.Game;
 
@@ -52,16 +53,17 @@ public class AllJoinCommand extends BaseCommand {
         }
 
         final Game finalGame = game;
-        Bukkit.getOnlinePlayers().forEach(player -> {
+        for ( Player player : Bukkit.getOnlinePlayers() ) {
             if (player.hasPermission("bw.disable.joinall")) {
-                return;
+                continue;
             }
 
             if (Main.isPlayerInGame(player)) {
-                Main.getPlayerGameProfile(player).getGame().leaveFromGame(player);
+                continue;
+//                Main.getPlayerGameProfile(player).getGame().leaveFromGame(player);
             }
             finalGame.joinToGame(player);
-        });
+        }
 
         return true;
     }

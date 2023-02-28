@@ -62,8 +62,8 @@ public class ThrowableFireball extends SpecialItem implements org.screamingsanda
         fireball.setIsIncendiary(incendiary);
         fireball.setYield(damage);
 //        Bukkit.getConsoleSender().sendMessage("fireball damage: " + damage);
-        fireball.setBounce(false);
-        fireball.setShooter(damagesThrower ? null : player);
+//        fireball.setBounce(false);
+        fireball.setShooter(player);
         if (Main.getVersionNumber() <= 108) {
             fireball.teleport(fireball.getLocation().add(player.getEyeLocation().getDirection()));
         }

@@ -63,7 +63,11 @@ import org.screamingsandals.bedwars.lib.nms.holograms.HologramManager;
 import org.screamingsandals.bedwars.lib.nms.utils.ClassStorage;
 import org.screamingsandals.bedwars.lib.signmanager.SignListener;
 import org.screamingsandals.bedwars.lib.signmanager.SignManager;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.AbilitiesManager;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.managers.AbilitiesManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.ForgeManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.ResourceManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.StatsManager;
 import org.screamingsandals.simpleinventories.listeners.InventoryListener;
 import org.screamingsandals.simpleinventories.utils.MaterialSearchEngine;
 
@@ -117,8 +121,14 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         autoColoredMaterials.add("STAINED_GLASS_PANE");
     }
 
-    @Getter
+
     private AbilitiesManager abilitiesManager;
+
+    private ResourceManager resourceManager;
+
+    private ForgeManager forgeManager;
+    private StatsManager statsManager;
+    private FlowerUtils flowerUtilsInstance;
 
     public static Main getInstance() {
         return instance;
@@ -311,6 +321,24 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         return instance.databaseManager;
     }
 
+
+    public static ResourceManager getResourceManager() {
+        return instance.resourceManager;
+    }
+
+
+    public static StatsManager getStatsManager() {
+        return instance.statsManager;
+    }
+    public static AbilitiesManager getAbilitiesManager() {
+        return instance.abilitiesManager;
+    }
+
+    public static ForgeManager getForgeManager() {
+        return instance.forgeManager;
+    }
+
+
     public static PlayerStatisticManager getPlayerStatisticsManager() {
         return instance.playerStatisticsManager;
     }
@@ -369,13 +397,14 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         isSpigot = ClassStorage.IS_SPIGOT_SERVER;
         colorChanger = new org.screamingsandals.bedwars.utils.external.ColorChanger();
 
-        this.abilitiesManager = new AbilitiesManager();
+//        this.abilitiesManager = new AbilitiesManager();
 
         if (!getServer().getPluginManager().isPluginEnabled("Vault")) {
             isVault = false;
         } else {
             isVault = setupEconomy();
         }
+
 
         String[] bukkitVersion = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
         versionNumber = 0;
@@ -400,10 +429,25 @@ public class Main extends JavaPlugin implements BedwarsAPI {
                 configurator.config.getString("database.password"), configurator.config.getString("database.db"),
                 configurator.config.getString("database.table-prefix", "bw_"), configurator.config.getBoolean("database.useSSL"));
 
+
         if (isPlayerStatisticsEnabled()) {
             playerStatisticsManager = new PlayerStatisticManager();
             playerStatisticsManager.initialize();
         }
+
+        this.abilitiesManager = new AbilitiesManager();
+        abilitiesManager.initializeDatabase();
+
+        this.resourceManager = new ResourceManager();
+        resourceManager.initializeDatabase();
+
+        this.statsManager = new StatsManager();
+//        statsManager.initializeDatabase();
+
+        this.forgeManager = new ForgeManager();
+        forgeManager.initializeDatabase();
+
+
 
         try {
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -443,6 +487,10 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         new DumpCommand();
         new CheatCommand();
         new InfoCommand();
+        new AbilityCommand();
+        new ResourceCommand();
+        new ForgeCommand();
+        new InvCommand();
 
         BwCommandsExecutor cmd = new BwCommandsExecutor();
         getCommand("bw").setExecutor(cmd);
@@ -606,6 +654,9 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         metrics = new Metrics(this, pluginId);
         metrics.addCustomChart(new SimplePie("edition", () -> "Free"));
         metrics.addCustomChart(new SimplePie("build_number", () -> VersionInfo.BUILD_NUMBER));
+
+
+        this.flowerUtilsInstance = new FlowerUtils();
 
         Bukkit.getConsoleSender().sendMessage("§fEverything is loaded! If you like our work, consider visiting our Patreon! <3");
         Bukkit.getConsoleSender().sendMessage("§fhttps://www.patreon.com/screamingsandals");
@@ -848,4 +899,5 @@ public class Main extends JavaPlugin implements BedwarsAPI {
     public void se(boolean bool) {
         setEnabled(bool);
     }
+
 }

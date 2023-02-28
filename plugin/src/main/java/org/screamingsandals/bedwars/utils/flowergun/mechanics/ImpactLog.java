@@ -1,9 +1,10 @@
 package org.screamingsandals.bedwars.utils.flowergun.mechanics;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.screamingsandals.bedwars.game.GamePlayer;
-import org.screamingsandals.bedwars.utils.flowergun.tools.comparators.ImpactInstanceComparator;
+import org.screamingsandals.bedwars.utils.flowergun.other.comparators.ImpactInstanceComparator;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.ImpactPolarity;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.ImpactType;
 
 import java.util.ArrayList;
 import java.util.Collections;

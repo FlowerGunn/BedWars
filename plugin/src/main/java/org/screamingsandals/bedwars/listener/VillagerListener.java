@@ -20,9 +20,10 @@
 package org.screamingsandals.bedwars.listener;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Villager;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.GameStatus;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.CustomGUI;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.CustomGUI;
 import org.screamingsandals.bedwars.game.GameStore;
 import org.screamingsandals.bedwars.api.events.BedwarsOpenShopEvent;
 import org.screamingsandals.bedwars.api.events.BedwarsOpenShopEvent.Result;
@@ -32,7 +33,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.screamingsandals.bedwars.utils.external.CitizensUtils;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.ShopInstance;
+import org.screamingsandals.bedwars.utils.flowergun.shoputils.ShopInstance;
 
 public class VillagerListener implements Listener {
 
@@ -61,6 +62,21 @@ public class VillagerListener implements Listener {
                     }
                 }
 
+                if ( event.getRightClicked() instanceof Villager && !event.isCancelled()) {
+                    GamePlayer gamePlayer = Main.getPlayerGameProfile(event.getPlayer());
+                    Bukkit.getConsoleSender().sendMessage("Player " + event.getPlayer() + " from team " + gamePlayer.getGame().getPlayerTeam(gamePlayer).teamInfo.name + " unsuccessfully opened a store!");
+                    Bukkit.getConsoleSender().sendMessage("gameStoreList - " + game.getGameStoreList().size());
+                    Bukkit.getConsoleSender().sendMessage("entity - " + event.getRightClicked());
+                    if (gamePlayer.didFlagAmountChange())
+                    {
+                        gamePlayer.updateShop();
+                    }
+
+
+                    CustomGUI gui = new CustomGUI(event.getPlayer(), "SHOP");
+                    gui.load();
+                }
+
             }
         }
     }
@@ -74,13 +90,13 @@ public class VillagerListener implements Listener {
             return;
         }
 
-        //TODO CustomGUI creation
+        //DONE CustomGUI creation
         //WAYPOINT CUSTOM SHOP
 
         GamePlayer gamePlayer = Main.getPlayerGameProfile(event.getPlayer());
         if (gamePlayer.didFlagAmountChange())
         {
-            gamePlayer.setCustomGUIShopInstance(new ShopInstance(event.getPlayer(), game.shop));
+            gamePlayer.updateShop();
         }
 
 

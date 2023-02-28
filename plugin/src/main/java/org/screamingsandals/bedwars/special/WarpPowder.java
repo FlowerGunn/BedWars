@@ -19,7 +19,10 @@
 
 package org.screamingsandals.bedwars.special;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,19 +32,24 @@ import org.screamingsandals.bedwars.api.Team;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.utils.external.SpawnEffects;
 import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 
 import static org.screamingsandals.bedwars.lib.lang.I.i18nc;
 
 public class WarpPowder extends SpecialItem implements org.screamingsandals.bedwars.api.special.WarpPowder {
     private BukkitTask teleportingTask = null;
     private int teleportingTime;
+    private int fullTeleportingTime;
 
     private ItemStack item;
 
     public WarpPowder(Game game, Player player, Team team, ItemStack item, int teleportingTime) {
         super(game, player, team);
         this.item = item;
-        this.teleportingTime = teleportingTime;
+        this.teleportingTime = teleportingTime * 4;
+        this.fullTeleportingTime = this.teleportingTime;
     }
 
     @Override
@@ -60,7 +68,10 @@ public class WarpPowder extends SpecialItem implements org.screamingsandals.bedw
         game.unregisterSpecialItem(this);
 
         if (showCancelledMessage) {
-            player.sendMessage(i18nc("specials_warp_powder_canceled", game.getCustomPrefix()));
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_DEATH, 0.3F, 0.5F);
+//            player.sendMessage(i18nc("specials_warp_powder_canceled", game.getCustomPrefix()));player.sendTitle(ColoursManager.purple + "...телепортация...", durationString, 0, 6, 1);
+            player.sendTitle("", ColoursManager.red + "Телепортация отменена.", 0, 20, 10);
+
         }
     }
 
@@ -68,7 +79,8 @@ public class WarpPowder extends SpecialItem implements org.screamingsandals.bedw
     public void runTask() {
         game.registerSpecialItem(this);
 
-        player.sendMessage(i18nc("specials_warp_powder_started", game.getCustomPrefix()).replace("%time%", Double.toString(teleportingTime)));
+//        player.sendMessage(i18nc("specials_warp_powder_started", game.getCustomPrefix()).replace("%time%", Double.toString(teleportingTime)));
+        player.playSound(player.getLocation(), Sound.BLOCK_PORTAL_TRIGGER, 0.3F, 0.65F);
 
         teleportingTask = new BukkitRunnable() {
 
@@ -90,12 +102,26 @@ public class WarpPowder extends SpecialItem implements org.screamingsandals.bedw
                         }
                     }
                     player.updateInventory();
+                    Triggers.gadgetUsed(player, GadgetType.TP);
                     PlayerUtils.teleportPlayer(player, team.getTeamSpawn());
+                    player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.8F);
+
                 } else {
-                    SpawnEffects.spawnEffect(game, player, "game-effects.warppowdertick");
+//                    SpawnEffects.spawnEffect(game, player, "game-effects.warppowdertick");
+                    player.getLocation().getWorld().spawnParticle(Particle.PORTAL, player.getLocation(), 5, 0.5, 1, 0.5,0.05);
+                    player.getLocation().getWorld().spawnParticle(Particle.REVERSE_PORTAL, player.getLocation(), 5, 0.5, 1, 0.5, 0.05);
+                    player.getLocation().getWorld().spawnParticle(Particle.END_ROD, player.getLocation(), 5, 0.5, 1, 0.5, 0);
+                    String durationString = "";
+
+                    for ( int i = 0; i < fullTeleportingTime; i++) {
+                        if ( i < fullTeleportingTime - teleportingTime) durationString += ColoursManager.portal + "|";
+                        else durationString += ColoursManager.darkGray + "|";
+                    }
+
+                    player.sendTitle(ColoursManager.purple + "...телепортация...", durationString, 0, 6, 1);
                     teleportingTime--;
                 }
             }
-        }.runTaskTimer(Main.getInstance(), 0L, 20L);
+        }.runTaskTimer(Main.getInstance(), 0L, 5L);
     }
 }

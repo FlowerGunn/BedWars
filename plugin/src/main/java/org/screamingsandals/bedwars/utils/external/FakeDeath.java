@@ -71,7 +71,7 @@ public class FakeDeath {
             Bukkit.broadcastMessage(deathMessage);
         }
 
-        // TODO: find better way how to broadcast this effect and don't break the game
+        // IDK: find better way how to broadcast this effect and don't break the game
 
         /*
         try {

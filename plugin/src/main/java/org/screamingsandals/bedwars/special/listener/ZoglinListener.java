@@ -21,6 +21,7 @@ package org.screamingsandals.bedwars.special.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -41,11 +42,15 @@ import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.api.special.SpecialItem;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
+import org.screamingsandals.bedwars.special.Blaze;
 import org.screamingsandals.bedwars.special.Golem;
+import org.screamingsandals.bedwars.special.Phantom;
 import org.screamingsandals.bedwars.special.Zoglin;
 import org.screamingsandals.bedwars.utils.external.DelayFactory;
 import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 
 import java.util.List;
 
@@ -105,6 +110,8 @@ public class ZoglinListener implements Listener {
                             DelayFactory delayFactory = new DelayFactory(delay, golem, player, game);
                             game.registerDelay(delayFactory);
                         }
+
+                        Triggers.gadgetUsed(player, GadgetType.ZOGLIN);
 
                         golem.spawn();
 //                        golem.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100000, 0, false, true));
@@ -217,6 +224,8 @@ public class ZoglinListener implements Listener {
             if ((game.getStatus() == GameStatus.RUNNING || game.getStatus() == GameStatus.GAME_END_CELEBRATING) && entityZoglin.getWorld().equals(game.getGameWorld())) {
                 List<SpecialItem> activeZoglins = game.getActivedSpecialItems(Zoglin.class);
                 List<SpecialItem> activeGolems = game.getActivedSpecialItems(Golem.class);
+                List<SpecialItem> activePhantoms = game.getActivedSpecialItems(Phantom.class);
+                List<SpecialItem> activeBlazes = game.getActivedSpecialItems(Blaze.class);
                 for (SpecialItem item : activeZoglins) {
                     if (item instanceof Zoglin) {
                         Zoglin activeZoglin = (Zoglin) item;
@@ -265,6 +274,25 @@ public class ZoglinListener implements Listener {
                                 for (SpecialItem anotherSpecialEntity : activeGolems) {
                                     if (anotherSpecialEntity instanceof Golem) {
                                         Golem activeGolem = (Golem) anotherSpecialEntity;
+                                        if (activeGolem.getEntity().equals(event.getTarget()) && activeGolem.getTeam() == activeZoglin.getTeam()) {
+                                            event.setCancelled(true);
+                                        }
+                                    }
+                                }
+                            } else if (event.getTarget() instanceof org.bukkit.entity.Phantom) {
+                                for (SpecialItem activeSpecialEntity : activePhantoms) {
+                                    if (activeSpecialEntity instanceof Phantom) {
+                                        Phantom anotherActivePhantom = (Phantom) activeSpecialEntity;
+                                        if (anotherActivePhantom.getEntity().equals(event.getTarget()) && anotherActivePhantom.getTeam() == activeZoglin.getTeam()) {
+                                            event.setCancelled(true);
+                                        }
+                                    }
+                                }
+                            }
+                            else if (event.getTarget() instanceof org.bukkit.entity.Blaze) {
+                                for (SpecialItem anotherSpecialEntity : activeBlazes) {
+                                    if (anotherSpecialEntity instanceof Golem) {
+                                        Blaze activeGolem = (Blaze) anotherSpecialEntity;
                                         if (activeGolem.getEntity().equals(event.getTarget()) && activeGolem.getTeam() == activeZoglin.getTeam()) {
                                             event.setCancelled(true);
                                         }

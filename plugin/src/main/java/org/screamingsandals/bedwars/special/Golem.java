@@ -113,7 +113,7 @@ public class Golem extends SpecialItem implements org.screamingsandals.bedwars.a
             MiscUtils.sendActionBarMessage(player, i18nonly("specials_golem_created"));
         }
 
-        //TODO - make this better by checking full inventory
+        //IDK - make this better by checking full inventory
         if (item.getAmount() > 1) {
             item.setAmount(item.getAmount() - 1);
         } else {

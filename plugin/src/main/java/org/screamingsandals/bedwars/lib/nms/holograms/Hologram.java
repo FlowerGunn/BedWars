@@ -70,7 +70,7 @@ public class Hologram {
 	public boolean hasViewers() {
 		return !viewers.isEmpty();
 	}
-	
+
 	public List<Player> getViewers() {
 		return viewers;
 	}
@@ -141,7 +141,7 @@ public class Hologram {
 	public Hologram addLine(String message) {
 		this.lines.add(message);
 		// updateEntities(this.lines.size() - 1, true);
-		updateEntities(); // TODO just move upper lines
+		updateEntities(); // IDK just move upper lines
 		return this;
 	}
 

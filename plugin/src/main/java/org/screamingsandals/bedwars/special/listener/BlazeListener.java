@@ -46,6 +46,8 @@ import org.screamingsandals.bedwars.special.Blaze;
 import org.screamingsandals.bedwars.utils.external.DelayFactory;
 import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 
 import java.util.List;
 
@@ -106,6 +108,7 @@ public class BlazeListener implements Listener {
                             game.registerDelay(delayFactory);
                         }
 
+                        Triggers.gadgetUsed(player, GadgetType.BLAZE);
                         golem.spawn();
 //                        golem.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100000, 0, false, true));
                     } else {

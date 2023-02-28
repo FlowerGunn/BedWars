@@ -16,8 +16,8 @@ import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomBlock;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomItem;
-import org.screamingsandals.bedwars.utils.flowergun.customobjects.GadgetType;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
 
 public class TrampolineListener implements Listener {
 
@@ -51,7 +51,7 @@ public class TrampolineListener implements Listener {
                 return;
             }
 
-            Bukkit.getConsoleSender().sendMessage(customBlock.getGadgetType().toString());
+//            Bukkit.getConsoleSender().sendMessage(customBlock.getGadgetType().toString());
 
             if (customBlock.getGadgetType() == GadgetType.TRAMPOLINE) {
 

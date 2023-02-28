@@ -19,25 +19,21 @@
 
 package org.screamingsandals.bedwars.placeholderapi;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
-import org.screamingsandals.bedwars.api.Team;
 import org.screamingsandals.bedwars.api.statistics.PlayerStatistic;
 import org.screamingsandals.bedwars.game.CurrentTeam;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.game.TeamColor;
 import org.screamingsandals.bedwars.listener.Player116ListenerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.gameplay.AbilitiesManager;
-import org.screamingsandals.bedwars.utils.flowergun.tools.IconsManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.AbilitiesManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.IconsManager;
 
 import java.util.ArrayList;
 

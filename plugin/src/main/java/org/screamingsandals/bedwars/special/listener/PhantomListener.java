@@ -33,6 +33,8 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
@@ -42,11 +44,15 @@ import org.screamingsandals.bedwars.api.game.GameStatus;
 import org.screamingsandals.bedwars.api.special.SpecialItem;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
+import org.screamingsandals.bedwars.special.Blaze;
 import org.screamingsandals.bedwars.special.Golem;
 import org.screamingsandals.bedwars.special.Phantom;
+import org.screamingsandals.bedwars.special.Zoglin;
 import org.screamingsandals.bedwars.utils.external.DelayFactory;
 import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 
 import java.util.List;
 
@@ -111,7 +117,7 @@ public class PhantomListener implements Listener {
                             DelayFactory delayFactory = new DelayFactory(delay, golem, player, game);
                             game.registerDelay(delayFactory);
                         }
-
+                        Triggers.gadgetUsed(player, GadgetType.PHANTOM);
                         golem.spawn();
 //                        golem.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100000, 0, false, true));
                     } else {
@@ -198,6 +204,7 @@ public class PhantomListener implements Listener {
 
 
                                 event.setDamage(FlowerUtils.phantomDamage);
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 200, 0, false, false));
 //                                Bukkit.getConsoleSender().sendMessage("Phantom damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
                             }
 
@@ -221,8 +228,10 @@ public class PhantomListener implements Listener {
         for (String name : Main.getGameNames()) {
             Game game = Main.getGame(name);
             if ((game.getStatus() == GameStatus.RUNNING || game.getStatus() == GameStatus.GAME_END_CELEBRATING) && entityPhantom.getWorld().equals(game.getGameWorld())) {
-                List<SpecialItem> activePhantoms = game.getActivedSpecialItems(Phantom.class);
+                List<SpecialItem> activeZoglins = game.getActivedSpecialItems(Zoglin.class);
                 List<SpecialItem> activeGolems = game.getActivedSpecialItems(Golem.class);
+                List<SpecialItem> activePhantoms = game.getActivedSpecialItems(Phantom.class);
+                List<SpecialItem> activeBlazes = game.getActivedSpecialItems(Blaze.class);
                 for (SpecialItem item : activePhantoms) {
                     if (item instanceof Phantom) {
                         Phantom activePhantom = (Phantom) item;
@@ -271,6 +280,26 @@ public class PhantomListener implements Listener {
                                 for (SpecialItem anotherSpecialEntity : activeGolems) {
                                     if (anotherSpecialEntity instanceof Golem) {
                                         Golem activeGolem = (Golem) anotherSpecialEntity;
+                                        if (activeGolem.getEntity().equals(event.getTarget()) && activeGolem.getTeam() == activePhantom.getTeam()) {
+                                            event.setCancelled(true);
+                                        }
+                                    }
+                                }
+                            }
+                            else if (event.getTarget() instanceof org.bukkit.entity.Blaze) {
+                                for (SpecialItem anotherSpecialEntity : activeBlazes) {
+                                    if (anotherSpecialEntity instanceof Golem) {
+                                        Blaze activeGolem = (Blaze) anotherSpecialEntity;
+                                        if (activeGolem.getEntity().equals(event.getTarget()) && activeGolem.getTeam() == activePhantom.getTeam()) {
+                                            event.setCancelled(true);
+                                        }
+                                    }
+                                }
+                            }
+                            else if (event.getTarget() instanceof org.bukkit.entity.Zoglin) {
+                                for (SpecialItem anotherSpecialEntity : activeZoglins) {
+                                    if (anotherSpecialEntity instanceof Zoglin) {
+                                        Zoglin activeGolem = (Zoglin) anotherSpecialEntity;
                                         if (activeGolem.getEntity().equals(event.getTarget()) && activeGolem.getTeam() == activePhantom.getTeam()) {
                                             event.setCancelled(true);
                                         }

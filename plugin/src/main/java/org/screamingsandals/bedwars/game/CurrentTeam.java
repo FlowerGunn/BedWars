@@ -29,7 +29,7 @@ import org.screamingsandals.bedwars.api.RunningTeam;
 import org.screamingsandals.bedwars.api.TeamColor;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.lib.nms.holograms.Hologram;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ public class CurrentTeam implements RunningTeam {
         this.teamFlags = new ArrayList<>();
         this.teamInfo = team;
         this.game = game;
-        this.chestInventory = Bukkit.createInventory(null, InventoryType.ENDER_CHEST, i18nc("team_chest", game.getCustomPrefix()));
+        this.chestInventory = Bukkit.createInventory(null, InventoryType.ENDER_CHEST, this.teamInfo.color.chatColor + "Командный сундук");
     }
 
 //    public static CurrentTeam generateNeutralTeam(Game game) {

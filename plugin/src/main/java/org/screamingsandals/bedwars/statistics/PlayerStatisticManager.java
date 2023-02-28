@@ -92,6 +92,23 @@ public class PlayerStatisticManager implements PlayerStatisticsManager {
             e.printStackTrace();
         }
 
+        try {
+            Main.getDatabaseManager().initialize();
+
+            try (Connection connection = Main.getDatabaseManager().getConnection()) {
+                connection.setAutoCommit(false);
+                PreparedStatement preparedStatement = connection
+                        .prepareStatement(Main.getDatabaseManager().getCreateLogTableSql());
+                preparedStatement.executeUpdate();
+                connection.commit();
+                preparedStatement.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void initializeLeaderboard() {

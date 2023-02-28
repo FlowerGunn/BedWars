@@ -11,7 +11,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.shoputils.GameFlag;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
 
 public class ConsumeListener implements Listener {
 
@@ -23,42 +24,43 @@ public class ConsumeListener implements Listener {
 
         if (gamePlayer.getGame() == null) return;
 
-        if ( gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_3) )
-            if ( FlowerUtils.consumableItems.contains(event.getItem().getType()) ) {
+        Triggers.playerItemConsume(player, event);
+
+        if ( gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_3) ) {
+            if (FlowerUtils.consumableItems.contains(event.getItem().getType())) {
 
                 Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                    for (ItemStack itemStack: player.getInventory()) {
+                    for (ItemStack itemStack : player.getInventory()) {
                         if (itemStack == null) continue;
                         if (itemStack.getType() == Material.GLASS_BOTTLE) {
-                            itemStack.setAmount( itemStack.getAmount() - 1 );
-    //                        Bukkit.getConsoleSender().sendMessage("removed a bottle");
+                            itemStack.setAmount(itemStack.getAmount() - 1);
+                            //                        Bukkit.getConsoleSender().sendMessage("removed a bottle");
                             break;
                         }
                     }
-    //                Bukkit.getConsoleSender().sendMessage("didnt find a bottle");
+                    //                Bukkit.getConsoleSender().sendMessage("didnt find a bottle");
                 }, 1L);
 
-                if ( event.getItem().getAmount() == 1 )
-                for (int i = 9; i < player.getInventory().getSize(); i++ ) {
+                if (event.getItem().getAmount() == 1)
+                    for (int i = 9; i < player.getInventory().getSize(); i++) {
 
-                    ItemStack itemStack = player.getInventory().getItem(i);
-                    if (itemStack == null) continue;
+                        ItemStack itemStack = player.getInventory().getItem(i);
+                        if (itemStack == null) continue;
 
-    //                Bukkit.getConsoleSender().sendMessage("same item data? " + itemStack.equals(event.getItem()));
-    //                Bukkit.getConsoleSender().sendMessage("same item? " + (itemStack == player.getInventory().getItemInMainHand()));
-                    ItemStack clone = itemStack.clone();
-                    clone.setAmount(1);
-                    if (clone.equals(event.getItem()))
-                    {
-                        event.setReplacement(itemStack.clone());
-                        itemStack.setAmount(0);
-    //                    Bukkit.getConsoleSender().sendMessage("do replacement");
-                        break;
+                        //                Bukkit.getConsoleSender().sendMessage("same item data? " + itemStack.equals(event.getItem()));
+                        //                Bukkit.getConsoleSender().sendMessage("same item? " + (itemStack == player.getInventory().getItemInMainHand()));
+                        ItemStack clone = itemStack.clone();
+                        clone.setAmount(1);
+                        if (clone.equals(event.getItem())) {
+                            event.setReplacement(itemStack.clone());
+                            itemStack.setAmount(0);
+                            //                    Bukkit.getConsoleSender().sendMessage("do replacement");
+                            break;
+                        }
                     }
-                }
             }
-        if ( gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_3) )
-            if ( event.getItem().getType() == Material.HONEY_BOTTLE ) {
+//            if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_3))
+            if (event.getItem().getType() == Material.HONEY_BOTTLE) {
                 player.removePotionEffect(PotionEffectType.WITHER);
                 player.removePotionEffect(PotionEffectType.GLOWING);
                 player.removePotionEffect(PotionEffectType.SLOW);
@@ -67,7 +69,8 @@ public class ConsumeListener implements Listener {
                 player.removePotionEffect(PotionEffectType.HUNGER);
                 player.removePotionEffect(PotionEffectType.BLINDNESS);
                 player.removePotionEffect(PotionEffectType.WEAKNESS);
-            }
+                }
+        }
 
     }
 

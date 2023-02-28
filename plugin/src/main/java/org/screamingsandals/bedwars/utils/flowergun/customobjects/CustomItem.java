@@ -17,7 +17,6 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
@@ -27,6 +26,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.game.TeamColor;
 import org.screamingsandals.bedwars.special.Trap;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.gadgets.TrampolineListener;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 
 import java.util.*;
 
@@ -223,7 +223,7 @@ public class CustomItem {
                 break;
             }
             case SHEEP: {
-                property = "Module:TNTSheep:0.25:10.0:32.0:8";
+                property = "Module:TNTSheep:0.4:10.0:32.0:8";
                 break;
             }
             case TP: {
@@ -367,7 +367,7 @@ public class CustomItem {
 //        }
         CustomItem customItem = new CustomItem();
         customItem.setItem(new ItemStack(this.getItem()));
-        customItem.setItemMeta(this.getItemMeta());
+        customItem.setItemMeta(this.getItemMeta().clone());
         customItem.setItemData(this.getItemData());
         customItem.setGadgetType(this.getGadgetType());
         customItem.setFirework(this.isFirework());

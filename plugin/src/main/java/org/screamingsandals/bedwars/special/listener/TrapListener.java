@@ -21,6 +21,8 @@ package org.screamingsandals.bedwars.special.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
@@ -84,6 +86,8 @@ public class TrapListener implements Listener {
                 if (System.identityHashCode(trap) == classID) {
                     trap.place(event.getBlock().getLocation());
                     event.getPlayer().sendMessage(i18nc("trap_built", event.getGame().getCustomPrefix()));
+                    event.getPlayer().getLocation().getWorld().playSound(event.getBlock().getLocation(), Sound.ENTITY_VILLAGER_WORK_TOOLSMITH, 1F, 0.7F);
+                    event.getPlayer().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getBlock().getLocation().add(0, 0.2, 0), 5, 0.5, 0, 0.5, 0.1);
                     return;
                 }
             }

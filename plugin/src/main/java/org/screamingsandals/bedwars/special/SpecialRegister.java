@@ -20,8 +20,8 @@
 package org.screamingsandals.bedwars.special;
 
 import org.bukkit.plugin.Plugin;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.InventoryGUICleaner;
-import org.screamingsandals.bedwars.utils.flowergun.customgui.guiutils.InventoryGUIClickListener;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.InventoryGUICleaner;
+import org.screamingsandals.bedwars.utils.flowergun.customgui.InventoryGUIClickListener;
 import org.screamingsandals.bedwars.special.listener.*;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomBlockListener;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.gadgets.TrampolineListener;
@@ -73,6 +73,9 @@ public class SpecialRegister {
         plugin.getServer().getPluginManager().registerEvents(new MobSpawnListener(), plugin);
 
         plugin.getServer().getPluginManager().registerEvents(new PotionThrowListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new VillagerDamageListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PotionEffectsListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerDeathTridentListener(), plugin);
     }
 
 }
