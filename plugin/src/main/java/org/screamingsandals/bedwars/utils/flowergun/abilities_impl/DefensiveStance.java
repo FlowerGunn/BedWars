@@ -9,6 +9,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
@@ -24,7 +25,11 @@ public class DefensiveStance extends Ability implements IAbility {
         this.item = Material.ANVIL;
         this.rarity = 3;
         this.icon = IconType.DAMAGE_RESISTANCE;
-        this.description = "Игрок получает на (values1)&7% меньше урона,#когда находится под эффектом Замедления,#Медленного копания или Слепоты.";
+
+        this.abilityCategories.add(AbilityCategory.TANK);
+        this.abilityCategories.add(AbilityCategory.MADMAN);
+
+        this.description = "Игрок получает на (values1)% меньше урона,#когда находится под эффектом Замедления,#Медленного копания или Темноты.";
     }
 
     @Override
@@ -48,7 +53,7 @@ public class DefensiveStance extends Ability implements IAbility {
 //        EntityDamageByEntityEvent tempEvent = (EntityDamageByEntityEvent) event;
 //        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
         if (Main.isPlayerInGame(victim)) {
-            if (victim.hasPotionEffect(PotionEffectType.SLOW) || victim.hasPotionEffect(PotionEffectType.SLOW_DIGGING) || victim.hasPotionEffect(PotionEffectType.BLINDNESS)) {
+            if (victim.hasPotionEffect(PotionEffectType.SLOW) || victim.hasPotionEffect(PotionEffectType.SLOW_DIGGING) || victim.hasPotionEffect(PotionEffectType.DARKNESS)) {
                 playFXDefensiveUtility(victim,1);
                 notifyPlayerOnAbilityActivation(victim);
                 compoundValueModifier.addExp(-1 * calculateIntValue1(level) / 100.0);

@@ -28,6 +28,7 @@ public enum IconType {
     SLOW_FALLING("%img_slow_falling%"),
     LEVITATION("%img_levitation%"),
     BLINDNESS("%img_blindness%"),
+    DARKNESS("%img_blindness%"),
     FIRE_RESISTANCE("%img_fire_resistance%"),
 
 

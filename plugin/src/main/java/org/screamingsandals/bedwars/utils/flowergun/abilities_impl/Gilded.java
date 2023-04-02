@@ -9,6 +9,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -27,7 +28,11 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
             //this.loadCustomItem("anicloud:gold_sheet");
             this.rarity = 4;
             this.icon = IconType.DAMAGE_RESISTANCE;
-            this.description = "Игрок получает неломаемый золотой нагрудник#на Защиту от Снарядов (values1)&7#при первом спавне.";
+
+            this.abilityCategories.add(AbilityCategory.SCOUT);
+            this.abilityCategories.add(AbilityCategory.TANK);
+
+            this.description = "Игрок получает неломаемый золотой нагрудник#на Защиту от Снарядов (values1) при первом спавне.";
         }
 
         @Override

@@ -24,7 +24,9 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Fire;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Fireball;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -112,7 +114,7 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onExplode(BlockExplodeEvent event) {
 
-        Bukkit.getConsoleSender().sendMessage("OG block explode event");
+//        Bukkit.getConsoleSender().sendMessage("OG block explode event");
 
         if (event.isCancelled()) {
             return;
@@ -126,6 +128,16 @@ public class WorldListener implements Listener {
         }
 
 //        Bukkit.getConsoleSender().sendMessage("explosion happened at " + location.toString());
+
+//        if ( cancellable instanceof EntityExplodeEvent ) {
+//            EntityExplodeEvent event = (EntityExplodeEvent) cancellable;
+//
+//            if ( event.getEntity() instanceof Fireball ) {
+//                Fireball fireball = (Fireball) event.getEntity();
+//                event.setYield();
+//
+//            }
+//        }
 
         final List<String> explosionExceptionTypeName = Main.getConfigurator().config.getStringList("destroy-placed-blocks-by-explosion-except");
         final boolean destroyPlacedBlocksByExplosion = Main.getConfigurator().config.getBoolean("destroy-placed-blocks-by-explosion", true);
@@ -155,7 +167,7 @@ public class WorldListener implements Listener {
                             }
                             return true;
                         }
-                        return (game.getCustomBlock(block) != null || FlowerUtils.doubleBlocks.contains(block.getType()) || explosionExceptionTypeName.contains(block.getType().name())) || !destroyPlacedBlocksByExplosion;
+                        return (game.getCustomBlock(block) != null || FlowerUtils.checkProtectionBlocksBetweenPoints(location, block.getLocation()) || FlowerUtils.doubleBlocks.contains(block.getType()) || explosionExceptionTypeName.contains(block.getType().name())) || !destroyPlacedBlocksByExplosion;
                     });
                 } else {
                     cancellable.setCancelled(true);

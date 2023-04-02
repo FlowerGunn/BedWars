@@ -56,12 +56,13 @@ public class Trap extends SpecialItem implements org.screamingsandals.bedwars.ap
     }
 
     public void place(Location loc) {
+        game.getRegion().addBuiltDuringGame(location);
         this.location = loc;
     }
 
     public void destroy() {
         game.unregisterSpecialItem(this);
-        location.getBlock().setType(Material.AIR);
+        location.getBlock().setType(Material.AIR)  ;
         return;
     }
 

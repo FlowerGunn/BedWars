@@ -13,10 +13,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageSource;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class Cheers extends Ability implements IAbility {
 
@@ -29,6 +26,10 @@ public class Cheers extends Ability implements IAbility {
         this.item = Material.HONEY_BOTTLE;
         this.rarity = 3;
         this.icon = IconType.REGENERATION;
+
+        this.abilityCategories.add(AbilityCategory.HEALER);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
+
         this.description = "При выпивании бутылки мёда и наличии союзника#в радиусе (values1) блоков оба игрока#получат эффект Регенерации 1 на (values2) секунд.#Владелец навыка теряет любые эффекты Регенерации#при получении урона от игроков.";
     }
 

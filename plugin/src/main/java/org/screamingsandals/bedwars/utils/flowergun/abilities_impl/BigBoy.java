@@ -14,6 +14,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -32,6 +33,10 @@ public class BigBoy extends Ability implements IAbility{
         this.iaId = "anicloud:polished_ruby";
         this.rarity = 3;
         this.icon = IconType.ABSORPTION;
+
+        this.abilityCategories.add(AbilityCategory.BULLDOZER);
+        this.abilityCategories.add(AbilityCategory.TANK);
+
         this.description = "Игрок получает +(values1) к макс. здоровью#и -(values2)% скорости на всю игру";
         this.used = false;
     }

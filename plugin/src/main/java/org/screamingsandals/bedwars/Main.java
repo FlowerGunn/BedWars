@@ -92,7 +92,7 @@ public class Main extends JavaPlugin implements BedwarsAPI {
     private int versionNumber = 0;
     private Economy econ = null;
     private HashMap<String, Game> games = new HashMap<>();
-    private HashMap<Player, GamePlayer> playersInGame = new HashMap<>();
+    public HashMap<Player, GamePlayer> playersInGame = new HashMap<>();
     private HashMap<Entity, Game> entitiesInGame = new HashMap<>();
     private Configurator configurator;
     private ShopInventory menu;
@@ -232,6 +232,7 @@ public class Main extends JavaPlugin implements BedwarsAPI {
     }
 
     public static void unloadPlayerGameProfile(Player player) {
+//        Bukkit.getConsoleSender().sendMessage("unloading " + player.getName());
         if (instance.playersInGame.containsKey(player)) {
             instance.playersInGame.get(player).changeGame(null);
             instance.playersInGame.remove(player);
@@ -491,6 +492,7 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         new ResourceCommand();
         new ForgeCommand();
         new InvCommand();
+        new TestCommand();
 
         BwCommandsExecutor cmd = new BwCommandsExecutor();
         getCommand("bw").setExecutor(cmd);

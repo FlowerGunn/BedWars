@@ -26,39 +26,40 @@ public class ConsumeListener implements Listener {
 
         Triggers.playerItemConsume(player, event);
 
+        if (FlowerUtils.consumableItems.contains(event.getItem().getType())) {
+
+            Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
+                for (ItemStack itemStack : player.getInventory()) {
+                    if (itemStack == null) continue;
+                    if (itemStack.getType() == Material.GLASS_BOTTLE) {
+                        itemStack.setAmount(itemStack.getAmount() - 1);
+                        //                        Bukkit.getConsoleSender().sendMessage("removed a bottle");
+                        break;
+                    }
+                }
+                //                Bukkit.getConsoleSender().sendMessage("didnt find a bottle");
+            }, 1L);
+
+            if (event.getItem().getAmount() == 1)
+                for (int i = 9; i < player.getInventory().getSize(); i++) {
+
+                    ItemStack itemStack = player.getInventory().getItem(i);
+                    if (itemStack == null) continue;
+
+                    //                Bukkit.getConsoleSender().sendMessage("same item data? " + itemStack.equals(event.getItem()));
+                    //                Bukkit.getConsoleSender().sendMessage("same item? " + (itemStack == player.getInventory().getItemInMainHand()));
+                    ItemStack clone = itemStack.clone();
+                    clone.setAmount(1);
+                    if (clone.equals(event.getItem())) {
+                        event.setReplacement(itemStack.clone());
+                        itemStack.setAmount(0);
+                        //                    Bukkit.getConsoleSender().sendMessage("do replacement");
+                        break;
+                    }
+                }
+        }
+
         if ( gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_3) ) {
-            if (FlowerUtils.consumableItems.contains(event.getItem().getType())) {
-
-                Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                    for (ItemStack itemStack : player.getInventory()) {
-                        if (itemStack == null) continue;
-                        if (itemStack.getType() == Material.GLASS_BOTTLE) {
-                            itemStack.setAmount(itemStack.getAmount() - 1);
-                            //                        Bukkit.getConsoleSender().sendMessage("removed a bottle");
-                            break;
-                        }
-                    }
-                    //                Bukkit.getConsoleSender().sendMessage("didnt find a bottle");
-                }, 1L);
-
-                if (event.getItem().getAmount() == 1)
-                    for (int i = 9; i < player.getInventory().getSize(); i++) {
-
-                        ItemStack itemStack = player.getInventory().getItem(i);
-                        if (itemStack == null) continue;
-
-                        //                Bukkit.getConsoleSender().sendMessage("same item data? " + itemStack.equals(event.getItem()));
-                        //                Bukkit.getConsoleSender().sendMessage("same item? " + (itemStack == player.getInventory().getItemInMainHand()));
-                        ItemStack clone = itemStack.clone();
-                        clone.setAmount(1);
-                        if (clone.equals(event.getItem())) {
-                            event.setReplacement(itemStack.clone());
-                            itemStack.setAmount(0);
-                            //                    Bukkit.getConsoleSender().sendMessage("do replacement");
-                            break;
-                        }
-                    }
-            }
 //            if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_3))
             if (event.getItem().getType() == Material.HONEY_BOTTLE) {
                 player.removePotionEffect(PotionEffectType.WITHER);

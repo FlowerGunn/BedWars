@@ -5,10 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.screamingsandals.bedwars.game.Game;
@@ -48,12 +45,12 @@ public interface IAbility {
 
     int getRarity();
 
-    void playerDeath(int level, PlayerDeathEvent event);
+    void playerDeath(int level, Player victim, Player killer, PlayerDeathEvent event);
 
     void shopPurchase(int level, Game game, Player player, PurchasableItem item, int amount);
 
 
-    void playerKill(int level, Player killer, PlayerDeathEvent event);
+    void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event);
 
     void playerRespawn(int level, GamePlayer gamePlayer);
 
@@ -113,4 +110,8 @@ public interface IAbility {
     void itemConsume(int activeLevel, Player player, PlayerItemConsumeEvent event);
 
     TextComponent parseDescriptionComponent(Player player,int effectiveOwnedLevel, int min, int slot);
+
+    void projectileHit(int level, Player player, ProjectileHitEvent event);
+
+    void projectileLaunch(int level, Player player, ProjectileLaunchEvent event);
 }

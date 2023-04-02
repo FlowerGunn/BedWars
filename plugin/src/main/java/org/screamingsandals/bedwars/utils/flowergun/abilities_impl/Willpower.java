@@ -24,19 +24,24 @@ public class Willpower extends Ability implements IAbility {
 
         this.name = "Сила воли";
         this.id = "willpower";
-        this.item = Material.GLISTERING_MELON_SLICE;
+        this.item = Material.GHAST_TEAR;
         this.rarity = 5;
         this.icon = IconType.REGENERATION;
+
+        this.abilityCategories.add(AbilityCategory.HEALER);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
+
         this.description = "Получение урона от противников#или нанесение урона противникам в ближнем бою#восполнит ближайшему союзнику в радиусе (values1) блоков#(values2) единиц сытости и 1 единицу голода.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 5 + 5 * level;
+        return 10 + 3 * level;
     }
     @Override
     public double calculateDoubleValue1(int level) {
-        return 0.5 + 0.1 * level;
+        return 0.9 + 0.3 * level;
     }
 
     @Override

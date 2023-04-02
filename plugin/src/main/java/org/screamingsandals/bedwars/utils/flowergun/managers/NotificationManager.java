@@ -12,6 +12,7 @@ import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceChestR
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 public class NotificationManager {
@@ -124,5 +125,18 @@ public class NotificationManager {
 
         return chatMessage.build();
 
+    }
+
+    public static ArrayList<String> divideAndParseLines( String text, String delimiter ) {
+
+        String str[] = text.split(delimiter);
+        ArrayList<String> description = new ArrayList<>(Arrays.asList(str));
+        description.replaceAll(s -> ColoursManager.gray + s);
+
+        return description;
+    }
+
+    public static void sendEventRewardMessage(String eventName, String reason, Player player) {
+        player.sendMessage(IconsManager.green_excl + ColoursManager.gray + " Награда за событие " + ColoursManager.green + eventName + ColoursManager.gray + " (" + ColoursManager.light_blue + reason + ColoursManager.gray + ") :");
     }
 }

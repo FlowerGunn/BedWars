@@ -1,6 +1,7 @@
 package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
@@ -10,7 +11,10 @@ import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -27,7 +31,11 @@ public class Radar extends Ability implements IAbility {
         this.item = Material.COMPASS;
         this.rarity = 4;
         this.icon = IconType.GLOWING;
-        this.description = "Убийства и помощи в убийстве накладывают#Свечение всем врагам в радиусе (values2) блоков#вокруг игрока на (values1) секунд.";
+
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
+        this.description = "Убийства и помощи в убийстве накладывают#Свечение и снижают макс.здоровье на 4 ед.#на (values1) секунд всем врагам#в радиусе (values2) блоков вокруг игрока.";
     }
 
     @Override
@@ -47,7 +55,7 @@ public class Radar extends Ability implements IAbility {
     }
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event) {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
         notifyPlayerOnAbilityActivation(killer);
         applyGlowAround(killer, level);
@@ -78,6 +86,7 @@ public class Radar extends Ability implements IAbility {
                 double distance = gamePlayer.player.getLocation().distance(gPlayer.player.getLocation());
                 if ( distance < calculateIntValue2(level) ) {
                     gamePlayer.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, calculateIntValue1(level), 0, false, false ));
+                    gamePlayer.addCustomStatusEffect(new CustomStatusEffect("radar_hp", gamePlayer, gamePlayer, Attribute.GENERIC_MAX_HEALTH, new CompoundValueModifier( -4, 0, 0), calculateIntValue1(level), true));
                     playFXDebuff(gamePlayer.player, 3);
                     playerFound = true;
                 }

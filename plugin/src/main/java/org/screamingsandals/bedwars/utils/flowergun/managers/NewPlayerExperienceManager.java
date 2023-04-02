@@ -1,11 +1,11 @@
 package org.screamingsandals.bedwars.utils.flowergun.managers;
 
-import net.royawesome.jlibnoise.module.combiner.Min;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_impl.*;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
 import java.util.ArrayList;
 
@@ -91,6 +91,13 @@ public class NewPlayerExperienceManager {
                 Main.getAbilitiesManager().giveAbilityToById(gamePlayer.player.getUniqueId(), ability.getId(), 1);
             }
 
+        }
+
+        if ( gamePlayer.getTrulyOwnedAbilityById("amogus") == null ) {
+            NotificationManager.sendEventRewardMessage( "\"1 апреля\"", "Заход на сервер", gamePlayer.player);
+            for ( int i = 0; i < 6; i++ )
+                Main.getAbilitiesManager().giveAbilityToById(gamePlayer.player.getUniqueId(), "amogus", 1);
+            ResourceManager.giveResourcesTo(gamePlayer.player.getUniqueId(), ResourceType.BOOK_EVIL1, 1, true);
         }
 
     }

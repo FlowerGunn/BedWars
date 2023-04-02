@@ -28,7 +28,11 @@ public class Training extends Ability implements IAbility {
         this.item = Material.WOODEN_SWORD;
         this.rarity = 4;
         this.icon = IconType.INCREASE_DAMAGE;
-        this.description = "Каждый удар мечом по игрокам, наносящий минимум#3 ед. урона, приносит 1 заряд Тренировки.#Максимальное количество зарядов - (values1).#При неполных зарядах Тренировки, удары мечом#по противникам наносят на 1,5 ед. урона меньше,#при полных - на (values2) ед. больше.";
+
+        this.abilityCategories.add(AbilityCategory.KNIGHT);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
+        this.description = "Попадания полностью заряженным ударом#меча по противнику, приносит 1 заряд Тренировки.#Максимальное количество зарядов - (values1).#При неполных зарядах Тренировки, удары мечом#по противникам наносят на 1,5 ед. урона меньше,#при полных - на (values2) ед. больше.";
     }
 
     @Override
@@ -38,7 +42,7 @@ public class Training extends Ability implements IAbility {
 
     @Override
     public double calculateDoubleValue1(int level) {
-        return 0.8 + 0.1 * level;
+        return 0.8 + 0.2 * level;
     }
 
     @Override
@@ -56,7 +60,9 @@ public class Training extends Ability implements IAbility {
     @Override
     public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
 
-        if ( event.getFinalDamage() > 0 && !event.isCancelled() && damageInstance.damageTarget == DamageTarget.PLAYER) {
+        if (event.isCancelled()) return;
+
+        if ( event.getFinalDamage() > 0 && FlowerUtils.isPlayersWeaponFullyCharged(attacker) && damageInstance.damageTarget == DamageTarget.PLAYER) {
             if (Main.isPlayerInGame(attacker)) {
                 if ( FlowerUtils.swords.contains(attacker.getInventory().getItemInMainHand().getType()) ) {
                     if ( stacks >= maxStacks ) {

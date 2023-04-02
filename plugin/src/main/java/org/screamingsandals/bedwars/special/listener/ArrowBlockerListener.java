@@ -20,6 +20,8 @@
 package org.screamingsandals.bedwars.special.listener;
 
 
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.APIUtils;
 import org.screamingsandals.bedwars.api.game.Game;
@@ -121,9 +123,13 @@ public class ArrowBlockerListener implements Listener {
         }
 
         ArrowBlocker arrowBlocker = (ArrowBlocker) game.getFirstActivedSpecialItemOfPlayer(player, ArrowBlocker.class);
-        if (arrowBlocker != null && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
-            event.setCancelled(true);
-        }
+        if (arrowBlocker != null)
+            if ( event instanceof EntityDamageByEntityEvent ) {
+                EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) event;
+                if ( edbee.getDamager() instanceof Projectile ) event.setCancelled(true);
+            } else if ( event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+                event.setCancelled(true);
+            }
     }
 
     private String applyProperty(BedwarsApplyPropertyToBoughtItem event) {

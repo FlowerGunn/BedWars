@@ -11,6 +11,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
@@ -26,6 +27,11 @@ public class Starling extends Ability implements IAbility {
         this.item = Material.GLOWSTONE_DUST;
         this.rarity = 5;
         this.icon = IconType.SPEED;
+
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+        this.abilityCategories.add(AbilityCategory.RANGER);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
+
         this.description = "При получении урона на уровне здоровья#менее 50% от максимального, игрок получит эффекты#Скорости 2 и Свечения на (values1) секунд.";
     }
 

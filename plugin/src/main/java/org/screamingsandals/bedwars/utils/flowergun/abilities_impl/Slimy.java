@@ -25,6 +25,11 @@ public class Slimy extends Ability implements IAbility {
         this.item = Material.SLIME_SPAWN_EGG;
         this.rarity = 5;
         this.icon = IconType.WEAKNESS;
+
+        this.abilityCategories.add(AbilityCategory.RANGER);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+
         this.description = "Ближний урон игрока уменьшен на 50%,#раз в (values2) секунд противник атакующий игрока#в ближнем бою получит Слабость 1 на (values1) секунд.";
         this.isOnCooldown = false;
     }

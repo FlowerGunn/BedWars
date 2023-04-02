@@ -10,6 +10,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -24,18 +25,22 @@ public class Enderman extends Ability implements IAbility{
         this.disassembleResources = new ResourceBundle().addResource(ResourceType.ECHO_SHARD, 75).addResource(ResourceType.ECHO_DUST, 20).addResource(ResourceType.MICROSCHEMA, 5).addResource(ResourceType.CATALYST_LEGENDARY, 1);
         this.upgradeResources = new ResourceBundle().addResource(ResourceType.ECHO_SHARD, 150).addResource(ResourceType.ECHO_DUST, 50).addResource(ResourceType.MICROSCHEMA, 10).addResource(ResourceType.EXP_CRYSTAL_LVL2, 12);
 
-        this.name = "Эндермэн";
+        this.name = "Телепортатор 4000";
         this.id = "enderman";
         this.item = Material.ENDER_PEARL;
         this.rarity = 5;
         this.icon = IconType.ECHO_SHARD;
+
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+
         this.description = "Игрок получает 1 эндер сундук при первом спавне.#При первом респавне или убийстве после (values1)#минут игры игрок получит 1 эндер жемчуг.";
         this.used = false;
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 720 - 120 * level;
+        return 1080 - 180 * level;
     }
 
     @Override
@@ -45,7 +50,7 @@ public class Enderman extends Ability implements IAbility{
 
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event) {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
         Game game = Main.getPlayerGameProfile(killer).getGame();
 

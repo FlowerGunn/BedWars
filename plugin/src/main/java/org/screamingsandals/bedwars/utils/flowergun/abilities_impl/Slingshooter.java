@@ -22,7 +22,11 @@ public class Slingshooter extends Ability implements IAbility {
         this.item = Material.STRING;
         this.rarity = 4;
         this.icon = IconType.INCREASE_DAMAGE;
-        this.description = "Урон снежков увеличивается на (values2) ед.,#кулдаун увеличивает на (values1) секунд.";
+
+        this.abilityCategories.add(AbilityCategory.SNOWMAN);
+        this.abilityCategories.add(AbilityCategory.RANGER);
+
+        this.description = "Урон снежков увеличивается на (values2) ед.,#кулдаун увеличивается на (values1) секунд.";
     }
 
     @Override

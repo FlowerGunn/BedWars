@@ -1,6 +1,7 @@
 package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
@@ -9,7 +10,10 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -24,7 +28,11 @@ public class BloodPact extends Ability implements IAbility {
         this.item = Material.RED_CANDLE;
         this.rarity = 5;
         this.icon = IconType.REGENERATION;
-        this.description = "Убийство противника восполнит игроку (values2) здоровья.#Убивая игрока противник получит (values2) здоровья.#При возрождении игрок получает Слабость 1 на (values1) секунд";
+
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.MADMAN);
+
+        this.description = "Убийство противника восполнит игроку (values2) здоровья.#Убивая игрока противник получит (values2) здоровья.#При возрождении игрок получает -4 брони на (values1) секунд";
     }
 
     @Override
@@ -48,7 +56,7 @@ public class BloodPact extends Ability implements IAbility {
     }
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event) {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
         Ability.healHealth(event.getPlayer(),killer,calculateDoubleValue1(level));
         notifyPlayerOnAbilityActivation(killer);
@@ -59,19 +67,20 @@ public class BloodPact extends Ability implements IAbility {
     public void playerRespawn(int level, GamePlayer gamePlayer) {
 
         notifyPlayerOnAbilityActivation(gamePlayer.player);
-        gamePlayer.player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, calculateIntValue1(level), 0));
+        gamePlayer.addCustomStatusEffect(new CustomStatusEffect("bloodpact_armor", gamePlayer, gamePlayer, Attribute.GENERIC_ARMOR, new CompoundValueModifier( 4, 0, 0), calculateIntValue1(level), true));
+
+//        gamePlayer.player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, calculateIntValue1(level), 0));
 
     }
 
     @Override
-    public void playerDeath(int level, PlayerDeathEvent event) {
+    public void playerDeath(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
-        if ( event.getEntity().getKiller() != null ) {
-            Player victim = event.getEntity();
-            Player killer = event.getEntity().getKiller();
+        if (killer != null) {
 
             Ability.healHealth(victim, killer, calculateDoubleValue1(level));
             notifyPlayerOnAbilityActivation(killer);
+
 
         }
     }

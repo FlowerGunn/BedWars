@@ -39,15 +39,24 @@ public class ResourceChestBook {
         resourceChest2.addCategory("rares", 4);
         resourceChest2.addCategory("epics", 1);
 
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.COAL, 20)), 0 );
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.RAW_COPPER, 50)), 0 );
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.RAW_IRON, 30)), 0 );
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.BLAZE_POWDER, 5)), 0 );
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.BONE, 20)), 0 );
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.LAPIS, 10)), 0 );
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.SLIMEBALL, 30)), 0 );
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.ICE_POWDER, 5)), 0 );
-        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.QUARTZ, 40)), 0 );
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.COAL, 40)), 0 );//1
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.RAW_COPPER, 60)), 0 );//1
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.RAW_IRON, 30)), 0 );//1
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.BONE, 40)), 0 );//1
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.SLIMEBALL, 30)), 0 );//1
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.QUARTZ, 30)), 0 );//1
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.LEATHER, 40)), 0 );//1
+
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.GLOW_INK_SAC, 20)), 0 );//2
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.PAPER, 20)), 0 );//2
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.LAPIS, 20)), 0 );//2
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.RAW_GOLD, 20 )), 0 );//2
+
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.ECHO_SHARD, 5)), 0 );//3
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.NETHERITE_SCRAP, 5)), 0 );//3
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.EMERALD, 5 )), 0 );//3
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.BLAZE_POWDER, 5)), 0 );//3
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.ICE_POWDER, 5)), 0 );//3
 
         for (IAbility ability : Main.getAbilitiesManager().getAllAbilities()) {
             if (ability.getRarity() == 3) {
@@ -58,60 +67,41 @@ public class ResourceChestBook {
             }
         }
 
+        resourceChest2.addReward( new ResourceChestReward(new Resource(ResourceType.CATALYST_RARE, 1 )), 0 );
+
         resourceChests.add(resourceChest2);
 
 
 
-        ResourceChest rareAbilitiesChest = new ResourceChest( "rare_abilities" ,"Сундук редких способностей", " /Сундук со всеми редкими спосбностями (20%),/ресурсами (75%) и малым шансом/на выпадение эпических (4%)/и легендарных (1%) способностей./ ", new Resource(ResourceType.WRITABLE_BOOK, 1), new Timestamp( 122, 4, 10, 0, 0, 0, 0), new Timestamp( 123, 4, 28, 0, 0, 0, 0), Material.WRITABLE_BOOK, null, 1);
-        rareAbilitiesChest.addCategory("resources", 75);
-        rareAbilitiesChest.addCategory("rares", 20);
-        rareAbilitiesChest.addCategory("epics", 4);
-        rareAbilitiesChest.addCategory("legendaries", 1);
+        ResourceChest rareAbilitiesChest = new ResourceChest( "rare_abilities" ,"Сундук редких способностей", " /Сундук со всеми редкими способностями (85%)/и шансом на выпадение эпических (15%) способностей./ ", new Resource(ResourceType.WRITABLE_BOOK, 1), new Timestamp( 122, 4, 10, 0, 0, 0, 0), new Timestamp( 123, 4, 28, 0, 0, 0, 0), Material.WRITABLE_BOOK, null, 1);
 
-        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.BLAZE_POWDER, 20)), 0 );
-        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.RUBY, 25)), 0 );
-        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.LAPIS, 40)), 0 );
-        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.ICE_POWDER, 20)), 0 );
-        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.ECHO_SHARD, 10)), 0 );
-        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.NETHERITE_SCRAP, 10)), 0 );
-        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.RAW_GOLD, 10 )), 0 );
-        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.EMERALD, 10 )), 0 );
+        rareAbilitiesChest.addCategory("rares", 85);
+        rareAbilitiesChest.addCategory("epics", 15);
 
         for (IAbility ability : Main.getAbilitiesManager().getAllAbilities()) {
             if (ability.getRarity() == 3) {
+                rareAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 0 );
+            }
+            if (ability.getRarity() == 4) {
                 rareAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 1 );
             }
-            if (ability.getRarity() == 4) {
-                rareAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 2 );
-            }
-            if (ability.getRarity() == 5) {
-                rareAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 3 );
-            }
         }
+
+        rareAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.CATALYST_RARE, 1 )), 1 );
+
         resourceChests.add(rareAbilitiesChest);
 
-        ResourceChest epicAbilitiesChest = new ResourceChest( "epic_abilities" ,"Сундук эпических способностей", " /Сундук со всеми эпическими способностями (8%),/ресурсами (60%), редкими способностями (30%)/и малым шансом на выпадение/легендарных (2%) способностей./ ", new Resource(ResourceType.BOOK_EVIL1, 1), new Timestamp( 122, 4, 10, 0, 0, 0, 0), new Timestamp( 123, 4, 28, 0, 0, 0, 0), Material.RED_DYE, "anicloud:book_evil1", 1);
-        epicAbilitiesChest.addCategory("resources", 60 );
-        epicAbilitiesChest.addCategory("rares", 30);
-        epicAbilitiesChest.addCategory("epics", 8);
-        epicAbilitiesChest.addCategory("legendaries", 2);
+        ResourceChest epicAbilitiesChest = new ResourceChest( "epic_abilities" ,"Сундук эпических способностей", " /Сундук со всеми эпическими способностями (90%)/и шансом на выпадение легендарных (10%) способностей./ ", new Resource(ResourceType.BOOK_EVIL1, 1), new Timestamp( 122, 4, 10, 0, 0, 0, 0), new Timestamp( 123, 4, 28, 0, 0, 0, 0), Material.RED_DYE, "anicloud:book_evil1", 1);
 
-        epicAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.BLAZE_POWDER, 40)), 0 );
-        epicAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.ICE_POWDER, 40)), 0 );
-        epicAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.ECHO_SHARD, 15)), 0 );
-        epicAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.NETHERITE_SCRAP, 15)), 0 );
-        epicAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.RAW_GOLD, 15 )), 0 );
-        epicAbilitiesChest.addReward( new ResourceChestReward(new Resource(ResourceType.EMERALD, 15 )), 0 );
+        epicAbilitiesChest.addCategory("epics", 90);
+        epicAbilitiesChest.addCategory("legendaries", 10);
 
         for (IAbility ability : Main.getAbilitiesManager().getAllAbilities()) {
-            if (ability.getRarity() == 3) {
-                epicAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 1 );
-            }
             if (ability.getRarity() == 4) {
-                epicAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 2 );
+                epicAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 0 );
             }
             if (ability.getRarity() == 5) {
-                epicAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 3 );
+                epicAbilitiesChest.addReward( new ResourceChestReward(ability.getClass()), 1 );
             }
         }
         resourceChests.add(epicAbilitiesChest);

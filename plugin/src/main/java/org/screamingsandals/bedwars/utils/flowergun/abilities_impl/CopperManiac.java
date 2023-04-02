@@ -10,6 +10,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -28,6 +29,9 @@ public class CopperManiac extends Ability implements IAbility{
         this.cooldownMilliseconds = 20000;
         this.rarity = 4;
         this.icon = IconType.COPPER_INGOT;
+
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+
         this.description = "Игрок получает (values1) меди при первом спавне.#(values2) при каждом последующем и#(values3) за каждое убийство противника.";
     }
 
@@ -47,7 +51,7 @@ public class CopperManiac extends Ability implements IAbility{
     }
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event) {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
         ItemStack reward = Main.getSpawnerType("bronze").getStack();
         reward.setAmount( calculateIntValue3(level) );
         killer.getInventory().addItem(reward);

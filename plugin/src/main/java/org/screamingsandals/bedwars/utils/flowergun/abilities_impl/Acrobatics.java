@@ -2,16 +2,16 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 import java.util.Random;
 
@@ -26,7 +26,9 @@ public class Acrobatics extends Ability implements IAbility {
         this.item = Material.SLIME_BLOCK;
         this.rarity = 3;
         this.icon = IconType.SLOW_FALLING;
-        this.description = "Использование гаджета Трамплин наложит на игрока#эффекты Медленного падения на (values1) секунд#и Скорости 3 на (values2) секунд.";
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+        this.abilityCategories.add(AbilityCategory.BUILDER);
+        this.description = "Использование гаджета Трамплин наложит на игрока#эффекты Медленного падения на (values1) секунд#и Скорости 3 на (values2) секунд. Игрок получает#на (values3)% меньше физического контактного урона#(от падения и ударов в стену).";
     }
 
     @Override
@@ -50,6 +52,10 @@ public class Acrobatics extends Ability implements IAbility {
     }
 
 
+    @Override
+    public int calculateIntValue3(int level) {
+        return 50 + 10 * level;
+    }
 
     @Override
     public void gadgetUsed(int level, GamePlayer gamePlayer, GadgetType gadgetType, CompoundValueModifier compoundValueModifier) {
@@ -62,6 +68,20 @@ public class Acrobatics extends Ability implements IAbility {
 
             playFXSpeed(player, 1);
         }
+    }
+
+
+    @Override
+    public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
+
+        if (event.isCancelled()) return;
+
+        if (Main.isPlayerInGame(victim)) {
+            if (damageInstance.damageRelay == DamageRelay.CONTACT && damageInstance.damageType == DamageType.PHYSICAL) {
+                compoundValueModifier.addExp(calculateIntValue3(level) * -0.01);
+            }
+        }
+
     }
 
 }

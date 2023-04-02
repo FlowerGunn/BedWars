@@ -72,7 +72,7 @@ public class ResourceManager {
         if ( offlinePlayer.isOnline() && dbOwnedResource != null ) {
             GamePlayer gamePlayer = Main.getPlayerGameProfile(Bukkit.getPlayer(uniqueId));
             OwnedResource preloadedOwnedResource = gamePlayer.ownedResourceBundle.getOwnedResource(resourceType);
-            if ( preloadedOwnedResource.getAmount() != dbOwnedResource.getAmount() ) {
+            if ( preloadedOwnedResource == null || preloadedOwnedResource.getAmount() != dbOwnedResource.getAmount() ) {
                 Bukkit.getConsoleSender().sendMessage("DB resource amount mismatch - " + dbOwnedResource.getType() + " - db=" + dbOwnedResource.getAmount() + " gp=" + preloadedOwnedResource.getAmount());
                 gamePlayer.ownedResourceBundle.getOwnedResource(resourceType).amount = dbOwnedResource.getAmount();
             }

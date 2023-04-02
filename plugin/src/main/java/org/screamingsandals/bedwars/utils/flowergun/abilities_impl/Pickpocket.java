@@ -24,6 +24,10 @@ public class Pickpocket extends Ability implements IAbility {
         this.item = Material.NAME_TAG;
         this.rarity = 4;
         this.icon = IconType.GOLD_INGOT;
+
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
         this.description = "Удары в ближнем бою золотыми#предметами украдут 1 золото из инвентаря#противника раз в (values1) секунд.";
     }
 

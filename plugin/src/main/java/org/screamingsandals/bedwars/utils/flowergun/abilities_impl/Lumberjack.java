@@ -7,6 +7,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ItemCategory;
@@ -24,7 +25,11 @@ public class Lumberjack extends Ability implements IAbility {
         this.id = "lumberjack";
         this.item = Material.OAK_WOOD;
         this.icon = IconType.FAST_DIGGING;
-        this.description = "Покупка деревянных блоков в магазине стоит#на (values2) ресурсов дешевле. Ломая деревянные блоки#игрок получает эффект Спешки 5 на (values1) секунд#и восполняет себе (values3) ед. сытости.";
+
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+        this.abilityCategories.add(AbilityCategory.BUILDER);
+
+        this.description = "Покупка деревянных блоков в магазине стоит#на (values2) ресурсов дешевле. Ломая деревянные блоки#игрок получает эффект Спешки 3 на (values1) секунд#и восполняет себе (values3) ед. сытости.";
     }
 
     @Override
@@ -61,7 +66,7 @@ public class Lumberjack extends Ability implements IAbility {
         if (material.contains("LOG") || material.contains("PLANKS") || material.contains("FENCE") || material.contains("GATE")) {
 
 
-            event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 4, false, false));
+            event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 2, false, false));
             Ability.healFood( event.getPlayer(), event.getPlayer(), 0, calculateDoubleValue1(level) );
             notifyPlayerOnAbilityActivation(event.getPlayer());
 

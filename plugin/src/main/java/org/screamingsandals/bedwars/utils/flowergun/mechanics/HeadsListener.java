@@ -46,6 +46,10 @@ public class HeadsListener implements Listener {
 
                 Random random = new Random();
                 int a = random.nextInt(100);
+
+                if (gKiller.hasFlag(GameFlag.INTELLECT_LEVEL_3)) a -= 20;
+                if (gamePlayer.hasFlag(GameFlag.VITALITY_LEVEL_3)) a += 20;
+
 //                Bukkit.getConsoleSender().sendMessage("a = " + a);
 //                Bukkit.getConsoleSender().sendMessage("axes = " + FlowerUtils.axesChance);
 //                Bukkit.getConsoleSender().sendMessage("swords = " + FlowerUtils.swords);

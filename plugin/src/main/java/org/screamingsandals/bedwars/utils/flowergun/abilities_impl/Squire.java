@@ -25,9 +25,14 @@ public class Squire extends Ability implements IAbility {
 
         this.name = "Оруженосец";
         this.id = "squire";
-        this.item = Material.ARROW;
+        this.item = Material.LEATHER;
         this.rarity = 3;
         this.icon = IconType.IRON_INGOT;
+
+        this.abilityCategories.add(AbilityCategory.ARCHER);
+        this.abilityCategories.add(AbilityCategory.RANGER);
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+
         this.description = "Убийства или помощи в убийстве#принесут игроку (values2) стрел.#Перезарядка: (values1) секунд";
         this.isOnCooldown = false;
     }
@@ -38,7 +43,7 @@ public class Squire extends Ability implements IAbility {
     }
     @Override
     public int calculateIntValue2(int level) {
-        return 4 + level * 3;
+        return 9 + level * 3;
     }
 
     @Override
@@ -48,7 +53,7 @@ public class Squire extends Ability implements IAbility {
 
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event) {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
         if (this.isOnCooldown) return;
 

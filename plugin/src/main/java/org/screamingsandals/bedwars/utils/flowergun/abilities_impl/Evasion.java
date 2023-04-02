@@ -11,10 +11,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class Evasion extends Ability implements IAbility {
 
@@ -27,12 +24,16 @@ public class Evasion extends Ability implements IAbility {
         this.item = Material.LEATHER_BOOTS;
         this.rarity = 3;
         this.icon = IconType.DAMAGE_RESISTANCE;
-        this.description = "Игрок получает на (values1)% меньше#урона от дальних атак если#не имеет надетого нагрудника.";
+
+        this.abilityCategories.add(AbilityCategory.TANK);
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+
+        this.description = "Игрок получает на (values1)% меньше урона#от дальних атак. Если игрок не имеет надетого#нагрудника, то эффект усиливается в 3 раза.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 55 + 5 * level;
+        return 26 + 2 * level;
     }
 
     @Override
@@ -42,8 +43,11 @@ public class Evasion extends Ability implements IAbility {
 
 //        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
         if (Main.isPlayerInGame(victim)) {
-            if (event.getFinalDamage() > 0 && (damageInstance.damageRelay == DamageRelay.PROJECTILE) && victim.getInventory().getChestplate() == null) {
+            if (event.getFinalDamage() > 0 && (damageInstance.damageRelay == DamageRelay.PROJECTILE)) {
                 playFXDefensiveUtility(victim, 1);
+                if (victim.getInventory().getChestplate() == null)
+                compoundValueModifier.addExp(calculateIntValue1(level) * 0.01 * 3);
+                else
                 compoundValueModifier.addExp(calculateIntValue1(level) * 0.01);
             }
         }

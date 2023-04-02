@@ -23,4 +23,7 @@ public class ImpactInstance {
         this.owner = player;
     }
 
+    public ImpactInstance(GamePlayer playerGameProfile, ImpactType impactType, ImpactPolarity impactPolarity, int powerPoints) {
+        this(playerGameProfile, impactType, impactPolarity, playerGameProfile.getGame().countdown, powerPoints);
+    }
 }

@@ -204,10 +204,18 @@ public class CustomGUI {
                 ShopInstance customGUIShop = gamePlayer.getCustomGUIShopInstance();
 
                 ShopCategory category = customGUIShop.categories.get(0);
+                int page = 0;
 
-                for ( ShopCategory cat : customGUIShop.categories ) {
+                if ( arg2 != null ) {
+                    page = Integer.parseInt(arg2);
+                    category = customGUIShop.categories.get(page);
+                }
+                else
+                for ( int i = 0; i < customGUIShop.categories.size(); i++ ) {
+                    ShopCategory cat = customGUIShop.categories.get(i);
                     if ( cat.getId() == arg ) {
                         category = cat;
+                        page = i;
                         break;
                     }
                 }
@@ -217,9 +225,22 @@ public class CustomGUI {
                 for ( int i = 0; i < length; i++ ) {
                     PurchasableItem item = category.items.get(i);
 
-                    ArrayList<String> lore = item.generateDescription(null);
+                    ArrayList<String> lore = item.generateDescription();
 
                     this.buttons.add(new CustomGUIButton("BUY_ITEM").setArgs( item.getId() ).setXY(1 + i % 7, 1 + (i / 7)).setItemstack( item.item.getItem() ).addLore(lore).build());
+                }
+
+
+
+                if ( page < customGUIShop.categories.size() - 1 ) {
+//                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SHOP_CATEGORY", "", page + 1 + "").setXY(8, 1).setItemstack(CustomStack.getInstance("_iainternal:icon_right_blue").getItemStack()).setName(ColoursManager.gray + " ").build());
+                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SHOP_CATEGORY", "", page + 1 + "").setXY(8, 2).setItemstack(CustomStack.getInstance("_iainternal:icon_right_blue").getItemStack()).setName(ColoursManager.gray + " ").build());
+//                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SHOP_CATEGORY", "", page + 1 + "").setXY(8, 3).setItemstack(CustomStack.getInstance("_iainternal:icon_right_blue").getItemStack()).setName(ColoursManager.gray + " ").build());
+                }
+                if ( page >= 1 ) {
+//                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SHOP_CATEGORY", "", page - 1 + "").setXY(0, 1).setItemstack(CustomStack.getInstance("_iainternal:icon_left_blue").getItemStack()).setName(ColoursManager.gray + " ").build());
+                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SHOP_CATEGORY", "", page - 1 + "").setXY(0, 2).setItemstack(CustomStack.getInstance("_iainternal:icon_left_blue").getItemStack()).setName(ColoursManager.gray + " ").build());
+//                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SHOP_CATEGORY", "", page - 1 + "").setXY(0, 3).setItemstack(CustomStack.getInstance("_iainternal:icon_left_blue").getItemStack()).setName(ColoursManager.gray + " ").build());
                 }
 
                 backButtonPrepare("SHOP", 8, 4);
@@ -232,23 +253,26 @@ public class CustomGUI {
                 GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
                 CurrentTeam team = gamePlayer.getGame().getPlayerTeam(gamePlayer);
 
+
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_WORK_CARTOGRAPHER, 0.2F, 0.8F);
+
                 GameFlag temp;
                 boolean available;
                 boolean bought;
 
                 temp = GameFlag.INTELLECT_LEVEL_1;
                 bought = team.teamFlags.contains(temp);
-                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(2, 1).setMaterial(Material.valueOf("COPPER_INGOT")).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
+                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(2, 1).setMaterial(Material.RAW_COPPER).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
 
                 temp = GameFlag.INTELLECT_LEVEL_2;
                 available = (team.teamFlags.contains(temp.getPreviousFlag()) || temp.getPreviousFlag() == null) && !team.teamFlags.contains(temp.getNeighbourFlag());
                 bought = team.teamFlags.contains(temp);
-                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(2, 2).setMaterial(available ? Material.IRON_INGOT : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
+                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(2, 2).setMaterial(available ? Material.GOLD_INGOT : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
 
                 temp = GameFlag.INTELLECT_LEVEL_3;
                 available = (team.teamFlags.contains(temp.getPreviousFlag()) || temp.getPreviousFlag() == null) && !team.teamFlags.contains(temp.getNeighbourFlag());
                 bought = team.teamFlags.contains(temp);
-                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(2, 3).setMaterial(available ? Material.GLASS_BOTTLE : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
+                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(2, 3).setMaterial(available ? Material.HONEY_BOTTLE : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
 
                 temp = GameFlag.INTELLECT_LEVEL_4A;
                 available = (team.teamFlags.contains(temp.getPreviousFlag()) || temp.getPreviousFlag() == null) && !team.teamFlags.contains(temp.getNeighbourFlag());
@@ -295,7 +319,7 @@ public class CustomGUI {
                 temp = GameFlag.VITALITY_LEVEL_2;
                 available = (team.teamFlags.contains(temp.getPreviousFlag()) || temp.getPreviousFlag() == null) && !team.teamFlags.contains(temp.getNeighbourFlag());
                 bought = team.teamFlags.contains(temp);
-                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(6, 2).setMaterial(available ? Material.LEATHER : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
+                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(6, 2).setMaterial(available ? Material.GOLDEN_APPLE : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
 
                 temp = GameFlag.VITALITY_LEVEL_3;
                 available = (team.teamFlags.contains(temp.getPreviousFlag()) || temp.getPreviousFlag() == null) && !team.teamFlags.contains(temp.getNeighbourFlag());
@@ -305,12 +329,12 @@ public class CustomGUI {
                 temp = GameFlag.VITALITY_LEVEL_4A;
                 available = (team.teamFlags.contains(temp.getPreviousFlag()) || temp.getPreviousFlag() == null) && !team.teamFlags.contains(temp.getNeighbourFlag());
                 bought = team.teamFlags.contains(temp);
-                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(5, 4).setMaterial(available ? Material.GOLDEN_APPLE : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
+                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(5, 4).setMaterial(available ? Material.LEATHER : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
 
                 temp = GameFlag.VITALITY_LEVEL_4B;
                 available = (team.teamFlags.contains(temp.getPreviousFlag()) || temp.getPreviousFlag() == null) && !team.teamFlags.contains(temp.getNeighbourFlag());
                 bought = team.teamFlags.contains(temp);
-                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(7, 4).setMaterial(available ? Material.GOLDEN_CARROT : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
+                this.buttons.add(new CustomGUIButton("BUY_UPGRADE").setArgs(temp.name()).setXY(7, 4).setMaterial(available ? Material.PHANTOM_MEMBRANE : Material.GRAY_DYE).setName(temp.getName()).setLore(temp.getDescription()).addHiddenEnchantment(bought).build());
 
 
                 backButtonPrepare("SHOP");
@@ -496,7 +520,7 @@ public class CustomGUI {
             }
             case "FORGE": {
 
-                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
+//                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_WORK_TOOLSMITH, 0.3F, 1.0F);
 
                 backButtonPrepare("INVENTORY", 8, 4);
@@ -643,6 +667,9 @@ public class CustomGUI {
             }
             case "INVENTORY": {
 
+                player.playSound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.8F, 0.7F);
+
+
                 backButtonPrepare("EXIT", 8, 2);
 
                 ItemStack head = new ItemStack(Material.PLAYER_HEAD);
@@ -667,7 +694,7 @@ public class CustomGUI {
             }
             case "INVENTORY_ABILITIES": {
 
-                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
+                player.playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.3F, 1.5F);
 
                 GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
                 ArrayList<OwnedAbility> ownedAbilities = gamePlayer.ownedAbilities;
@@ -806,7 +833,7 @@ public class CustomGUI {
             }
             case "INVENTORY_RESOURCES": {
 
-                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
+                player.playSound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.5F, 0.8F);
 
                 GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
                 ArrayList<OwnedResource> ownedResources = gamePlayer.ownedResourceBundle.resources;
@@ -840,7 +867,9 @@ public class CustomGUI {
             }
             case "CASES": {
 
-                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_WORK_CARTOGRAPHER, 0.2F, 0.8F);
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_WORK_LIBRARIAN, 0.5F, 0.8F);
+//                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
 
                 ItemStack locked = CustomStack.getInstance("anicloud:slot_locked").getItemStack();
 

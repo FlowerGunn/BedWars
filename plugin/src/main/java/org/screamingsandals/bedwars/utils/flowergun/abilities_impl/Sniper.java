@@ -24,7 +24,11 @@ public class Sniper extends Ability implements IAbility {
         this.item = Material.IRON_HOE;
         this.rarity = 4;
         this.icon = IconType.IRON_INGOT;
-        this.description = "Попадание снарядом по противнику на дистанции минимум#(values2) блоков даст игроку 1 серебро.#Перезарядка: (values1) секунд";
+
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+        this.abilityCategories.add(AbilityCategory.RANGER);
+
+        this.description = "Попадание снарядом по противнику на дистанции минимум#(values2) блоков даст игроку 4 серебра.#Перезарядка: (values1) секунд";
         this.isOnCooldown = false;
     }
 
@@ -58,6 +62,7 @@ public class Sniper extends Ability implements IAbility {
                 if ( attacker.getLocation().distance(victim.getLocation()) < calculateIntValue2(level) ) return;
 
                 ItemStack reward = Main.getSpawnerType("iron").getStack();
+                reward.setAmount(4);
                 attacker.getInventory().addItem(reward);
                 playFXItemGained(attacker, 1);
                 notifyPlayerOnAbilityActivation(attacker);

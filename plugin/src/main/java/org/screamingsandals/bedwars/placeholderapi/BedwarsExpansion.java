@@ -396,7 +396,7 @@ public class BedwarsExpansion extends PlaceholderExpansion {
 
                                 String icon = IconsManager.requestIcon(type, player);
 
-                                statuses += icon + ChatColor.GRAY + amplifier+ " " + ChatColor.RESET;
+                                statuses += icon + ChatColor.GRAY + amplifier + " " + ChatColor.RESET;
 
                             }
 

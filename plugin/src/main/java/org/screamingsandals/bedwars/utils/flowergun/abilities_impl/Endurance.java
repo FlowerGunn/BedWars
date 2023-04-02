@@ -10,10 +10,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class Endurance extends Ability implements IAbility {
 
@@ -27,12 +24,17 @@ public class Endurance extends Ability implements IAbility {
         this.item = Material.IRON_AXE;
         this.rarity = 3;
         this.icon = IconType.DAMAGE_RESISTANCE;
-        this.description = "При удержании топора в основной руке#весь получаемый игроком физический#урон уменьшен на (values1)&7%";
+
+        this.abilityCategories.add(AbilityCategory.VIKING);
+        this.abilityCategories.add(AbilityCategory.TANK);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
+        this.description = "При удержании топора в основной руке#весь получаемый игроком физический#урон уменьшен на (values1)%";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 10 + 4 * level;
+        return 10 + 3 * level;
     }
 
 

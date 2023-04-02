@@ -1,14 +1,15 @@
 package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ItemCategory;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 
 public class Friendlyness extends Ability implements IAbility {
 
@@ -21,12 +22,24 @@ public class Friendlyness extends Ability implements IAbility {
         this.item = Material.FIREWORK_STAR;
         this.rarity = 3;
         this.icon = IconType.IRON_INGOT;
-        this.description = "Игрок получает (values1) бонусных феерверков#и снежков при соответвующих покупках в магазине.";
+
+        this.abilityCategories.add(AbilityCategory.SNOWMAN);
+        this.abilityCategories.add(AbilityCategory.PYROTECHNIC);
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+        this.abilityCategories.add(AbilityCategory.RANGER);
+
+        this.description = "Игрок получает (values1) бонусных фейерверков#и снежков при соответвующих покупках в магазине.#Урон снежков и фейерверков увеличен на (values2)%.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return level * 3;
+        return 6 + level * 2;
+    }
+
+
+    @Override
+    public int calculateIntValue2(int level) {
+        return 14 + level * 2;
     }
 
     @Override
@@ -36,6 +49,16 @@ public class Friendlyness extends Ability implements IAbility {
 //            Bukkit.getConsoleSender().sendMessage("item is a firework");
             item.changeDeal( item.item.getItem().getAmount() + calculateIntValue1(activeLevel) , 0, 0 );
 
+        }
+    }
+
+    @Override
+    public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
+
+        if ( event.isCancelled() ) return;
+
+        if ( event.getFinalDamage() > 0 && damageInstance.damageSource == DamageSource.PLAYER && ( damageInstance.damageType == DamageType.SNOWBALL || damageInstance.damageType == DamageType.FIREWORK) ) {
+            compoundValueModifier.addExp(calculateIntValue2(level) * 0.01);
         }
     }
 

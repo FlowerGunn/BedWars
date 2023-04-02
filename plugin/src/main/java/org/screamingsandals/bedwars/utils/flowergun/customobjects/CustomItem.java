@@ -246,12 +246,16 @@ public class CustomItem {
                 property = "Module:ProtectionWall:true:5:0:5:3:2:SANDSTONE";
                 break;
             }
+            case MEGA_WALL: {
+                property = "Module:ProtectionWall:true:5:0:9:5:2:SMOOTH_SANDSTONE";
+                break;
+            }
             case ARROW_SHIELD: {
                 property = "Module:ArrowBlocker:10:5";
                 break;
             }
             case FIREBALL: {
-                property = "Module:ThrowableFireball:3.0:true:true";
+                property = "Module:ThrowableFireball:2.0:true:true";
                 break;
             }
             case GOLEM: {
@@ -377,4 +381,8 @@ public class CustomItem {
     }
 
 
+    public CustomItem setUnbreakable() {
+        this.itemMeta.setUnbreakable(true);
+        return this;
+    }
 }

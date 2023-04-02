@@ -27,6 +27,10 @@ public class HomeSweetHome extends Ability implements IAbility {
         this.item = Material.MAGMA_CREAM;
         this.rarity = 4;
         this.icon = IconType.GOLD_INGOT;
+
+        this.abilityCategories.add(AbilityCategory.GUARDIAN);
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+
         this.description = "Использование гаджета Телепортации на базу#вернёт его игроку с шансом (values1)%, а также#даст эффект Сопротивления 1 и Скорости 3 на (values2) секунд.";
     }
 

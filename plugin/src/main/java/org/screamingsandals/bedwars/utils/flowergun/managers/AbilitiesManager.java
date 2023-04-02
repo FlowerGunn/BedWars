@@ -79,6 +79,23 @@ public class AbilitiesManager {
         this.allAbilitiesClasses.add(Evasion.class);
         this.allAbilitiesClasses.add(Shrapnel.class);
 
+        this.allAbilitiesClasses.add(Anger.class);
+        this.allAbilitiesClasses.add(BigCalliber.class);
+
+        this.allAbilitiesClasses.add(Fiend.class);
+        this.allAbilitiesClasses.add(ArrowRain.class);
+        this.allAbilitiesClasses.add(Vitamins.class);
+        this.allAbilitiesClasses.add(DrunkDoctor.class);
+
+        this.allAbilitiesClasses.add(Fortification.class);
+        this.allAbilitiesClasses.add(BattleShout.class);
+
+        this.allAbilitiesClasses.add(IceAge.class);
+
+        this.allAbilitiesClasses.add(Suffocator.class);
+        this.allAbilitiesClasses.add(FlowerMadness.class);
+        this.allAbilitiesClasses.add(Amogus.class);
+
         for (Class clazz : this.allAbilitiesClasses) {
             this.allAbilities.add(Ability.generateAbility(clazz));
         }

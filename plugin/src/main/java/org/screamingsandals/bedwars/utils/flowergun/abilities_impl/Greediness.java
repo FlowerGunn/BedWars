@@ -9,6 +9,7 @@ import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -23,6 +24,10 @@ public class Greediness extends Ability implements IAbility {
         this.item = Material.EMERALD_BLOCK;
         this.rarity = 3;
         this.icon = IconType.EMERALD;
+
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+
         this.description = "Подбирая золото игрок получает Скорость 2#на (values1) секунд, а подбирая#изумруды - Скорость 3 на (values2) секунд.";
     }
 

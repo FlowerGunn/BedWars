@@ -11,6 +11,7 @@ import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueM
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -25,7 +26,11 @@ public class Mirroring extends Ability implements IAbility {
         this.item = Material.GLASS;
         this.rarity = 5;
         this.icon = IconType.ABSORPTION;
-        this.description = "Убийства и помощи в убийстве увеличивают#максимальное здоровье игрока на 2ед. на (values1) секунд.#Новые заряды обновляют длительность.#Убийства и помощи в убийстве считаются#отдельными зарядами.";
+
+        this.abilityCategories.add(AbilityCategory.TANK);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
+        this.description = "Убийства и помощи в убийстве увеличивают#максимальное здоровье игрока на 3ед. на (values1) секунд.#Новые заряды обновляют длительность.#Убийства и помощи в убийстве считаются#отдельными зарядами.";
     }
 
     @Override
@@ -40,10 +45,10 @@ public class Mirroring extends Ability implements IAbility {
     }
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event) {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
         GamePlayer gKiller = Main.getPlayerGameProfile(killer);
-        gKiller.addCustomStatusEffect(new CustomStatusEffect("mirror_kill", gKiller, gKiller, Attribute.GENERIC_MAX_HEALTH, new CompoundValueModifier(2, 0, 0), calculateIntValue1(level), false));
+        gKiller.addCustomStatusEffect(new CustomStatusEffect("mirror_kill", gKiller, gKiller, Attribute.GENERIC_MAX_HEALTH, new CompoundValueModifier(3, 0, 0), calculateIntValue1(level), false));
         notifyPlayerOnAbilityActivation(killer);
 
     };
@@ -52,7 +57,7 @@ public class Mirroring extends Ability implements IAbility {
     public void playerKillAssist(int activeLevel, Player killer, Player victim, Player assistant) {
 
         GamePlayer gAssistant = Main.getPlayerGameProfile(assistant);
-        gAssistant.addCustomStatusEffect(new CustomStatusEffect("mirror_assist", gAssistant, gAssistant, Attribute.GENERIC_MAX_HEALTH, new CompoundValueModifier(2, 0, 0), calculateIntValue1(activeLevel), false));
+        gAssistant.addCustomStatusEffect(new CustomStatusEffect("mirror_assist", gAssistant, gAssistant, Attribute.GENERIC_MAX_HEALTH, new CompoundValueModifier(3, 0, 0), calculateIntValue1(activeLevel), false));
         notifyPlayerOnAbilityActivation(assistant);
 
     };

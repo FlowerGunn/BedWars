@@ -71,6 +71,7 @@ public class FlatteningRegion implements Region {
     @Override
     public void regen() {
         for (Location block : builtBlocks) {
+            if ( block == null ) continue;
             Chunk chunk = block.getChunk();
             if (!chunk.isLoaded()) {
                 chunk.load();

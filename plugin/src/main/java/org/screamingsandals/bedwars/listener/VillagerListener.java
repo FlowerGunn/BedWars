@@ -64,14 +64,14 @@ public class VillagerListener implements Listener {
 
                 if ( event.getRightClicked() instanceof Villager && !event.isCancelled()) {
                     GamePlayer gamePlayer = Main.getPlayerGameProfile(event.getPlayer());
-                    Bukkit.getConsoleSender().sendMessage("Player " + event.getPlayer() + " from team " + gamePlayer.getGame().getPlayerTeam(gamePlayer).teamInfo.name + " unsuccessfully opened a store!");
-                    Bukkit.getConsoleSender().sendMessage("gameStoreList - " + game.getGameStoreList().size());
-                    Bukkit.getConsoleSender().sendMessage("entity - " + event.getRightClicked());
+                    Bukkit.getConsoleSender().sendMessage("Player " + event.getPlayer() + " from team " + gamePlayer.getGame().getPlayerTeam(gamePlayer).teamInfo.name + " unsuccessfully opened a store, but got a replacement!");
+//                    Bukkit.getConsoleSender().sendMessage("gameStoreList - " + game.getGameStoreList().size());
+//                    Bukkit.getConsoleSender().sendMessage("entity - " + event.getRightClicked());
                     if (gamePlayer.didFlagAmountChange())
                     {
                         gamePlayer.updateShop();
                     }
-
+                    event.setCancelled(true);
 
                     CustomGUI gui = new CustomGUI(event.getPlayer(), "SHOP");
                     gui.load();

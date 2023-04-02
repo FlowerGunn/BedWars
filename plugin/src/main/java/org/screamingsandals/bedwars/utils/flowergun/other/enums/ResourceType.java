@@ -5,36 +5,40 @@ import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.screamingsandals.bedwars.utils.flowergun.managers.NotificationManager;
 import org.screamingsandals.bedwars.utils.flowergun.managers.RarityManager;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public enum ResourceType {
-    SLIMEBALL( Material.SLIME_BALL, IconType.SLIMEBALL, "Слайм", 1),
-    AMETHYST_SHARD( Material.AMETHYST_SHARD, IconType.AMETHYST_SHARD, "Аметист", 2),
-    QUARTZ( Material.QUARTZ, IconType.QUARTZ, "Кварц", 1),
+    SLIMEBALL( Material.SLIME_BALL, IconType.SLIMEBALL, "Слайм", 2, "Густая, неприятная к прикосновению субстанция./Встречается в густых блоках и субстанциях,/а также в некоторой органике."),
+    AMETHYST_SHARD( Material.AMETHYST_SHARD, IconType.AMETHYST_SHARD, "Аметист", 2, "Хрупкие прозрачные фиолетовые камешки,/на первый взгляд не несущие особой пользы."),
+    QUARTZ( Material.QUARTZ, IconType.QUARTZ, "Кварц", 2, "Полупрозрачные кристаллы с достаточно/остроыми и выраженными краями."),
     NETHERITE_SCRAP( Material.NETHERITE_SCRAP, IconType.NETHERITE_SCRAP, "Незеритовые Обломки", 3),
     PAPER( Material.PAPER, IconType.PAPER, "Бумага", 2),
     SPYGLASS( Material.SPYGLASS, IconType.SPYGLASS, "Подзорная Труба",  6),
-    LEATHER( Material.LEATHER, IconType.LEATHER, "Кожа", 1),
+    LEATHER( Material.LEATHER, IconType.LEATHER, "Кожа", 1, "Простой материал, награждающий жестокость/игроков арены против друг друга."),
     RAW_IRON( Material.RAW_IRON, IconType.RAW_IRON, "Железная Руда", 1),
     RAW_COPPER( Material.RAW_COPPER, IconType.RAW_COPPER, "Медная Руда", 1),
     RAW_GOLD( Material.RAW_GOLD, IconType.RAW_GOLD, "Золотая Руда", 2),
-    GLOW_INK_SAC( Material.GLOW_INK_SAC, IconType.GLOW_INK_SAC, "Загадочные Чернила", 2),
+    GLOW_INK_SAC( Material.GLOW_INK_SAC, IconType.GLOW_INK_SAC, "Загадочные Чернила", 2, "Аморфный краситель, встречающийся в ярких/разноцветных товарах магазина./Возможно эти чернила можно использовать/в качестве красителя, однако данная/теория не была доказана или опровержена."),
     ENDER_EYE( Material.ENDER_EYE, IconType.ENDER_EYE, "Глаз Эндера", 4),
     CAKE( Material.CAKE, IconType.CAKE, "Торт", 4),
-    BONE( Material.BONE, IconType.BONE, "Кость", 1),
+    BONE( Material.BONE, IconType.BONE, "Кость", 1, "Груда костей, оставшихся у вас/после ваших смертей на арене./Возможно существует способ собрать/и вражеские кости..."),
     GOLD( Material.GOLD_INGOT, IconType.GOLD_INGOT, "Золото", 3),
     IRON( Material.IRON_INGOT, IconType.IRON_INGOT, "Железо", 2),
     COPPER( Material.COPPER_INGOT, IconType.COPPER_INGOT, "Медь", 2),
     EMERALD(Material.EMERALD, IconType.EMERALD, "Изумруд", 3),
-    COAL(Material.COAL, IconType.COAL, "Уголь", 1),
+    COAL(Material.COAL, IconType.COAL, "Уголь", 2, "Важный материал для обработки руд,/награждаемый за покупку горящих и термически/обработанных предметов и блоков."),
 
     ENDER_PEARL(Material.ENDER_PEARL, IconType.ENDER_PEARL, "Эндер Жемчуг", 4),
-    ECHO_SHARD(Material.ECHO_SHARD, IconType.ECHO_SHARD, "Осколок Пустоты", 3),
-    LAPIS(Material.LAPIS_LAZULI, IconType.LAPIS, "Лазурит", 2),
+    ECHO_SHARD(Material.ECHO_SHARD, IconType.ECHO_SHARD, "Осколок Пустоты", 3, "Смотря сквозь эти кристаллы,/каждый человек может увидеть отражения/их прошлого, мест где они бывали раньше,/медленно теряя запасы своего рассудка."),
+    LAPIS(Material.LAPIS_LAZULI, IconType.LAPIS, "Лазурит", 2, "Исток этого камня остаётся загадкой..."),
     THICK_SLIME("anicloud:thick_slime", IconType.THICK_SLIME, "Густая Слизь", 2),
     STEEL_PLATE("anicloud:steel_plate", IconType.STEEL_PLATE, "Стальная Пластина", 4),
     STEEL_INGOT("anicloud:steel_ingot", IconType.STEEL_INGOT, "Стальной Слиток", 2),
-    SILK_COCOON("anicloud:silk_cocoon", IconType.SILK_COCOON, "Пряжа", 1),
+    SILK_COCOON("anicloud:silk_cocoon", IconType.SILK_COCOON, "Пряжа", 1, "Находится"),
     RUBY("anicloud:ruby", IconType.RUBY, "Грубый Рубин", 2),
     RUBY_LAMP("anicloud:ruby_lamp", IconType.RUBY_LAMP, "Рубиновая Лампа", 5),
     REINFORCED_BONE_PLATE("anicloud:reinforced_bone_plate", IconType.REINFORCED_BONE_PLATE, "Укреплённая Костяная Пластина", 4),
@@ -76,7 +80,7 @@ public enum ResourceType {
     BONE_PLATE("anicloud:bone_plate", IconType.BONE_PLATE, "Костяная Пластина", 2),
     BOLT("anicloud:bolt", IconType.BOLT, "Болт", 3),
     ANOMALY("anicloud:anomaly", IconType.ANOMALY, "Аномалия", 4),
-    SEMICONDUCTOR("anicloud:semiconductor", IconType.SEMICONDUCTOR, "Полупроводник", 3),
+    SEMICONDUCTOR("anicloud:semiconductor", IconType.SEMICONDUCTOR, "Полупроводник", 5),
     GOLD_SHEET("anicloud:gold_sheet", IconType.GOLD_SHEET, "Золотой Лист", 4),
     BLAZE_POWDER( Material.BLAZE_POWDER, IconType.BLAZE_POWDER , "Огненный Порошок", 3 );
 
@@ -92,30 +96,22 @@ public enum ResourceType {
     private int rarity;
     @Getter
     private int customModelData;
+    private ArrayList<String> description;
 
-
-    ResourceType(Material material, IconType iconType, String name) {
-        this.material = material;
-        this.iconType = iconType;
-        this.name = name;
-        this.rarity = 1;
-    }
 
     ResourceType(Material material, IconType iconType, String name, int rarity) {
+        this(material, iconType, name, rarity, "");
+    }
+
+    ResourceType(Material material, IconType iconType, String name, int rarity, String description) {
         this.material = material;
         this.iconType = iconType;
         this.customModelData = 0;
         this.name = name;
         this.rarity = rarity;
+        this.setupDescription( description );
     }
 
-    ResourceType(Material material, int customModelData, IconType iconType, String name, int rarity) {
-        this.material = material;
-        this.iconType = iconType;
-        this.customModelData = customModelData;
-        this.name = name;
-        this.rarity = rarity;
-    }
 
     ResourceType(String iaId, IconType iconType, String name, int rarity) {
 //        CustomStack customStack = CustomStack.getInstance(iaId);
@@ -130,12 +126,23 @@ public enum ResourceType {
 //            this.customModelData = 0;
 //        }
 
+        this(iaId, iconType, name, rarity, "");
+    }
+
+    ResourceType(String iaId, IconType iconType, String name, int rarity, String description) {
+
         this.iaId = iaId;
         this.material = Material.WHITE_DYE;
         this.customModelData = 0;
         this.iconType = iconType;
         this.name = name;
         this.rarity = rarity;
+        this.setupDescription(description);
+    }
+
+    private void setupDescription(String description) {
+        this.description = new ArrayList<>();
+        this.description.addAll(NotificationManager.divideAndParseLines(description, "/"));
     }
 
     public ItemStack getGuiItem() {
@@ -166,4 +173,7 @@ public enum ResourceType {
         return RarityManager.getRarityColour(this.rarity) + this.name;
     }
 
+    public ArrayList<String> getDescription() {
+        return this.description;
+    }
 }

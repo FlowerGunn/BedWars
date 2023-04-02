@@ -41,7 +41,9 @@ public class OwnedResource extends Resource{
         ArrayList<String> lore = new ArrayList<>();
         lore.add(RarityManager.getFullRarity(this.type.getRarity()));
         lore.add("");
-        lore.add(ColoursManager.gray + " Количество: " + this.getAmount());
+        lore.add(ColoursManager.gray + "  Количество: " + this.getAmount());
+        lore.add("");
+        lore.addAll(this.type.getDescription());
         return lore;
     }
 }

@@ -26,6 +26,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
@@ -40,6 +41,7 @@ import org.screamingsandals.bedwars.api.events.BedwarsPlayerBuildBlock;
 import org.screamingsandals.bedwars.api.game.Game;
 import org.screamingsandals.bedwars.special.AutoIgniteableTNT;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class AutoIgniteableTNTListener implements Listener {
@@ -61,6 +63,11 @@ public class AutoIgniteableTNTListener implements Listener {
         Player player = event.getPlayer();
         String unhidden = APIUtils.unhashFromInvisibleStringStartsWith(stack, AUTO_IGNITEABLE_TNT_PREFIX);
         if (unhidden != null) {
+            if ( player.getCooldown(Material.TNT) > 0 ) {
+                event.setCancelled(true);
+                return;
+            }
+            player.setCooldown(Material.TNT, FlowerUtils.TNTCooldown);
             block.setType(Material.AIR);
             Location location = block.getLocation().add(0.5, 0.5, 0.5);
             int explosionTime = Integer.parseInt(unhidden.split(":")[2]);
@@ -72,7 +79,7 @@ public class AutoIgniteableTNTListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGH)
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) {
             return;
@@ -91,7 +98,7 @@ public class AutoIgniteableTNTListener implements Listener {
 
 
 
-            if ( tnt.hasMetadata("owner")) {
+            if ( tnt.hasMetadata("owner") ) {
 
                 Player owner = Bukkit.getPlayer(tnt.getMetadata("owner").get(0).asString());
                 Player victim = (Player) event.getEntity();
@@ -111,7 +118,11 @@ public class AutoIgniteableTNTListener implements Listener {
 //                    Bukkit.getConsoleSender().sendMessage( "Same team TNT damage cancelled for " + player.getName());
                 } else {
                     DamageInstance damageInstance = new DamageInstance(DamageSource.PLAYER, DamageTarget.PLAYER, DamageRelay.CONTACT, DamageType.EXPLOSION);
-                    gOwner.lastDealtDamageInstance = damageInstance;
+                    damageInstance.attackerPlayer = owner;
+                    gOwner.incomingDealtDamageInstance = damageInstance;
+                    gVictim.incomingReceivedDamageInstance = damageInstance;
+                    Bukkit.getConsoleSender().sendMessage("explosion damage");
+//                    Triggers.processDamageEvent(event);
                 }
             }
 

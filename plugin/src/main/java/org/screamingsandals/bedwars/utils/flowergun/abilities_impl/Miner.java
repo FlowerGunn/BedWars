@@ -9,6 +9,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -27,22 +28,26 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
             this.item = Material.STONE_PICKAXE;
             this.rarity = 3;
             this.icon = IconType.FAST_DIGGING;
-            this.description = "Игрок получает неломаемую каменную кирку#на Эффективность (values1) и Остроту (values3),#и (values2) булыжника при первом спавне.";
+
+            this.abilityCategories.add(AbilityCategory.SCOUT);
+            this.abilityCategories.add(AbilityCategory.BUILDER);
+
+            this.description = "Игрок получает неломаемую каменную#кирку на Эффективность (values1),#и (values2) булыжника при первом спавне.";
         }
 
         @Override
         public int calculateIntValue1(int level) {
-            return 3 + level;
+            return -1 + level;
         }
 
         @Override
         public int calculateIntValue2(int level) {
-            return 8 + 8 * level;
+            return 16 + 8 * level;
         }
 
         @Override
         public int calculateIntValue3(int level) {
-            return 1 + level;
+            return -1 + level;
         }
 
 
@@ -59,7 +64,9 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
             ItemStack kit2 = new ItemStack(Material.STONE_PICKAXE);
             ItemMeta itemMeta2 = kit2.getItemMeta();
             itemMeta2.setUnbreakable(true);
+            if ( calculateIntValue1(level) > 0)
             itemMeta2.addEnchant(Enchantment.DIG_SPEED, calculateIntValue1(level), true);
+            if ( calculateIntValue3(level) > 0)
             itemMeta2.addEnchant(Enchantment.DAMAGE_ALL, calculateIntValue3(level), true);
     //        itemMeta2.addEnchant(Enchantment.BINDING_CURSE, 1, true);
             kit2.setItemMeta(itemMeta2);

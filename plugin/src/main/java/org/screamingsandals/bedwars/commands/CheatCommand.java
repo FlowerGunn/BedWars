@@ -123,16 +123,19 @@ public class CheatCommand extends BaseCommand {
             switch (args.get(0).toLowerCase()) {
                 case "give":
                     {
-                        String resource = args.get(1);
-                        ItemSpawnerType type = Main.getSpawnerType(resource);
                         Player player1 = player;
-                        if (type == null || args.size() < 2) {
-                            player1.getInventory().addItem(Main.getSpawnerType("bronze").getStack(64));
-                            player1.getInventory().addItem(Main.getSpawnerType("iron").getStack(64));
-                            player1.getInventory().addItem(Main.getSpawnerType("gold").getStack(64));
-                            player1.getInventory().addItem(Main.getSpawnerType("emerald").getStack(64));
+                        if (args.size() < 2) {
+                            Map<Integer, ItemStack> map1 = player1.getInventory().addItem(Main.getSpawnerType("bronze").getStack(64));
+                            Map<Integer, ItemStack> map2 = player1.getInventory().addItem(Main.getSpawnerType("iron").getStack(64));
+                            Map<Integer, ItemStack> map3 = player1.getInventory().addItem(Main.getSpawnerType("gold").getStack(64));
+                            Map<Integer, ItemStack> map4 = player1.getInventory().addItem(Main.getSpawnerType("emerald").getStack(64));
                             return true;
                         }
+
+                        String resource = args.get(1);
+                        ItemSpawnerType type = Main.getSpawnerType(resource);
+                        if (type == null) return false;
+
                         int stack = 64;
                         if (args.size() > 2) {
                             try {

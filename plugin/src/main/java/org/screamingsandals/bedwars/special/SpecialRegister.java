@@ -76,6 +76,8 @@ public class SpecialRegister {
         plugin.getServer().getPluginManager().registerEvents(new VillagerDamageListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PotionEffectsListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerDeathTridentListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new ProjectileProcessingEvent(), plugin);
     }
 
 }

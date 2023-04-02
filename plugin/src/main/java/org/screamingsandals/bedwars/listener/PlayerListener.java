@@ -101,7 +101,9 @@ public class PlayerListener implements Listener {
             CurrentTeam victimTeam = game.getPlayerTeam(gVictim);
 
             List<ItemStack> drops = new ArrayList<>(event.getDrops());
-            int respawnTime = Main.getConfigurator().config.getInt("respawn-cooldown.time", 5);
+
+
+            int respawnTime = FlowerUtils.calculateRespawnTime(game); //Main.getConfigurator().config.getInt("respawn-cooldown.time", 5);
 
             event.setKeepInventory(game.getOriginalOrInheritedKeepInventory());
             event.setDroppedExp(0);
@@ -308,27 +310,22 @@ public class PlayerListener implements Listener {
                     @Override
                     public void run() {
                         if (livingTime > 0) {
-                            Title.send(player,
-                                    i18nonly("respawn_cooldown_title").replace("%time%", String.valueOf(livingTime)), "");
-                            Sounds.playSound(player, player.getLocation(),
-                                    Main.getConfigurator().config.getString("sounds.respawn_cooldown_wait.sound"),
-                                    Sounds.BLOCK_STONE_BUTTON_CLICK_ON, (float) Main.getConfigurator().config.getDouble("sounds.respawn_cooldown_wait.volume"), (float) Main.getConfigurator().config.getDouble("sounds.respawn_cooldown_wait.pitch"));
-                        }
-
-                        livingTime--;
+                            player.sendTitle("", (ColoursManager.gray + "Возрождение... " + ColoursManager.light_blue + livingTime), 0, 20, 10);
+                            player.playSound(player, Sound.ITEM_BOTTLE_FILL_DRAGONBREATH, 0.2F, 0.5F);
+                        } else
                         if (livingTime == 0) {
                             game.makePlayerFromSpectator(gamePlayer);
 
                             //WAYPOINT TOOLS BREAKING
 
+                            if ( game != null )
                             Triggers.playerRespawn(game, gamePlayer);
 
-                            Sounds.playSound(player, player.getLocation(),
-                                    Main.getConfigurator().config.getString("sounds.respawn_cooldown_done.sound"),
-                                    Sounds.UI_BUTTON_CLICK, (float) Main.getConfigurator().config.getDouble("sounds.respawn_cooldown_done.volume"), (float) Main.getConfigurator().config.getDouble("sounds.respawn_cooldown_done.pitch"));
+                            player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.1F, 0.65F);
 
                             this.cancel();
                         }
+                        livingTime--;
                     }
                 }.runTaskTimer(Main.getInstance(), 20L, 20L);
             }
@@ -339,9 +336,16 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         if (Main.isPlayerGameProfileRegistered(event.getPlayer())) {
             GamePlayer gPlayer = Main.getPlayerGameProfile(event.getPlayer());
-            if (gPlayer.isInGame())
+
+            if (gPlayer.isInGame()) {
+                gPlayer.storeInv();
                 gPlayer.changeGame(null);
-            Main.unloadPlayerGameProfile(event.getPlayer());
+            }
+
+            if (findRejoinableGameOfPlayer(event.getPlayer()) == null) {
+                Main.unloadPlayerGameProfile(event.getPlayer());
+//                Bukkit.getConsoleSender().sendMessage("profile unloaded");
+            }
 
         }
 
@@ -358,32 +362,46 @@ public class PlayerListener implements Listener {
         }
     }
 
+    public static Game findRejoinableGameOfPlayer( Player player ) {
+        for ( String gameName : Main.getGameNames() ) {
+            Game game = Main.getGame(gameName);
+//            Bukkit.getConsoleSender().sendMessage("checking game " + game.getName());
+
+            if (game.getStatus() != GameStatus.RUNNING) continue;
+
+            for ( GamePlayer gamePlayer : game.getMatchedPlayers() ) {
+//                Bukkit.getConsoleSender().sendMessage("checking matched player " + gamePlayer.player.getDisplayName());
+                if ( gamePlayer.player.getDisplayName().equals(player.getDisplayName()) ) {
+
+                    if ( gamePlayer.latestCurrentTeam.isBed ) {
+
+                        if (gamePlayer.player == player) Bukkit.getConsoleSender().sendMessage("player is the same");
+                        else Bukkit.getConsoleSender().sendMessage("player IS NOT THE SAME");
+                        Main.getInstance().playersInGame.remove(gamePlayer);
+                        gamePlayer.player = player;
+                        Main.getInstance().playersInGame.put(player, gamePlayer);
+                        Bukkit.getConsoleSender().sendMessage(player.getName() + " is found in game " + game.getName());
+                        return game;
+
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        Main.getPlayerGameProfile(player).recalculateCustomEffects();
+        Bukkit.getConsoleSender().sendMessage("playerjoining " + player.getDisplayName());
 
+        Game game = findRejoinableGameOfPlayer(player);
 
+        if ( game != null ) {
+            if (game.internalReturnPlayer(player)) return;
+        }
 
-//        Bukkit.getConsoleSender().sendMessage("playerjoining " + player.getDisplayName());
-//
-//        boolean foundUnfinishedGame = false;
-//        for ( String gameName : Main.getGameNames() ) {
-//            Game game = Main.getGame(gameName);
-//            Bukkit.getConsoleSender().sendMessage("checking game " + game.getName());
-//            for ( GamePlayer gamePlayer : game.getMatchedPlayers() ) {
-//                Bukkit.getConsoleSender().sendMessage("checking matched player " + gamePlayer.player.getDisplayName());
-//                if ( gamePlayer.player.getDisplayName().equals(player.getDisplayName()) ) {
-//                    gamePlayer.isReturning = true;
-//                    Bukkit.getConsoleSender().sendMessage(player.displayName() + " reconnecting to game " + game.getName());
-//                    foundUnfinishedGame = true;
-//                    game.internalJoinPlayer(gamePlayer);
-//                }
-//            }
-//        }
-//
-//        if ( !foundUnfinishedGame )
         if (Game.isBungeeEnabled() && Main.getConfigurator().config.getBoolean("bungee.auto-game-connect", false)) {
             new BukkitRunnable() {
                 public void run() {
@@ -676,7 +694,7 @@ public class PlayerListener implements Listener {
                 if ( !FlowerUtils.allowedRecipes.contains(event.getRecipe().getResult().getType()) )
                 event.setCancelled(true);
 
-                if ( event.getRecipe() instanceof ShapelessRecipe )
+                if ( !event.isCancelled() && event.getRecipe() instanceof ShapelessRecipe )
                 {
                     ShapelessRecipe shapelessRecipe = (ShapelessRecipe) event.getRecipe();
 
@@ -884,10 +902,10 @@ public class PlayerListener implements Listener {
                             event.setDamage(1.0);
 
                             if ( projectile.getShooter() instanceof Player ) {
-                                double radius = 4.0;
+                                double radius = 3.0;
 
                                 double power = 2.0;
-                                double powerY = 1.0;
+                                double powerY = 1;
 
                                 Location explosionLocation = projectile.getLocation();
 
@@ -923,7 +941,7 @@ public class PlayerListener implements Listener {
                                     target.setSneaking(false);
 //                                    double elytraMultiplier = player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType() == Material.ELYTRA ? 0.5 : 1;
                                     double elytraMultiplier = player.isGliding() ? 0.5 : 1;
-                                    target.setVelocity(boom.multiply(elytraMultiplier).multiply(Math.max(1.0 - target.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue(), 0.0 )));
+                                    target.setVelocity(boom.multiply( projectile.getShooter() == player ? 1 : 0.8 ).multiply(elytraMultiplier).multiply(Math.max(1.0 - target.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue(), 0.0 )));
                                 }
 
                             }
@@ -1384,7 +1402,7 @@ public class PlayerListener implements Listener {
 
             if (teamChat) {
                 chatMessage.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
-                        .append(Component.text(team.teamInfo.name).color(ColoursManager.getComponent(team.teamInfo.color.chatColor)))
+                        .append(Component.text(team != null ? team.teamInfo.name : "ЭХО").color(ColoursManager.getComponent(team != null ? team.teamInfo.color.chatColor : ColoursManager.darkGray)))
                         .append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)));
             } else if (spectator) {
                 chatMessage.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))

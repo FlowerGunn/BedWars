@@ -57,10 +57,10 @@ import java.util.List;
 import static org.screamingsandals.bedwars.game.Game.ALL_ABILITIES_MODE;
 
 public class GamePlayer {
-    public final Player player;
+    public Player player;
     public ArrayList<ActiveForgeRecipe> activeForgeRecipes;
     public ArrayList<ForgeRecipe> availableRecipes;
-    public DamageInstance lastDealtDamageInstance;
+
     //    public boolean isReturning = false;
 //    public boolean isDisconnected = false;
     @Getter
@@ -69,9 +69,8 @@ public class GamePlayer {
     public DamageRelay damageRelayDefenceInstance;
     public Game game = null;
 
-    private String latestGame = null;
 
-    public CurrentTeam latestCurrentTeam = null;
+    public CurrentTeam latestCurrentTeam;
     private StoredInventory oldInventory = new StoredInventory();
     private List<Player> hiddenPlayers = new ArrayList<>();
 
@@ -84,6 +83,10 @@ public class GamePlayer {
 
     private ShopInstance customGUIShopInstance;
     public DamageInstance lastReceivedDamageInstance;
+    public DamageInstance lastDealtDamageInstance;
+    public DamageInstance incomingReceivedDamageInstance;
+    public DamageInstance incomingDealtDamageInstance;
+
     @Getter
     @Setter
     private MenuType lastMenuVisited;
@@ -116,6 +119,9 @@ public class GamePlayer {
     private ArrayList<CustomStatusEffect> customStatusEffects = new ArrayList<>();
 
     public GamePlayer(Player player) {
+
+        this.latestCurrentTeam = null;
+//        Bukkit.getConsoleSender().sendMessage("player generated and reset the currentteam");
 
         this.player = player;
         //WAYPOINT DONE load player owned abilities
@@ -178,6 +184,17 @@ public class GamePlayer {
         return null;
     }
 
+    public OwnedAbility getTrulyOwnedAbilityById(String id) {
+        for ( OwnedAbility ownedAbility : this.ownedAbilities ) {
+            if ( ownedAbility.getAbility().getId().equals(id) ) {
+                if ( ownedAbility.isOwned() )
+                    return ownedAbility;
+                else return null;
+            }
+        }
+        return null;
+    }
+
     public void changeGame(Game game) {
 
         //WAYPOINT flags reset
@@ -185,6 +202,9 @@ public class GamePlayer {
         this.playerFlags = new ArrayList<>();
         this.lastReceivedDamageInstance = null;
         this.impactLog = new ImpactLog();
+
+        this.customStatusEffects.clear();
+        this.recalculateCustomEffects();
 
 //        this.isDisconnected = false;
 
@@ -209,27 +229,30 @@ public class GamePlayer {
             }
         }
 
+        this.blockElytra = false;
+
         if (this.game != null && game == null) { // leaving the game
             this.game.internalLeavePlayer(this);
             this.game = null;
-            this.isSpectator = false;
-            this.blockElytra = false;
+//            this.isSpectator = false;
             this.clean();
             if (Game.isBungeeEnabled()) {
                 BungeeUtils.movePlayerToBungeeServer(player, Main.isDisabling());
             } else {
-                this.restoreInv();
+//                this.restoreInv();
             }
         } else if (this.game == null && game != null) { // joining the game
-            this.storeInv();
+//            this.storeInv();
             this.clean();
             this.game = game;
             this.isSpectator = false;
             this.mainLobbyUsed = false;
             this.game.internalJoinPlayer(this);
-            if (this.game != null) {
-                this.latestGame = this.game.getName();
-            }
+            this.latestCurrentTeam = null;
+            Bukkit.getConsoleSender().sendMessage("player joined a game and reset the currentteam");
+//            if (this.game != null) {
+//                this.latestGame = this.game.getName();
+//            }
         } else if (this.game != null) { // switching between games
             this.game.internalLeavePlayer(this);
             this.game = game;
@@ -237,9 +260,9 @@ public class GamePlayer {
             this.clean();
             this.mainLobbyUsed = false;
             this.game.internalJoinPlayer(this);
-            if (this.game != null) {
-                this.latestGame = this.game.getName();
-            }
+//            if (this.game != null) {
+//                this.latestGame = this.game.getName();
+//            }
         }
     }
 
@@ -247,9 +270,9 @@ public class GamePlayer {
         return game;
     }
 
-    public String getLatestGameName() {
-        return this.latestGame;
-    }
+//    public String getLatestGameName() {
+//        return this.latestGame;
+//    }
 
     public boolean isInGame() {
         return game != null;
@@ -322,6 +345,7 @@ public class GamePlayer {
         this.player.setFireTicks(0);
         this.player.setFallDistance(0);
         this.player.setGameMode(GameMode.SURVIVAL);
+        this.player.setAbsorptionAmount(0);
 
         if (this.player.isInsideVehicle()) {
             this.player.leaveVehicle();
@@ -383,16 +407,18 @@ public class GamePlayer {
     }
 
     public List<GameFlag> getAllPlayerFlags() {
-        CurrentTeam team = this.game.getPlayerTeam(this);
 
         ArrayList<GameFlag> flags = new ArrayList<>();
 
-
-        ArrayList<GameFlag> gameFlags = new ArrayList<>(game.gameFlags);
         ArrayList<GameFlag> playerFlags = new ArrayList<>(this.playerFlags);
 
-        flags.addAll(gameFlags);
         flags.addAll(playerFlags);
+
+        if (this.game == null) return flags;
+        ArrayList<GameFlag> gameFlags = new ArrayList<>(game.gameFlags);
+        flags.addAll(gameFlags);
+
+        CurrentTeam team = this.game.getPlayerTeam(this);
 
         if (team == null) return flags;
         ArrayList<GameFlag> teamFlags = new ArrayList<>(team.teamFlags);
@@ -402,6 +428,8 @@ public class GamePlayer {
     }
 
     public boolean hasFlag(GameFlag gameFlag) {
+        if ( this.game == null ) return false;
+        if ( this.game.getPlayerTeam(this) == null ) return false;
         return getAllPlayerFlags().contains(gameFlag);
     }
 
@@ -434,6 +462,18 @@ public class GamePlayer {
         this.impactLog = new ImpactLog();
     }
 
+    public CompoundValueModifier extractCustomEffects( CustomStatusEffectType customStatusEffectType, DamageInstance pattern ) {
+        CompoundValueModifier modifier = new CompoundValueModifier();
+        for (CustomStatusEffect effect : this.customStatusEffects) {
+            if ( effect.type == customStatusEffectType ) {
+                if (pattern.contains(effect.damageExample)) {
+                    modifier.join(effect.valueChange);
+                }
+            }
+        }
+        return modifier;
+    }
+
     public void recalculateCustomEffects() {
 
 //        Bukkit.getConsoleSender().sendMessage("recalculating custom statuses");
@@ -441,6 +481,7 @@ public class GamePlayer {
         CompoundValueModifier healthModifier = new CompoundValueModifier();
         CompoundValueModifier speedModifier = new CompoundValueModifier();
         CompoundValueModifier armorModifier = new CompoundValueModifier();
+        CompoundValueModifier attackSpeedModifier = new CompoundValueModifier();
 
         for ( int i = 0; i < this.customStatusEffects.size(); i++ ) {
             CustomStatusEffect effect = this.customStatusEffects.get(i);
@@ -451,13 +492,27 @@ public class GamePlayer {
                 i--;
             }
             else {
-                if ( effect.attribute == Attribute.GENERIC_MOVEMENT_SPEED ) {
-                    speedModifier.join( effect.valueChange );
-                } else if ( effect.attribute == Attribute.GENERIC_MAX_HEALTH ) {
-                    healthModifier.join( effect.valueChange );
-                } else if ( effect.attribute == Attribute.GENERIC_ARMOR ) {
-                    armorModifier.join( effect.valueChange );
+                switch (effect.attribute) {
+                    case GENERIC_MOVEMENT_SPEED -> {
+                        speedModifier.join( effect.valueChange );
+                    }
+                    case GENERIC_MAX_HEALTH -> {
+                        healthModifier.join( effect.valueChange );
+                    }
+                    case GENERIC_ARMOR -> {
+                        armorModifier.join( effect.valueChange );
+                    }
+                    case GENERIC_ATTACK_SPEED -> {
+                        attackSpeedModifier.join( effect.valueChange );
+                    }
                 }
+//                if ( effect.attribute == Attribute.GENERIC_MOVEMENT_SPEED ) {
+//                    speedModifier.join( effect.valueChange );
+//                } else if ( effect.attribute == Attribute.GENERIC_MAX_HEALTH ) {
+//                    healthModifier.join( effect.valueChange );
+//                } else if ( effect.attribute == Attribute.GENERIC_ARMOR ) {
+//                    armorModifier.join( effect.valueChange );
+//                }
             }
         }
 
@@ -478,6 +533,7 @@ public class GamePlayer {
 //        Bukkit.getConsoleSender().sendMessage("base armor = " + player.getAttribute(Attribute.GENERIC_ARMOR).getBaseValue() );
 //        Bukkit.getConsoleSender().sendMessage("value armor = " + player.getAttribute(Attribute.GENERIC_ARMOR).getValue() );
         player.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue( armorModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_ARMOR).getDefaultValue()) );
+        player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue( attackSpeedModifier.processValueEffectiveDecrease(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).getDefaultValue()) );
 
     }
 

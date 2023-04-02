@@ -1,6 +1,8 @@
 package org.screamingsandals.bedwars.utils.flowergun.mechanics;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,7 +19,9 @@ public class CombustListener implements Listener {
     @EventHandler
     public void onFireworkUse(EntityCombustEvent event) {
 
+
         if (event instanceof EntityCombustByBlockEvent || event instanceof EntityCombustByEntityEvent) return;
+        else if ( event.getEntity() instanceof Arrow ) return;
         else event.setCancelled(true);
 
     }

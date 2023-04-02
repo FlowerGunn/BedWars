@@ -5,14 +5,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class Weaponsmaster extends Ability implements IAbility {
 
@@ -28,7 +26,11 @@ public class Weaponsmaster extends Ability implements IAbility {
         this.item = Material.DIAMOND_SWORD;
         this.rarity = 3;
         this.icon = IconType.INCREASE_DAMAGE;
-        this.description = "После нанесение хотя бы 3ед. урона#в ближнем бою cледующая дальняя атака#в течении (values1) секунд нанесёт#3ед. бонусного урона.";
+
+        this.abilityCategories.add(AbilityCategory.RANGER);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
+        this.description = "После попадания полностью заряженной атакой#в ближнем бою cледующая дальняя атака#в течении (values1) секунд нанесёт#2,5ед. бонусного урона.";
         this.isOnCooldown = false;
     }
 
@@ -42,9 +44,12 @@ public class Weaponsmaster extends Ability implements IAbility {
         //Bukkit.getConsoleSender().sendMessage("player deal damage with " + attacker.getName());
 
 
+        if ( event.isCancelled() ) return;
+
 //        if (this.isOnCooldown) return;
 
-        if (event.getFinalDamage() >= 3 && damageInstance.damageRelay == DamageRelay.MELEE) {
+        if ( event.getFinalDamage() > 0 )
+        if ( FlowerUtils.isPlayersWeaponFullyCharged(attacker) && damageInstance.damageRelay == DamageRelay.MELEE) {
             if (Main.isPlayerInGame(attacker)) {
 
                 LivingEntity victim = (LivingEntity) event.getEntity();
@@ -64,7 +69,7 @@ public class Weaponsmaster extends Ability implements IAbility {
 //                },calculateIntValue1(level));
             }
         }
-        else if ( event.getFinalDamage() > 0 && damageInstance.damageRelay == DamageRelay.PROJECTILE) {
+        else if ( damageInstance.damageRelay == DamageRelay.PROJECTILE) {
             if (Main.isPlayerInGame(attacker)) {
 
                 if ( this.charged && this.chargedTimestamp - Main.getPlayerGameProfile(attacker).getGame().countdown <= calculateIntValue1(level)) {
@@ -74,7 +79,7 @@ public class Weaponsmaster extends Ability implements IAbility {
                     playFXDamage(victim, 1);
                     notifyPlayerOnAbilityActivation(attacker);
 
-                    compoundValueModifier.addDouble(3.0);
+                    compoundValueModifier.addDouble(2.5);
                 }
 
             }

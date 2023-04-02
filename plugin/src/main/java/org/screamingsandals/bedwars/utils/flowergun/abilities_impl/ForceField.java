@@ -11,10 +11,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageRelay;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class ForceField extends Ability implements IAbility {
 
@@ -27,6 +24,11 @@ public class ForceField extends Ability implements IAbility {
         this.item = Material.PHANTOM_MEMBRANE;
         this.rarity = 4;
         this.icon = IconType.FAST_DIGGING;
+
+        this.abilityCategories.add(AbilityCategory.BULLDOZER);
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.TANK);
+
         this.description = "Блокирование атак щитом даст#игроку эффекты Сопротивления 1,#а также Спешки 3 если атака была ближняя#или Скорости 2 если атака была дальняя#на (values1) секунд.";
     }
 
@@ -44,6 +46,9 @@ public class ForceField extends Ability implements IAbility {
     @Override
     public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
         if (!(event instanceof EntityDamageByEntityEvent)) return;
+
+        if ( event.isCancelled() ) return;
+
         EntityDamageByEntityEvent tempEvent = (EntityDamageByEntityEvent) event;
 //        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
         if (Main.isPlayerInGame(victim)) {

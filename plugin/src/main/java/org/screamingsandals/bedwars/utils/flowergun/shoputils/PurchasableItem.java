@@ -187,7 +187,6 @@ public class PurchasableItem {
 //                buyWhat.setItemMeta(feuermeta);
 //            }
 
-            boolean armorAutoEquip = Main.getPlayerGameProfile(player).hasFlag(GameFlag.VITALITY_LEVEL_1);
 
             Triggers.shopPurchase(Main.getPlayerGameProfile(player).getGame(), player, this, finalRepeats);
 
@@ -230,24 +229,18 @@ public class PurchasableItem {
                 //player.getInventory().addItem(buyFor);
 
 
-                if (armorAutoEquip) {
-                    if (inventory.getHelmet() == null && FlowerUtils.helmets.contains(material)) inventory.setHelmet(buyWhat);
-                    else if (inventory.getChestplate() == null && FlowerUtils.chestplates.contains(material)) inventory.setChestplate(buyWhat);
-                    else if (inventory.getLeggings() == null && FlowerUtils.leggins.contains(material)) inventory.setLeggings(buyWhat);
-                    else if (inventory.getBoots() == null && FlowerUtils.boots.contains(material)) inventory.setBoots(buyWhat);
-                    else {
-                        Map<Integer, ItemStack> map = player.getInventory().addItem(buyWhat);
-                        map.forEach((integer, itemStack) -> player.getLocation().getWorld().dropItem(player.getLocation(), itemStack));
-                    }
-                }
+                if (inventory.getHelmet() == null && FlowerUtils.helmets.contains(material)) inventory.setHelmet(buyWhat);
+                else if (inventory.getChestplate() == null && FlowerUtils.chestplates.contains(material)) inventory.setChestplate(buyWhat);
+                else if (inventory.getLeggings() == null && FlowerUtils.leggins.contains(material)) inventory.setLeggings(buyWhat);
+                else if (inventory.getBoots() == null && FlowerUtils.boots.contains(material)) inventory.setBoots(buyWhat);
                 else {
-                    Map<Integer, ItemStack> map = player.getInventory().addItem(buyWhat);
-                    map.forEach((integer, itemStack) -> player.getLocation().getWorld().dropItem(player.getLocation(), itemStack));
+                    FlowerUtils.giveItemsToPlayerOverflow(buyWhat, player);
                 }
+
                 finalRepeats--;
             }
 
-            player.playSound( player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F );
+            player.playSound( player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2F, 1.0F );
 
             if ( Main.getPlayerGameProfile(player).hasFlag(GameFlag.AGILITY_LEVEL_1) ) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 600, 0, false, false));
@@ -260,7 +253,7 @@ public class PurchasableItem {
 //            Main.getInstance().getLogger().info( ChatColor.GREEN + i18n("new_buy_success", "You bought:", false));
         } else {
             //error
-            player.playSound( player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 1.0F, 1.0F );
+            player.playSound( player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.2F, 1.0F );
             return false;
 //            player.sendTitle("", ChatColor.RED + i18n("new_buy_fail", "Not enough resources.", false), 5, 10, 5);
         }
@@ -286,7 +279,7 @@ public class PurchasableItem {
 //        this.item.setLore(generateDescription(originalItem));
 //    }
 
-    public ArrayList<String> generateDescription(@Nullable PurchasableItem originalItem) {
+    public ArrayList<String> generateDescription() {
         ArrayList<String> price = new ArrayList<>();
         price.add("");
 

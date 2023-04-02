@@ -9,6 +9,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -26,6 +27,10 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
         this.item = Material.WHITE_WOOL;
         this.rarity = 3;
         this.icon = IconType.IRON_INGOT;
+
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+        this.abilityCategories.add(AbilityCategory.BUILDER);
+
         this.description = "Игрок получает неломаемую зажигалку,#неломаемые ножницы на Эффективность (values1)#и (values2) шерсти при первом спавне.";
     }
 

@@ -8,10 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -52,11 +49,7 @@ public class Triggers {
 
         Player victim = event.getEntity();
         GamePlayer gameVictim = Main.getPlayerGameProfile(victim);
-        ArrayList<LoadedAbility> loadedAbilities = gameVictim.loadedAbilities;
-        for ( int i = 0; i < loadedAbilities.size(); i++ ) {
-            if (loadedAbilities.get(i).isEmpty()) continue;
-            loadedAbilities.get(i).getOwnedAbility().getAbility().playerDeath( loadedAbilities.get(i).activeLevel , event );
-        }
+
 
         Game game = gameVictim.getGame();
         TeamColor victimTeam = game.getPlayerTeam(gameVictim).teamInfo.color;
@@ -70,6 +63,12 @@ public class Triggers {
         Player killer = null;
         gameVictim.flushImpactLog();
 
+        ArrayList<LoadedAbility> loadedAbilities = gameVictim.loadedAbilities;
+        for ( int i = 0; i < loadedAbilities.size(); i++ ) {
+            if (loadedAbilities.get(i).isEmpty()) continue;
+            loadedAbilities.get(i).getOwnedAbility().getAbility().playerDeath( loadedAbilities.get(i).activeLevel , gameVictim.player, gameKiller != null ? gameKiller.player : null, event );
+        }
+
         if (gameKiller != null) {
             killer = gameKiller.player;
             if (game.getPlayerTeam(gameKiller) != null)
@@ -78,7 +77,7 @@ public class Triggers {
             loadedAbilities = gameKiller.loadedAbilities;
             for ( int i = 0; i < loadedAbilities.size(); i++ ) {
                 if (loadedAbilities.get(i).isEmpty()) continue;
-                loadedAbilities.get(i).getOwnedAbility().getAbility().playerKill( loadedAbilities.get(i).activeLevel , killer, event );
+                loadedAbilities.get(i).getOwnedAbility().getAbility().playerKill( loadedAbilities.get(i).activeLevel , victim, killer, event );
             }
 
             if ( !game.getPlayerTeam(gameVictim).isBed ) {
@@ -140,7 +139,7 @@ public class Triggers {
 
     public static void playerKillAssist(Player killer, Player victim, Player assistant) {
 
-        Main.getStatsManager().addResourceToPlayer(assistant, ResourceType.LAPIS, 3);
+        Main.getStatsManager().addResourceToPlayer(assistant, ResourceType.LAPIS, 5);
 
         GamePlayer gamePlayer = Main.getPlayerGameProfile(assistant);
         ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
@@ -159,50 +158,55 @@ public class Triggers {
 
     public static void processDamageEvent(EntityDamageEvent event) {
 
-        if (!(event.getEntity() instanceof LivingEntity victim)) return;
+        Entity victim = event.getEntity();
+        GamePlayer gVictim = null;
+        if (!(victim instanceof LivingEntity)) return;
 
         DamageType damageType = DamageType.PHYSICAL;
         DamageRelay damageRelay = DamageRelay.MELEE;
         DamageSource damageSource = DamageSource.ENVIRONMENT;
         DamageTarget damageTarget = DamageTarget.MOB;
 
-        if ( victim instanceof Player ) damageTarget = DamageTarget.PLAYER;
+        DamageInstance damageInstance = new DamageInstance(damageSource, damageTarget, damageRelay, damageType);
+        boolean isCustom = false;
+
+        if ( victim instanceof Player ) {
+            damageTarget = DamageTarget.PLAYER;
+            gVictim = Main.getPlayerGameProfile((Player) victim);
+            if ( gVictim.incomingReceivedDamageInstance != null ) {
+                Bukkit.getConsoleSender().sendMessage("damage is custom received " + gVictim.incomingReceivedDamageInstance.damageType);
+                isCustom = true;
+                damageInstance = gVictim.incomingReceivedDamageInstance;
+                gVictim.incomingReceivedDamageInstance = null;
+            }
+        }
 
         CompoundValueModifier compoundValueModifier = new CompoundValueModifier();
 
-        DamageInstance damageInstance = new DamageInstance(damageSource, damageTarget, damageRelay, damageType);;
-        boolean isCustom = false;
 
         Entity mobAttacker = null;
-        if (event instanceof EntityDamageByEntityEvent) {
-            EntityDamageByEntityEvent eventTemp = (EntityDamageByEntityEvent) event;
+        if (event instanceof EntityDamageByEntityEvent eventTemp) {
             mobAttacker = eventTemp.getDamager();
-            if (mobAttacker instanceof Projectile) {
-                Projectile projectile = (Projectile) mobAttacker;
+            if (mobAttacker instanceof Projectile projectile) {
                 mobAttacker = (Entity) projectile.getShooter();
                 damageRelay = DamageRelay.PROJECTILE;
 
-                switch (event.getCause()) {
-                    case ENTITY_EXPLOSION -> {
-//                        Bukkit.getConsoleSender().sendMessage("event damage cause is entity_explosion");
-                        damageType = DamageType.FIREWORK;
-                    }
+                if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {//                        Bukkit.getConsoleSender().sendMessage("event damage cause is entity_explosion");
+                    damageType = DamageType.FIREWORK;
                 }
 
 
-            }
-
-            if (mobAttacker instanceof Player) {
-                Player attacker = (Player) mobAttacker;
+            } else if (mobAttacker instanceof Player attacker) {
                 GamePlayer gAttacker = Main.getPlayerGameProfile(attacker);
 
-                damageSource = DamageSource.PLAYER;
-
-                if ( gAttacker.lastDealtDamageInstance != null ) {
+                if ( gAttacker.incomingDealtDamageInstance != null ) {
+                    Bukkit.getConsoleSender().sendMessage("damage is custom dealt" + gAttacker.incomingDealtDamageInstance.damageType);
                     isCustom = true;
-                    damageInstance = gAttacker.lastDealtDamageInstance;
-                    gAttacker.lastDealtDamageInstance = null;
+                    damageInstance = gAttacker.incomingDealtDamageInstance;
+                    gAttacker.incomingDealtDamageInstance = null;
                 }
+
+                damageSource = DamageSource.PLAYER;
             }
             else {
                 damageSource = DamageSource.MOB;
@@ -220,7 +224,6 @@ public class Triggers {
                 case FIRE -> {
                     damageRelay = DamageRelay.CONTACT;
                     damageType = DamageType.FIRE;
-                    break;
                 }
                 case FIRE_TICK -> {
                     damageRelay = DamageRelay.STATUS;
@@ -255,25 +258,22 @@ public class Triggers {
         GamePlayer gAttacker = null;
         if (damageInstance.damageSource == DamageSource.PLAYER) {
 
-            Player attacker = (Player) mobAttacker;
+            Player attacker = damageInstance.attackerPlayer != null ? damageInstance.attackerPlayer : (Player) mobAttacker;
 
             gAttacker = Main.getPlayerGameProfile(attacker);
             ArrayList<LoadedAbility> loadedAbilities = gAttacker.loadedAbilities;
 
             if (gAttacker.getGame() == null || gAttacker.getGame().getStatus() == GameStatus.WAITING) return;
 
-
-
             for ( int i = 0; i < loadedAbilities.size(); i++ ) {
                 if (loadedAbilities.get(i).isEmpty()) continue;
                 loadedAbilities.get(i).getOwnedAbility().getAbility().playerDealDamage( loadedAbilities.get(i).activeLevel, damageInstance, attacker, (EntityDamageByEntityEvent) event, compoundValueModifier);
             }
+            gAttacker.lastDealtDamageInstance = damageInstance;
         }
 
-        GamePlayer gVictim = null;
         if (damageInstance.damageTarget == DamageTarget.PLAYER) {
 
-            gVictim = Main.getPlayerGameProfile((Player) victim);
             ArrayList<LoadedAbility> loadedAbilities = gVictim.loadedAbilities;
 
             if (gVictim.getGame() == null || gVictim.getGame().getStatus() == GameStatus.WAITING) return;
@@ -295,13 +295,13 @@ public class Triggers {
             Main.getStatsManager().addResourceToPlayer(gAttacker, ResourceType.LEATHER, 5);
 
             if (victim.isVisualFire()) {
-                Bukkit.getConsoleSender().sendMessage("KILLED A PERSON OF FIRE: " + gAttacker.player.getDisplayName() + " -> " + gVictim.player.getDisplayName());
+//                Bukkit.getConsoleSender().sendMessage("KILLED A PERSON OF FIRE: " + gAttacker.player.getDisplayName() + " -> " + gVictim.player.getDisplayName());
                 Main.getStatsManager().addResourceToPlayer(gAttacker, ResourceType.BLAZE_POWDER, 3);
                 Main.getStatsManager().addResourceToPlayer(gVictim, ResourceType.COAL, 10);
             }
 
             if (gVictim.lastReceivedDamageInstance.damageType == DamageType.SNOWBALL) {
-                Bukkit.getConsoleSender().sendMessage("KILLED A PERSON WITH ICE: " + gAttacker.player.getDisplayName() + " -> " + gVictim.player.getDisplayName());
+//                Bukkit.getConsoleSender().sendMessage("KILLED A PERSON WITH ICE: " + gAttacker.player.getDisplayName() + " -> " + gVictim.player.getDisplayName());
                 Main.getStatsManager().addResourceToPlayer(gAttacker, ResourceType.ICE_POWDER, 10);
                 Main.getStatsManager().addResourceToPlayer(gVictim, ResourceType.ICE_POWDER, 3);
             }
@@ -312,8 +312,6 @@ public class Triggers {
 
     public static void shopPurchase(Game game, Player player, PurchasableItem item, int amount)
     {
-
-
 
         GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
         ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
@@ -364,6 +362,7 @@ public class Triggers {
         }
         else if ( item.getItemCategory() == ItemCategory.BLAZING ) {
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.BLAZE_POWDER, finalShoppingValue);
+            Main.getStatsManager().addResourceToPlayer(player, ResourceType.COAL, finalShoppingValue);
         }
         else if ( item.getItemCategory() == ItemCategory.BOW || item.getItemCategory() == ItemCategory.CROSSBOW ) {
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.SILK_COCOON, finalShoppingValue);
@@ -372,10 +371,11 @@ public class Triggers {
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.SILK_COCOON, finalShoppingValue);
         }
         else if ( item.getItemCategory() == ItemCategory.WOODY || item.getItemCategory() == ItemCategory.BURNING ) {
-            Main.getStatsManager().addResourceToPlayer(player, ResourceType.COAL, finalShoppingValue);
+            Main.getStatsManager().addResourceToPlayer(player, ResourceType.COAL, finalShoppingValue * 2);
         }
         else if ( item.getItemCategory() == ItemCategory.ICY || item.getItemCategory() == ItemCategory.SNOWBALL ) {
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.ICE_POWDER, finalShoppingValue);
+            Main.getStatsManager().addResourceToPlayer(player, ResourceType.GLOW_INK_SAC, finalShoppingValue);
         }
         else if ( item.getItemCategory() == ItemCategory.NETHERITE ) {
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.NETHERITE_SCRAP, finalShoppingValue);
@@ -386,6 +386,7 @@ public class Triggers {
         else if ( item.getItemCategory() == ItemCategory.FIREWORK ) {
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.PAPER, finalShoppingValue);
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.BLAZE_POWDER, finalShoppingValue);
+            Main.getStatsManager().addResourceToPlayer(player, ResourceType.GLOW_INK_SAC, finalShoppingValue);
         }
         else if ( item.getItemCategory() == ItemCategory.TOOLY ) {
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.QUARTZ, finalShoppingValue);
@@ -395,8 +396,16 @@ public class Triggers {
         }
         else if ( item.getItemCategory() == ItemCategory.SLIMY ) {
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.SLIMEBALL, finalShoppingValue);
+            Main.getStatsManager().addResourceToPlayer(player, ResourceType.GLOW_INK_SAC, finalShoppingValue);
         }
         else if ( item.getItemCategory() == ItemCategory.COLOURFUL ) {
+            Main.getStatsManager().addResourceToPlayer(player, ResourceType.GLOW_INK_SAC, finalShoppingValue);
+        }
+        else if ( item.getItemCategory() == ItemCategory.ENDERING ) {
+            Main.getStatsManager().addResourceToPlayer(player, ResourceType.ECHO_SHARD, finalShoppingValue);
+        }
+        else if ( item.getItemCategory() == ItemCategory.GILDED ) {
+            Main.getStatsManager().addResourceToPlayer(player, ResourceType.GOLD, finalShoppingValue);
             Main.getStatsManager().addResourceToPlayer(player, ResourceType.GLOW_INK_SAC, finalShoppingValue);
         }
 
@@ -448,8 +457,10 @@ public class Triggers {
         ArrayList<ItemStack> modifiedDestroyedItems = new ArrayList<>(FlowerUtils.destroyedItems);
         ArrayList<Material> modifiedNonBreakingItems = new ArrayList<>();
 
-        if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_1)) modifiedDestroyedItems.remove(Main.getSpawnerType("bronze").getStack());
-        if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_2)) modifiedDestroyedItems.remove(Main.getSpawnerType("iron").getStack());
+        if (gamePlayer.hasFlag(GameFlag.INTELLECT_LEVEL_2)) {
+            modifiedDestroyedItems.remove(Main.getSpawnerType("iron").getStack());
+            modifiedDestroyedItems.remove(Main.getSpawnerType("gold").getStack());
+        }
 
         if (gamePlayer.hasFlag(GameFlag.VITALITY_LEVEL_2)) {
             modifiedNonBreakingItems.add(Material.LEATHER_CHESTPLATE);
@@ -503,12 +514,9 @@ public class Triggers {
 
         gamePlayer.player.sendTitle(i18n("lost_durability", "You lost: ", false).replace("%durability%", "" + ((int) Math.floor(durabilityToRemove * 100))), i18n("lost_durability_subtext", "-//-", false), 5, 60, 5);
 
-        if ( flags.contains(GameFlag.VITALITY_LEVEL_4A) ) {
-            gamePlayer.player.addPotionEffect( new PotionEffect(PotionEffectType.ABSORPTION, 2400, 0));
-        } else if ( flags.contains(GameFlag.VITALITY_LEVEL_4B) ) {
-            gamePlayer.player.addPotionEffect( new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 1200, 0));
+        if ( flags.contains(GameFlag.VITALITY_LEVEL_2) ) {
+            gamePlayer.player.setAbsorptionAmount(2);
         }
-
         ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
         for ( int i = 0; i < loadedAbilities.size(); i++ ) {
             if (loadedAbilities.get(i).isEmpty()) continue;
@@ -617,6 +625,29 @@ public class Triggers {
         for ( int i = 0; i < loadedAbilities.size(); i++ ) {
             if (loadedAbilities.get(i).isEmpty()) continue;
             loadedAbilities.get(i).getOwnedAbility().getAbility().itemConsume( loadedAbilities.get(i).activeLevel, player, event);
+        }
+    }
+
+    public static void projectileHit(ProjectileHitEvent event) {
+        if (event.isCancelled()) return;
+        if (event.getEntity() instanceof Arrow) if (event.getEntity().hasMetadata("fakearrow")) return;
+        Player player = (Player) event.getEntity().getShooter();
+        GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+        ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
+        for ( int i = 0; i < loadedAbilities.size(); i++ ) {
+            if (loadedAbilities.get(i).isEmpty()) continue;
+            loadedAbilities.get(i).getOwnedAbility().getAbility().projectileHit( loadedAbilities.get(i).activeLevel, player, event);
+        }
+    }
+
+    public static void projectileLaunch(ProjectileLaunchEvent event) {
+        if (event.isCancelled()) return;
+        Player player = (Player) event.getEntity().getShooter();
+        GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+        ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
+        for ( int i = 0; i < loadedAbilities.size(); i++ ) {
+            if (loadedAbilities.get(i).isEmpty()) continue;
+            loadedAbilities.get(i).getOwnedAbility().getAbility().projectileLaunch( loadedAbilities.get(i).activeLevel, player, event);
         }
     }
 }

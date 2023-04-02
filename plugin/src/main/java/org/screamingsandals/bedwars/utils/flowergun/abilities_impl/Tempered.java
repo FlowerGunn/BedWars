@@ -6,6 +6,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ItemCategory;
@@ -24,7 +25,10 @@ public class Tempered extends Ability implements IAbility {
         this.item = Material.IRON_CHESTPLATE;
         this.rarity = 3;
         this.icon = IconType.DAMAGE_RESISTANCE;
-        this.description = "Все нагрудники в магазине получают#Прочность +(values1) и Защиту от снарядов +2.";
+
+        this.abilityCategories.add(AbilityCategory.TANK);
+
+        this.description = "Все нагрудники в магазине получают#Прочность +(values1) и Защиту от снарядов +3.";
     }
 
     @Override
@@ -43,7 +47,7 @@ public class Tempered extends Ability implements IAbility {
             int currentLevel2 = im.getEnchantLevel(Enchantment.PROTECTION_PROJECTILE);
 //            Bukkit.getConsoleSender().sendMessage("PROTECTION_PROJECTILE = " + currentLevel2);
             currentLevel += calculateIntValue1(activeLevel);
-            currentLevel2 += 2;
+            currentLevel2 += 3;
             im.addEnchant(Enchantment.DURABILITY, currentLevel, true);
             im.addEnchant(Enchantment.PROTECTION_PROJECTILE, currentLevel2, true);
             item.item.setItemMeta(im);

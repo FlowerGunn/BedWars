@@ -22,15 +22,19 @@ public class Aromatherapy extends Ability implements IAbility {
 
         this.name = "Ароматерапия";
         this.id = "aromatherapy";
-        this.item = Material.GUNPOWDER;
+        this.item = Material.ROSE_BUSH;
         this.rarity = 4;
         this.icon = IconType.REGENERATION;
-        this.description = "Игрок наносит на 50% меньше урона#используя феерверки. Союзники задетые феерверками игрока#исцеляются на (values1) ед.";
+
+        this.abilityCategories.add(AbilityCategory.HEALER);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
+
+        this.description = "Игрок наносит на 50% меньше урона#используя фейерверки. Союзники задетые фейерверками игрока#исцеляются на (values1) ед.";
     }
 
     @Override
     public double calculateDoubleValue1(int level) {
-        return 0.8 + 0.2 * level;
+        return 1.6 + 0.4 * level;
     }
 
     @Override

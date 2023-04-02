@@ -2,19 +2,20 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 import java.util.Random;
 
@@ -29,7 +30,12 @@ public class MagmaSkin extends Ability implements IAbility {
         this.item = Material.MAGMA_BLOCK;
         this.rarity = 3;
         this.icon = IconType.FIRE_RESISTANCE;
-        this.description = "При получении урона от огня у игрока#есть шанс в (values2)&7% получить эффект#Огнестойкости и Спешки 5 на (values1) секунд.#Перезарядка: (values1) секунд.";
+
+        this.abilityCategories.add(AbilityCategory.MADMAN);
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+
+        this.description = "При получении урона от огня у игрока#есть шанс в (values2)% получить эффект#Огнестойкости и Спешки 3 на (values1) секунд.#Перезарядка: (values1) секунд.#Получение игроком ближнего урона#при активном эффекте Огнестойкости#подожжёт нападающего на 5 секунд.";
     }
 
     @Override
@@ -42,6 +48,10 @@ public class MagmaSkin extends Ability implements IAbility {
         return 30 + 10 * level;
     }
 
+    @Override
+    public int calculateIntValue3(int level) {
+        return 10 + 2 * level;
+    }
     @Override
     public String formatValue1(int level) {
         return "" + calculateIntValue1(level) / 20;
@@ -56,6 +66,8 @@ public class MagmaSkin extends Ability implements IAbility {
 
         if (this.isOnCooldown) return;
 
+        if ( event.isCancelled() ) return;
+
 //        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
         if (Main.isPlayerInGame(victim)) {
             if (damageInstance.damageType == DamageType.FIRE) {
@@ -66,7 +78,10 @@ public class MagmaSkin extends Ability implements IAbility {
                 if ( random.nextInt(100) < chance ) {
 
                     victim.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, calculateIntValue1(level), 0, false, false));
-                    victim.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 4, false, false));
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 2, false, false));
+
+//                    GamePlayer gamePlayer = Main.getPlayerGameProfile(victim);
+//                    gamePlayer.addCustomStatusEffect(new CustomStatusEffect("magma_skin_attack_speed", gamePlayer, gamePlayer, Attribute.GENERIC_ATTACK_SPEED, new CompoundValueModifier(0, 0, calculateIntValue2(level) * 0.01), calculateIntValue1(level), false));
 
 //                    playFXSpeed(victim, 1);
                     playFXDefensiveUtility(victim, 1);
@@ -81,6 +96,9 @@ public class MagmaSkin extends Ability implements IAbility {
                     },calculateIntValue1(level));
 
                 }
+            } else if ( damageInstance.damageRelay == DamageRelay.MELEE ) {
+                Entity attacker = event.getEntity();
+                attacker.setFireTicks(100);
             }
         }
     }

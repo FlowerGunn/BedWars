@@ -13,10 +13,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class FrostKiss extends Ability implements IAbility {
 
@@ -29,6 +26,11 @@ public class FrostKiss extends Ability implements IAbility {
         this.item = Material.ICE;
         this.rarity = 3;
         this.icon = IconType.SLOW;
+
+        this.abilityCategories.add(AbilityCategory.SNOWMAN);
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.RANGER);
+
         this.description = "Раз в (values1) секунд попадание#снежком наложит на противника эффект#Замедление 5 на (values2) секунд.";
         this.isOnCooldown = false;
     }

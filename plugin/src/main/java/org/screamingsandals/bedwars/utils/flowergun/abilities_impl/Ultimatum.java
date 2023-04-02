@@ -24,7 +24,12 @@ public class Ultimatum extends Ability implements IAbility {
         this.item = Material.CHAIN;
         this.rarity = 5;
         this.icon = IconType.SLOW;
-        this.description = "Раз в (values1) секунд следующая ближняя атака#по противнику с уроном 3ед. и выше при удержании SHIFT#наложит на обоих игроков эффект Замедление 4#и отключит прыжки на (values2) секунд.";
+
+        this.abilityCategories.add(AbilityCategory.MADMAN);
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
+        this.description = "Раз в (values1) секунд следующая полностью заряженная#ближняя атака по противнику при удержании SHIFT#наложит на обоих игроков эффект Замедление 4#и отключит прыжки на (values2) секунд.";
         this.isOnCooldown = false;
     }
 

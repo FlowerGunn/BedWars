@@ -13,6 +13,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
@@ -29,13 +30,22 @@ public class Berserk extends Ability implements IAbility {
         this.item = Material.GOLDEN_AXE;
         this.rarity = 5;
         this.icon = IconType.SPEED;
-        this.description = "Удары топором не имея щита во второй руке#ускоряют игрока на (values1)% и замедляют#цель на (values1)% на 1.5 сек.";
+
+        this.abilityCategories.add(AbilityCategory.VIKING);
+        this.abilityCategories.add(AbilityCategory.BUILDER);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+
+        this.description = "Полностью заряженные удары топором не имея щита#во второй руке наносят на (values2)% больше урона,#ускоряют игрока на (values1)% и замедляют#цель на (values1)% на 1.5 сек.";
         this.isOnCooldown = false;
     }
 
     @Override
-    public int calculateIntValue1(int level) { return 30 + 10 * level; }
+    public int calculateIntValue1(int level) { return 30 + 5 * level; }
 
+
+    @Override
+    public int calculateIntValue2(int level) { return 13 + 2 * level; }
 
 
     @Override
@@ -48,8 +58,9 @@ public class Berserk extends Ability implements IAbility {
 
         if ( event.getFinalDamage() > 0 ) {
             if (Main.isPlayerInGame(attacker)) {
-                if (attacker.getInventory().getItemInOffHand().getType() != Material.SHIELD && FlowerUtils.axes.contains(attacker.getInventory().getItemInMainHand().getType())) {
+                if (attacker.getInventory().getItemInOffHand().getType() != Material.SHIELD && FlowerUtils.axes.contains(attacker.getInventory().getItemInMainHand().getType()) && FlowerUtils.isPlayersWeaponFullyCharged(attacker)) {
 
+                    compoundValueModifier.addExp(calculateIntValue2(level) * 0.01);
 
                     GamePlayer gAttacker = Main.getPlayerGameProfile(attacker);
                     gAttacker.addCustomStatusEffect(new CustomStatusEffect("berserk_speed", gAttacker, gAttacker, Attribute.GENERIC_MOVEMENT_SPEED, new CompoundValueModifier(0, 0, calculateIntValue1(level) * 0.01), 30, false));

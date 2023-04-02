@@ -1,6 +1,7 @@
 package org.screamingsandals.bedwars.utils.flowergun.fixes;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -68,8 +69,11 @@ public class FireListener implements Listener {
                         for (int i = radius * -1; i <= radius; i++ ) {
                             for (int j = radius * -1; j <= radius; j++ ) {
                                 for (int k = radius * -1; k <= radius; k++ ) {
-                                    if ( game.getRegion().isBlockAddedDuringGame( target.getLocation().clone().add(i,j,k) ) ) {
-                                        world.getBlockAt(target.getLocation().clone().add(i,j,k)).setType(Material.AIR);
+                                    Location location = target.getLocation().clone().add(i,j,k);
+                                    Block block = world.getBlockAt(location);
+                                    if ( block.getType() != Material.FIRE ) continue;
+                                    if ( game.getRegion().isBlockAddedDuringGame( location ) ) {
+                                        block.setType(Material.AIR);
                                     }
                                 }
                             }

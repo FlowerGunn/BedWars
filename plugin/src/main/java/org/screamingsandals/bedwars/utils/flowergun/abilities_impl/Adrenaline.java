@@ -29,7 +29,11 @@ public class Adrenaline extends Ability implements IAbility {
         this.item = Material.WITHER_SKELETON_SKULL;
         this.rarity = 4;
         this.icon = IconType.INCREASE_DAMAGE;
-        this.description = "Получение урона от Огня, Яда, Иссушения,#Голода или Магии даст игроку#Силу 1 на (values1) секунды.";
+        this.description = "Урон от Огня, Яда, Иссушения,#Голода или Магии уменьшен на (values2)%#и даст игроку Силу 1 на (values1) секунды.";
+
+        this.abilityCategories.add(AbilityCategory.MADMAN);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.TANK);
 
         this.damageTypes = new ArrayList<>();
         damageTypes.add(DamageType.FIRE);
@@ -45,6 +49,11 @@ public class Adrenaline extends Ability implements IAbility {
     }
 
     @Override
+    public int calculateIntValue2(int level) {
+        return 60 + 10 * level;
+    }
+
+    @Override
     public String formatValue1(int level) {
         return FlowerUtils.singleDecimal.format(calculateIntValue1(level) / 20.0);
     }
@@ -57,6 +66,8 @@ public class Adrenaline extends Ability implements IAbility {
 
         if (Main.isPlayerInGame(victim)) {
             if ( damageTypes.contains(damageInstance.damageType) ) {
+
+                compoundValueModifier.addExp(calculateIntValue2(level) * -0.01);
                 playFXDefensiveUtility(victim, 1);
 //                notifyPlayerOnAbilityActivation(victim);
                 victim.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, calculateIntValue1(level), 0));

@@ -3,6 +3,7 @@ package org.screamingsandals.bedwars.utils.flowergun;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -23,6 +24,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.screamingsandals.bedwars.lib.lang.I.i18n;
 import static org.screamingsandals.bedwars.lib.lang.I.i18nonly;
@@ -45,7 +47,7 @@ public class FlowerUtils {
     public static double toolsDamageScaleEndValue;
     public static final double agility4aThreshold = 0.2;
     public static final double agility4bThreshold = 0.2;
-    public static int fireballCooldown = 20;
+    public static int fireballCooldown = 30;
     public static int snowballColldown = 80;
     public static double snowballDamage = 3.5;
     public static int deathmatchWarning = 60;
@@ -72,6 +74,13 @@ public class FlowerUtils {
     private static final double deathmatchWallPushPower = 0.8;
     public static double TNTRadius = 6;
     public static double TNTDamage = 15;
+    public static int TNTCooldown = 60;
+    public static int deathmatchWarning2 = 180;
+    public static double maxOverhealth = 6.0;
+    public static int maxBonusBookGames = 50;
+    public static int bonusBookChance1 = 100;
+    public static int bonusBookChance2 = 80;
+    public static ArrayList<Material> flowers = new ArrayList<>();
 
     public boolean destroyResources;
 
@@ -87,7 +96,7 @@ public class FlowerUtils {
     public static List<Material> boots = new ArrayList<>();
     public static final int axesChance = 80;
     public static final int swordsChance = 40;
-    public static int swordOnShieldCooldown = 25;
+    public static int swordOnShieldCooldown = 40;
     public static String versionName = "0.1";
     public static List<String> alphaWarning = Arrays.asList(ColoursManager.darkRed + "" + ChatColor.BOLD + "ПРИВАТНЫЙ СЕРВЕР!!!", ColoursManager.darkRed + "Всем игрокам доступны все", ColoursManager.darkRed + "способности на максимальном уровне.");
 
@@ -114,7 +123,6 @@ public class FlowerUtils {
         destroyedResources = new ArrayList<>();
         destroyedItems = new ArrayList<>();
 
-        destroyedItems.add(Main.getSpawnerType("bronze").getStack());
         destroyedItems.add(Main.getSpawnerType("iron").getStack());
         destroyedItems.add(Main.getSpawnerType("gold").getStack());
         destroyedItems.add(Main.getSpawnerType("emerald").getStack());
@@ -155,6 +163,8 @@ public class FlowerUtils {
         doubleBlocks.add(Material.ROSE_BUSH);
         doubleBlocks.add(Material.TALL_GRASS);
         doubleBlocks.add(Material.LARGE_FERN);
+        doubleBlocks.add(Material.PEONY);
+        doubleBlocks.add(Material.LILAC);
         doubleBlocks.add(Material.SUNFLOWER);
         doubleBlocks.add(Material.SPRUCE_DOOR);
         doubleBlocks.add(Material.BIRCH_DOOR);
@@ -305,6 +315,25 @@ public class FlowerUtils {
         allowedRecipes.add(Material.SMOOTH_SANDSTONE_SLAB);
         allowedRecipes.add(Material.SMOOTH_SANDSTONE_STAIRS);
         allowedRecipes.add(Material.CHISELED_SANDSTONE);
+
+        flowers.add(Material.BLUE_ORCHID);
+        flowers.add(Material.ORANGE_TULIP);
+        flowers.add(Material.PINK_TULIP);
+        flowers.add(Material.WHITE_TULIP);
+        flowers.add(Material.RED_TULIP);
+        flowers.add(Material.DANDELION);
+        flowers.add(Material.ALLIUM);
+        flowers.add(Material.ROSE_BUSH);
+        flowers.add(Material.WITHER_ROSE);
+        flowers.add(Material.POPPY);
+        flowers.add(Material.CORNFLOWER);
+        flowers.add(Material.LILAC);
+        flowers.add(Material.LILY_OF_THE_VALLEY);
+        flowers.add(Material.SUNFLOWER);
+        flowers.add(Material.AZURE_BLUET);
+        flowers.add(Material.LILAC);
+        flowers.add(Material.OXEYE_DAISY);
+        flowers.add(Material.PEONY);
 
     }
 
@@ -530,10 +559,20 @@ public class FlowerUtils {
                 if ( outside ) {
                     gamePlayer.player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 0));
                     gamePlayer.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 0));
-                    if (!game.isAnnihilation)
-                    gamePlayer.player.setHealth( Math.min(gamePlayer.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * ( 1 - game.currentDeathmatchProgress ) + 1, gamePlayer.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() ) );
-                    else if (gamePlayer.player.getHealth() > 1) gamePlayer.player.setHealth(1);
-                    gamePlayer.player.playSound( location, Sound.ENTITY_PLAYER_HURT, 1.0F, 1.0F);
+                    if (!game.isAnnihilation) {
+                        if ( gamePlayer.player.getHealth() > gamePlayer.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * ( 1 - game.currentDeathmatchProgress )  ) {
+                            gamePlayer.player.damage(4);
+                            gamePlayer.player.setHealth( Math.min(gamePlayer.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * ( 1 - game.currentDeathmatchProgress ) + 1, gamePlayer.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() ) );
+                            gamePlayer.player.playSound( location, Sound.ENTITY_PLAYER_HURT, 0.2F, 1.0F);
+                        }
+                    }
+                    else if (gamePlayer.player.getHealth() > 1 || gamePlayer.player.getAbsorptionAmount() > 0) {
+                        gamePlayer.player.addPotionEffect( new PotionEffect(PotionEffectType.WITHER, 60, 1, false, true));
+                        gamePlayer.player.setHealth(1);
+                        gamePlayer.player.setAbsorptionAmount(0);
+                        gamePlayer.player.playSound( location, Sound.ENTITY_PLAYER_HURT, 0.2F, 1.0F);
+                    }
+                    gamePlayer.player.playSound( location, Sound.BLOCK_BEACON_DEACTIVATE, 0.2F, 1.5F);
                 }
 
             }
@@ -544,12 +583,50 @@ public class FlowerUtils {
     public static void processAnnihilation(Game game) {
 
         for (GamePlayer gamePlayer : game.getConnectedGamePlayers()) {
-            if (!gamePlayer.isSpectator) {
-                gamePlayer.player.addPotionEffect( new PotionEffect(PotionEffectType.WITHER, 60, 1, false, false));
+            if (!gamePlayer.isSpectator && gamePlayer.player.isSneaking()) {
                 gamePlayer.player.addPotionEffect( new PotionEffect(PotionEffectType.GLOWING, 60, 1, false, false));
             }
         }
 
+    }
+
+    public static boolean checkProtectionBlocksBetweenPoints(Location explosion, Location exploded) {
+
+//        int steps = (int) Math.floor(radius * 3);
+//        double yMove = (exploded.getY() - explosion.getY()) / steps;
+//        double xMove = (exploded.getX() - explosion.getX()) / steps;
+//        double zMove = (exploded.getZ() - explosion.getZ()) / steps;
+        Vector explosionDirection = explosion.toVector().multiply(-1).add(exploded.toVector());
+        Vector scanPosition = explosionDirection.clone();
+        Vector stepVector = explosionDirection.clone().multiply(-1.0 / 9 );
+
+//        Bukkit.getConsoleSender().sendMessage("~~~~~~~~~~~~~~~~~~~~~~~~~~~ ");
+        while ( scanPosition.angle(stepVector) > 0.1 ) {
+            Block block = explosion.clone().add(scanPosition).getBlock();
+//            Bukkit.getConsoleSender().sendMessage( " type = " + block.getType());
+//            Bukkit.getConsoleSender().sendMessage( " length = " + scanPosition.length());
+            if ( block.getType() == Material.GLASS ) {
+//                Bukkit.getConsoleSender().sendMessage("found glass!");
+                return true;
+            }
+            scanPosition.add(stepVector);
+        }
+        int points = 0;
+        Location location;
+        location = explosion.clone();
+        location.setX(exploded.getX());
+        if ( location.getBlock().getType() == Material.GLASS ) points++;
+        location = explosion.clone();
+        location.setZ(exploded.getZ());
+        if ( location.getBlock().getType() == Material.GLASS ) points++;
+        location = explosion.clone();
+        location.setY(exploded.getY());
+        if ( location.getBlock().getType() == Material.GLASS ) points++;
+
+        if ( points >= 2 ) return true;
+
+//        Bukkit.getConsoleSender().sendMessage("found nothing!");
+        return false;
     }
 
     public static void deathmatchWarning(Game game) {
@@ -558,6 +635,13 @@ public class FlowerUtils {
             player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0F, 1.0F);
         }
     }
+    public static void deathmatchWarning2(Game game) {
+        for (Player player : game.getConnectedPlayers()) {
+            player.sendTitle("", ColoursManager.purple + i18n("event_deathmatch_warning2", "Deathmatch in 180 seconds!", false), 5, 80, 5);
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0F, 1.0F);
+        }
+    }
+
 
     public static ItemStack getAbilitiesMenuItemStack() {
         ItemStack itemStack = new ItemStack(Material.BLAZE_POWDER);
@@ -565,5 +649,23 @@ public class FlowerUtils {
         itemMeta.setDisplayName(i18nonly("abilities_menu_item_name"));
         itemStack.setItemMeta(itemMeta);
         return itemStack;
+    }
+
+    public static int calculateRespawnTime(Game game) {
+
+        double percentComplete = (double) ( game.getGameTime() - game.countdown ) / game.getGameTime();
+
+        return (int) Math.floor( percentComplete * 10 + 3 );
+
+
+    }
+
+    public static void giveItemsToPlayerOverflow(ItemStack item, Player player) {
+        Map<Integer, ItemStack> map = player.getInventory().addItem(item);
+        map.forEach((integer, itemStack) -> player.getLocation().getWorld().dropItem(player.getLocation(), itemStack));
+    }
+
+    public static boolean isPlayersWeaponFullyCharged(Player attacker) {
+        return attacker.getAttackCooldown() > 0.9;
     }
 }

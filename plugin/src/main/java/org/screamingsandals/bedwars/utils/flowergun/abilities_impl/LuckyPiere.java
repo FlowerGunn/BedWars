@@ -15,10 +15,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageSource;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class LuckyPiere extends Ability implements IAbility {
 
@@ -31,6 +28,10 @@ public class LuckyPiere extends Ability implements IAbility {
         this.item = Material.IRON_NUGGET;
         this.rarity = 5;
         this.icon = IconType.DAMAGE_RESISTANCE;
+
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.TANK);
+
         this.description = "При получении урона от противников, когда у игрока#меньше 30% максимального здоровья эта атака#заблокируется, а игрок получит эффект#Сопротивления 4 на (values1) секунд.#Кулдаун: (values2) минуты.";
         this.isOnCooldown = false;
     }

@@ -1,5 +1,6 @@
 package org.screamingsandals.bedwars.utils.flowergun.mechanics;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -7,6 +8,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 
 public class ShieldListener implements Listener {
@@ -27,47 +35,54 @@ public class ShieldListener implements Listener {
             if ( FlowerUtils.swords.contains(damager.getInventory().getItemInMainHand().getType()) ) {
 
 //                Bukkit.getConsoleSender().sendMessage("there is a sword");
-                if ( victim.isBlocking() ) {
+                if ( victim.isBlocking() && !damager.hasPotionEffect(PotionEffectType.BLINDNESS) && !damager.isSprinting() && damager.getFallDistance() > 0 && !damager.isOnGround() && FlowerUtils.isPlayersWeaponFullyCharged(damager) ) {
 
 //                    Bukkit.getConsoleSender().sendMessage("victim blocking");
-                    victim.setCooldown(Material.SHIELD, FlowerUtils.swordOnShieldCooldown);
+//                    victim.setCooldown(Material.SHIELD, FlowerUtils.swordOnShieldCooldown);
                     victim.getWorld().playSound(victim.getLocation(), Sound.BLOCK_LANTERN_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
 
-//                    Bukkit.getScheduler().runTaskAsynchronously( Main.getInstance(), () -> {
-//
-//                        boolean isMainHand = false;
-//                        boolean isOffHand = false;
-//                        PlayerInventory inventory = victim.getInventory();
-//                        ItemStack shield;
-//                        if (inventory.getItemInMainHand().getType() == Material.SHIELD) isMainHand = false;
-//                        if (inventory.getItemInOffHand().getType() == Material.SHIELD) isOffHand = false;
-//                        if (isMainHand) {
-//                            shield = inventory.getItemInMainHand();
-//                            int slot = inventory.getHeldItemSlot();
-//                            shield.setAmount(0);
-//                            inventory.setItem(slot, shield);
-//                            try {
-//                                wait(100);
-//                            } catch (InterruptedException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                            shield.setAmount(1);
-//                            inventory.setItem(slot, shield);
-//
-//                        } else if (isOffHand) {
-//                            shield = inventory.getItemInOffHand();
-//                            shield.setAmount(0);
-//                            inventory.setItem(EquipmentSlot.OFF_HAND, shield);
-//                            try {
-//                                wait(100);
-//                            } catch (InterruptedException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                            shield.setAmount(1);
-//                            inventory.setItem(EquipmentSlot.OFF_HAND, shield);
-//                        }
-//
-//                    });
+
+                    new BukkitRunnable() {
+                        int i = 1;
+
+                        boolean isMainHand = false;
+                        boolean isOffHand = false;
+
+                        PlayerInventory inventory = victim.getInventory();
+                        ItemStack shield;
+                        int slot;
+                        @Override
+                        public void run() {
+                            if (i > 0) {
+
+                                if (inventory.getItemInMainHand().getType() == Material.SHIELD) isMainHand = true;
+                                if (inventory.getItemInOffHand().getType() == Material.SHIELD) isOffHand = true;
+                                if (isMainHand) {
+                                    shield = inventory.getItemInMainHand();
+                                    slot = inventory.getHeldItemSlot();
+                                    inventory.setItem(slot, null);
+                                } else if (isOffHand) {
+                                    shield = inventory.getItemInOffHand();
+                                    inventory.setItem(EquipmentSlot.OFF_HAND, null);
+                                }
+
+                                victim.setCooldown(Material.SHIELD, FlowerUtils.swordOnShieldCooldown);
+
+                                i--;
+                            }
+                            else {
+                                if (isMainHand) {
+                                    shield.setAmount(1);
+                                    inventory.setItem(slot, shield);
+                                } else if (isOffHand) {
+                                    shield.setAmount(1);
+                                    inventory.setItem(EquipmentSlot.OFF_HAND, shield);
+                                }
+                                this.cancel();
+                            }
+                        }
+                    }.runTaskTimer(Main.getInstance(), 0L, 1L);
+
 
                 }
             }

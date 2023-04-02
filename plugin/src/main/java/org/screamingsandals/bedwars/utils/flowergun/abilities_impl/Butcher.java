@@ -27,12 +27,17 @@ public class Butcher extends Ability implements IAbility {
         this.item = Material.DIAMOND_AXE;
         this.rarity = 4;
         this.icon = IconType.INCREASE_DAMAGE;
-        this.description = "Удары топором наносят (values1)% от значения#брони игрока в виде дополнительного урона";
+
+        this.abilityCategories.add(AbilityCategory.VIKING);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.TANK);
+
+        this.description = "Полностью заряженные удары топором#наносят (values1)% от значения брони игрока#в виде дополнительного урона.";
         this.isOnCooldown = false;
     }
 
     @Override
-    public int calculateIntValue1(int level) { return 11 + 2 * level; }
+    public int calculateIntValue1(int level) { return 9 + 2 * level; }
 
 
 
@@ -44,9 +49,9 @@ public class Butcher extends Ability implements IAbility {
 
         if (event.isCancelled()) return;
 
-        if ( event.getFinalDamage() > 0 ) {
+        if ( event.getDamage() > 3 ) {
             if (Main.isPlayerInGame(attacker)) {
-                if (FlowerUtils.axes.contains(attacker.getInventory().getItemInMainHand().getType())) {
+                if ( FlowerUtils.isPlayersWeaponFullyCharged(attacker) && FlowerUtils.axes.contains(attacker.getInventory().getItemInMainHand().getType())) {
 
                     double armour = attacker.getAttribute(Attribute.GENERIC_ARMOR).getValue();
                     compoundValueModifier.addDouble(armour * calculateIntValue1(level) * 0.01);

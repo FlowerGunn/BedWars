@@ -13,10 +13,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 import java.util.Random;
 
@@ -31,6 +28,10 @@ public class Weightless extends Ability implements IAbility {
         this.item = Material.FEATHER;
         this.rarity = 5;
         this.icon = IconType.LEVITATION;
+
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
         this.description = "При убийстве противника игрок получает случайный эффект:#Прыгучесть 3 или Левитация 1 на (values1) секунд.#При получении игроком любого урона их эффект#левитации будет продлён на 2 секунды.";
     }
 
@@ -47,7 +48,7 @@ public class Weightless extends Ability implements IAbility {
 
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event) {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
         if (this.isOnCooldown) return;
 

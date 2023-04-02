@@ -12,10 +12,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageTarget;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
 public class Appleperson extends Ability implements IAbility {
 
@@ -29,13 +26,17 @@ public class Appleperson extends Ability implements IAbility {
         this.item = Material.APPLE;
         this.rarity = 3;
         this.icon = IconType.ABSORPTION;
-        this.description = "При убийстве противника одно обычное яблоко#в инвентаре игрока превратится в золотое.#Перезарядка: (values1) секунд#Каждая атака по противнику положит#им в инвентарь одно яблоко";
+
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
+
+        this.description = "При убийстве противника одно обычное яблоко#в инвентаре игрока превратится в золотое.#Перезарядка: (values1) секунд#Каждая атака по противнику даст#игроку одно яблоко.";
     }
 
 
     @Override
     public int calculateIntValue1(int level) {
-        return 70 * 20 - 10 * 20 * level;
+        return 20 * 20 - 5 * 20 * level;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class Appleperson extends Ability implements IAbility {
     }
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event) {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
         if (this.isOnCooldown) return;
 
@@ -85,11 +86,10 @@ public class Appleperson extends Ability implements IAbility {
         if (Main.isPlayerInGame(attacker)) {
             if (damageInstance.damageTarget == DamageTarget.PLAYER && event.getFinalDamage() > 0) {
 
-                Player victim = (Player) event.getEntity();
-                Inventory inventory = victim.getInventory();
+                Inventory inventory = attacker.getInventory();
                 ItemStack apple = new ItemStack(Material.APPLE);
                 inventory.addItem(apple);
-                playFXItemGained(victim, 1);
+                playFXItemGained(attacker, 1);
 
             }
         }

@@ -13,6 +13,7 @@ import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
@@ -27,6 +28,11 @@ public class GuardianAngel extends Ability implements IAbility {
         this.item = Material.SHIELD;
         this.rarity = 3;
         this.icon = IconType.DAMAGE_RESISTANCE;
+
+        this.abilityCategories.add(AbilityCategory.HEALER);
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
+
         this.description = "Лечение союзников даст им +1 к броне#на (values1) секунд, а также даст игроку 1 заряд Веры.#Максимальное количество зарядов - (values2)#При полных зарядах Веры игрок получает#+2 к макс. здоровью до конца игры.";
         this.isOnCooldown = false;
     }

@@ -14,6 +14,7 @@ import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageRelay;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
@@ -31,6 +32,11 @@ public class Levitator extends Ability implements IAbility {
         this.item = Material.WHITE_DYE;
         this.icon = IconType.LEVITATION;
         this.rarity = 3;
+
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.RANGER);
+        this.abilityCategories.add(AbilityCategory.GUARDIAN);
+
         this.description = "Умирая от снарядов игрок накладываете#Левитацию 2 на убийцу на (values1) секунд.#Убивая противников снарядами игрок получает#взрывное зелье на Левитацию 2 на (values1) секунд.";
     }
 
@@ -41,23 +47,21 @@ public class Levitator extends Ability implements IAbility {
 
 
     @Override
-    public void playerDeath(int level, PlayerDeathEvent event) {
+    public void playerDeath(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
-        if ( event.getEntity().getKiller() != null ) {
-            Player victim = event.getEntity();
+        if ( killer != null ) {
             GamePlayer gVictim = Main.getPlayerGameProfile(victim);
             if ( gVictim.lastReceivedDamageInstance.damageRelay == DamageRelay.PROJECTILE ) {
-                playFXSpeed(event.getEntity().getKiller(), 3);
+                playFXSpeed(killer, 3);
                 notifyPlayerOnAbilityActivation(victim);
-                event.getEntity().getKiller().addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, calculateIntValue1(level) * 20, 1));
+                killer.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, calculateIntValue1(level) * 20, 1));
             }
         }
     }
 
     @Override
-    public void playerKill(int level, Player killer, PlayerDeathEvent event)  {
+    public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event)  {
 
-        Player victim = event.getEntity();
         GamePlayer gVictim = Main.getPlayerGameProfile(victim);
 
         if ( gVictim.lastReceivedDamageInstance.damageRelay == DamageRelay.PROJECTILE ) {

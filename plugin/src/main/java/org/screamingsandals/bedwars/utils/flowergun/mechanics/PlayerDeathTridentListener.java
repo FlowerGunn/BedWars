@@ -31,7 +31,7 @@ public class PlayerDeathTridentListener implements Listener {
                 Trident trident = (Trident) entity;
 
                 if (trident.getShooter() == player) {
-                    Bukkit.getConsoleSender().sendMessage("Found trident of " + player.getName() + "!");
+//                    Bukkit.getConsoleSender().sendMessage("Found trident of " + player.getName() + "!");
                     entity.remove();
                     player.getInventory().addItem(trident.getItem());
                 }
