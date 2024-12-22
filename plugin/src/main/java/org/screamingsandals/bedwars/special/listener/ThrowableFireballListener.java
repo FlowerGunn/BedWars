@@ -34,6 +34,8 @@ import org.screamingsandals.bedwars.api.events.BedwarsApplyPropertyToBoughtItem;
 import org.screamingsandals.bedwars.special.ThrowableFireball;
 import org.screamingsandals.bedwars.utils.external.MiscUtils;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 
 public class ThrowableFireballListener implements Listener {
 
@@ -96,6 +98,7 @@ public class ThrowableFireballListener implements Listener {
                 player.setCooldown(event.getItem().getType(), FlowerUtils.fireballCooldown);
                 player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_GHAST_WARN, 1.0F, 1.0F);
                 player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1.0F, 1.0F);
+                Triggers.gadgetUsed(player, GadgetType.FIREBALL);
             }
         }
     }

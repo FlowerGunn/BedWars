@@ -11,6 +11,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
@@ -41,7 +42,7 @@ public class ArrowRain extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.RANGER);
         this.abilityCategories.add(AbilityCategory.GUARDIAN);
 
-        this.description = "Попадание обычными стрелами по блокам#c удержанием SHIFT создаст (values1) стрел#10 блоков над местом приземления стрелы#и разбросом в 3 блока.";//#Кулдаун: (values2) секунд.";
+        this.description = "Попадание обычными стрелами по блокам#c удержанием SHIFT создаст (values1) стрел#10 блоков над местом приземления стрелы#и разбросом в 3 блока.";//#Перезарядка: (values2) секунд.";
 
         this.radius = 3.0;
 
@@ -86,7 +87,9 @@ public class ArrowRain extends Ability implements IAbility {
                 Arrow newArrow = (Arrow) shooter.getWorld().spawnEntity( newArrowLocation, EntityType.ARROW, true);
                 newArrow.setShooter(shooter);
                 newArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-                newArrow.setDamage(arrow.getDamage());
+                Bukkit.getConsoleSender().sendMessage("arrow damage " + arrow.getDamage());
+                newArrow.setVelocity( new Vector( 0, -1, 0 ));
+                newArrow.setDamage(arrow.getDamage() * 2.5);
                 newArrow.setCritical(arrow.isCritical());
                 newArrow.setKnockbackStrength(arrow.getKnockbackStrength());
                 newArrow.setFireTicks(arrow.getFireTicks());

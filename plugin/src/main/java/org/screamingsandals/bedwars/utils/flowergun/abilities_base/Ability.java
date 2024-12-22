@@ -1,6 +1,7 @@
 package org.screamingsandals.bedwars.utils.flowergun.abilities_base;
 
 import dev.lone.itemsadder.api.CustomStack;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.TextComponent;
@@ -10,12 +11,13 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -63,6 +65,10 @@ public abstract class Ability implements IAbility{
     protected int customModelData = 0;
 
     protected String description = "Description";
+    @Getter
+    protected boolean hidden = false;
+    @Getter
+    protected boolean publicTesting = false;
 
     private ChatColor highlightColour =  ColoursManager.white;
     private ChatColor darkenColour = ColoursManager.darkGray;
@@ -103,6 +109,11 @@ public abstract class Ability implements IAbility{
         return resourceBundle;
     }
 
+    @Override
+    public ArrayList<AbilityCategory> getAbilityCategories() {
+        return this.abilityCategories;
+    }
+
     public void loadCustomItem( String iaId ) {
 //        CustomStack customStack = CustomStack.getInstance(iaId);
 //        this.item = customStack.getItemStack().getType();
@@ -131,7 +142,7 @@ public abstract class Ability implements IAbility{
 
     public static void healHealth(Player healer, Player target, double healAmount) {
 
-        double newHealth = target.getHealth();
+        double currentHealth = target.getHealth();
 
         CompoundValueModifier compoundValueModifier = Triggers.healPlayer(healer, target);
 
@@ -140,15 +151,16 @@ public abstract class Ability implements IAbility{
         if ( target.hasPotionEffect(PotionEffectType.UNLUCK) )
         compoundValueModifier.addExp((target.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() + 1) * -0.1);
 
-        newHealth += compoundValueModifier.processValueEffectiveDecrease(healAmount);
+        double newHealth = currentHealth + compoundValueModifier.processValueEffectiveDecrease(healAmount);
 
         double maxHealth = target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
 
+
+        playFXHealing(healer, target, 1);
         if (newHealth > maxHealth) newHealth = maxHealth;
-        if (newHealth < 0) newHealth = 0;
+        if (newHealth < currentHealth) return;
 
         target.setHealth(newHealth);
-        playFXHealing(healer, target, 1);
 
     }
 
@@ -226,6 +238,26 @@ public abstract class Ability implements IAbility{
     }
 
     @Override
+    public boolean isHidden() {
+        return this.hidden;
+    }
+    @Override
+    public boolean isPublicTesting() {
+        return this.publicTesting;
+    }
+
+    @Override
+    public boolean isTemporarilyAvailable() {
+        return this.isPublicTesting() || isDailyTrial() || Game.getAllAbilitiesMode();
+    }
+
+    @Override
+    public boolean isDailyTrial() {
+        return Main.getAbilitiesManager().isAbilityTrial( this.id );
+    }
+
+
+    @Override
     public ItemStack getAbilityGuiItem() {
         ItemStack itemStack;
         if ( iaId != null ) {
@@ -264,7 +296,27 @@ public abstract class Ability implements IAbility{
 
     @Override
     public String getName() {
+        if ( this.isOnCooldown )
+        return ColoursManager.darkGray + this.name;
+        else
         return RarityManager.rarityColours.get(this.rarity) + this.name;
+    }
+
+    @Override
+    public void putOnCooldown(Player player, int timeInTicks) {
+        if ( !this.isOnCooldown ) {
+            this.isOnCooldown = true;
+            GamePlayer gPlayer = Main.getPlayerGameProfile( player );
+            gPlayer.getGame().updateScoreboard(gPlayer);
+            Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
+                this.isOnCooldown = false;
+                if (Main.isPlayerInGame(player))
+                    gPlayer.getGame().updateScoreboard(gPlayer);
+                else Game.clearScoreboard(player);
+                notifyPlayerOnCooldownEnd(player);
+            },timeInTicks);
+        }
+
     }
 
     @Override
@@ -289,14 +341,10 @@ public abstract class Ability implements IAbility{
     public static IAbility generateAbility( Class myclass ) {
         try {
             return (IAbility) myclass.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             Bukkit.getConsoleSender().sendMessage("ERROR with class " + myclass.getName());
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -517,6 +565,20 @@ public abstract class Ability implements IAbility{
         return description;
     }
 
+    @Override
+    public ArrayList<String> parseDescriptionOnly(int activeLevel, int slot) {
+
+        ArrayList<String> description = new ArrayList<>();
+
+        String temp = this.baseColour + ( this.description ).replace("#", "#" + this.baseColour).replace("(values1)", formatValues1(activeLevel, slot)).replace("(values2)", formatValues2(activeLevel, slot)).replace("(values3)", formatValues3(activeLevel, slot));
+        String str[] = ChatColor.translateAlternateColorCodes('&', temp ).split("#");
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(str));
+
+        description.addAll(lore);
+
+        return description;
+    }
+
 
     public TextComponent parseDescriptionComponent( Player player,int ownedLevel, int activeLevel, int slot){
 
@@ -576,14 +638,25 @@ public abstract class Ability implements IAbility{
     @Override
     public void projectileLaunch(int level, Player player, ProjectileLaunchEvent event) {};
 
+    @Override
+    public void interact(int activeLevel, Player player, PlayerInteractEvent event) {};
+    @Override
+    public void fishAction(int activeLevel, Player player, PlayerFishEvent event) {};
+
+
     public static void playFXSlow(LivingEntity player, int intensity) {
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_CHAIN_PLACE, 0.3F, 0.6F);
-        if (player instanceof Player)
-        Main.getStatsManager().addResourceToPlayer((Player) player, ResourceType.SLIMEBALL, 1);
+        if (player instanceof Player) {
+            Main.getStatsManager().addResourceToPlayer((Player) player, ResourceType.SLIMEBALL, 1);
+            Main.getPlayerGameProfile((Player) player).logImpactInstance(new ImpactInstance(Main.getPlayerGameProfile((Player) player), ImpactType.EFFECT, ImpactPolarity.ENEMY, intensity));
+        }
         player.getWorld().spawnParticle(Particle.SLIME, player.getLocation().clone().add(0, 1.2, 0), intensity * 5,0.2, 0.2, 0.2, 0.1);
     }
 
     public static void playFXDebuff(LivingEntity player, int intensity) {
+        if (player instanceof Player) {
+            Main.getPlayerGameProfile((Player) player).logImpactInstance(new ImpactInstance(Main.getPlayerGameProfile((Player) player), ImpactType.EFFECT, ImpactPolarity.ENEMY, intensity));
+        }
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5F, 1.5F);
         player.getWorld().spawnParticle(Particle.SOUL, player.getLocation().clone().add(0, 1.2, 0), intensity * 3,0.2, 0.2, 0.2, 0.1);
     }
@@ -596,7 +669,7 @@ public abstract class Ability implements IAbility{
     }
 
     public static void playFXShielding(Player source,Player player, int intensity) {
-        Main.getPlayerGameProfile(player).logImpactInstance(new ImpactInstance(Main.getPlayerGameProfile(source), ImpactType.PROTECTION, ImpactPolarity.ALLY, Main.getPlayerGameProfile(player).getGame().countdown, intensity));
+        Main.getPlayerGameProfile(player).logImpactInstance(new ImpactInstance(Main.getPlayerGameProfile(source), ImpactType.HEALING, ImpactPolarity.ALLY, Main.getPlayerGameProfile(player).getGame().countdown, intensity));
         Main.getStatsManager().addResourceToPlayer(source, ResourceType.QUARTZ, 1);
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 0.1F, 0.7F);
         player.getWorld().spawnParticle(Particle.SCRAPE, player.getLocation().clone().add(0, 2.5, 0), intensity,0,0,0);
@@ -622,11 +695,17 @@ public abstract class Ability implements IAbility{
     }
 
     public static void playFXSpeed(LivingEntity player, int intensity) {
+        if (player instanceof Player) {
+            Main.getPlayerGameProfile((Player) player).logImpactInstance(new ImpactInstance(Main.getPlayerGameProfile((Player) player), ImpactType.EFFECT, ImpactPolarity.ALLY, intensity));
+        }
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PHANTOM_FLAP, 1F, 2F);
         player.getWorld().spawnParticle(Particle.CLOUD, player.getLocation().clone().add(0, 1.2, 0), intensity * 3, 0.2, 0.2, 0.2, 0.05);
     }
 
     public static void playFXBuff(LivingEntity player, int intensity) {
+        if (player instanceof Player) {
+            Main.getPlayerGameProfile((Player) player).logImpactInstance(new ImpactInstance(Main.getPlayerGameProfile((Player) player), ImpactType.EFFECT, ImpactPolarity.ALLY, intensity));
+        }
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.5F, 1.5F);
         player.getWorld().spawnParticle(Particle.TOTEM, player.getLocation().clone().add(0, 1.2, 0), intensity * 3, 0.2, 0.2, 0.2, 0.05);
     }
@@ -678,11 +757,10 @@ public abstract class Ability implements IAbility{
 
         for ( int i = 0; i < players.size(); i++ ) {
             GamePlayer gamePlayer = players.get(i);
-            if ( gamePlayer.player.getLocation().distance(mainPlayer.player.getLocation()) < radius )
-                if ( gamePlayer.isSpectator || game.getPlayerTeam(gamePlayer) != game.getPlayerTeam(mainPlayer)) {
-                    i--;
-                    players.remove(gamePlayer);
-                }
+            if ( gamePlayer.isSpectator || game.getPlayerTeam(gamePlayer) != game.getPlayerTeam(mainPlayer) || gamePlayer.player.getLocation().distance(mainPlayer.player.getLocation()) > radius ) {
+                i--;
+                players.remove(gamePlayer);
+            }
         }
 
         return players;
@@ -698,8 +776,7 @@ public abstract class Ability implements IAbility{
 
         for ( int i = 0; i < players.size(); i++ ) {
             GamePlayer gamePlayer = players.get(i);
-            if ( gamePlayer.player.getLocation().distance(mainPlayer.player.getLocation()) < radius )
-            if ( gamePlayer.isSpectator || game.getPlayerTeam(gamePlayer) == game.getPlayerTeam(mainPlayer)) {
+            if ( gamePlayer.isSpectator || game.getPlayerTeam(gamePlayer) == game.getPlayerTeam(mainPlayer) || gamePlayer.player.getLocation().distance(mainPlayer.player.getLocation()) > radius) {
                 i--;
                 players.remove(gamePlayer);
             }

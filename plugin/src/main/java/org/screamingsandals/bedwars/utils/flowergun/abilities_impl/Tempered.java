@@ -3,16 +3,18 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ItemCategory;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 
 public class Tempered extends Ability implements IAbility {
 
@@ -26,14 +28,41 @@ public class Tempered extends Ability implements IAbility {
         this.rarity = 3;
         this.icon = IconType.DAMAGE_RESISTANCE;
 
+        this.abilityCategories.add(AbilityCategory.BULLDOZER);
         this.abilityCategories.add(AbilityCategory.TANK);
+        this.abilityCategories.add(AbilityCategory.SCOUT);
 
-        this.description = "Все нагрудники в магазине получают#Прочность +(values1) и Защиту от снарядов +3.";
+        this.description = "Все нагрудники в магазине получают#Прочность +(values1) и Защиту от снарядов +3.#Игрок наносит +(values2) ед. урона#из железных и алмазных оружий.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
         return 3 + level;
+    }
+
+
+    @Override
+    public double calculateDoubleValue1(int level) {
+        return 0.75 + 0.25 * level;
+    }
+
+    @Override
+    public String formatValue2(int level) {
+        return FlowerUtils.doubleDecimal.format( calculateDoubleValue1(level) );
+    }
+
+
+    @Override
+    public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
+
+        if ( event.isCancelled() ) return;
+
+        Material material = attacker.getInventory().getItemInMainHand().getType();
+        String materialname = material.toString();
+
+        if ( event.getFinalDamage() > 0 && ( material == Material.DIAMOND_SWORD || material == Material.IRON_SWORD || material == Material.DIAMOND_AXE || material == Material.IRON_AXE ) ) {
+
+        }
     }
 
     @Override

@@ -29,7 +29,7 @@ public class ForceField extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
         this.abilityCategories.add(AbilityCategory.TANK);
 
-        this.description = "Блокирование атак щитом даст#игроку эффекты Сопротивления 1,#а также Спешки 3 если атака была ближняя#или Скорости 2 если атака была дальняя#на (values1) секунд.";
+        this.description = "Блокирование атак щитом даст игроку#эффект Спешки 2 если атака была ближняя#или Скорости 2 и Сопротивления 1 если#атака была дальняя на (values1) секунд.";
     }
 
     @Override
@@ -56,10 +56,11 @@ public class ForceField extends Ability implements IAbility {
                 playFXDefensiveUtility(victim, 1);
                 notifyPlayerOnAbilityActivation(victim);
                 if ((damageInstance.damageRelay == DamageRelay.PROJECTILE))
-                    victim.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 2));
-                    else
-                victim.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, calculateIntValue1(level), 1));
-                victim.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, calculateIntValue1(level), 0));
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 1));
+                else {
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, calculateIntValue1(level), 1));
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, calculateIntValue1(level), 0));
+                }
             }
         }
 

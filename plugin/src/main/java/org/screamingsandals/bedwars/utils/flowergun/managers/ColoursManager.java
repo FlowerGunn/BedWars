@@ -22,6 +22,9 @@ public class ColoursManager {
     public static final ChatColor annihilation = ChatColor.of("#4c00b0");
     public static final ChatColor light_blue = ChatColor.of("#6589fc");
 
+    public static final ChatColor ua_blue = ChatColor.of("#0057B7");
+    public static final ChatColor ua_yellow = ChatColor.of("#FFDD00");
+
     public static TextColor getComponent(ChatColor chatColor ) {
         return TextColor.color( chatColor.getColor().getRGB() );
     }

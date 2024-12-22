@@ -64,10 +64,7 @@ import org.screamingsandals.bedwars.lib.nms.utils.ClassStorage;
 import org.screamingsandals.bedwars.lib.signmanager.SignListener;
 import org.screamingsandals.bedwars.lib.signmanager.SignManager;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.managers.AbilitiesManager;
-import org.screamingsandals.bedwars.utils.flowergun.managers.ForgeManager;
-import org.screamingsandals.bedwars.utils.flowergun.managers.ResourceManager;
-import org.screamingsandals.bedwars.utils.flowergun.managers.StatsManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.*;
 import org.screamingsandals.simpleinventories.listeners.InventoryListener;
 import org.screamingsandals.simpleinventories.utils.MaterialSearchEngine;
 
@@ -129,6 +126,9 @@ public class Main extends JavaPlugin implements BedwarsAPI {
     private ForgeManager forgeManager;
     private StatsManager statsManager;
     private FlowerUtils flowerUtilsInstance;
+    private PlayerConfigurationManager configManager;
+    @Getter
+    private boolean IALoaded = false;
 
     public static Main getInstance() {
         return instance;
@@ -390,6 +390,10 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         return instance.tabManager;
     }
 
+    public static PlayerConfigurationManager getPlayerConfigurationManager() {
+        return instance.configManager;
+    }
+
     public void onEnable() {
         instance = this;
         version = this.getDescription().getVersion();
@@ -448,6 +452,9 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         this.forgeManager = new ForgeManager();
         forgeManager.initializeDatabase();
 
+        this.configManager = new PlayerConfigurationManager();
+        configManager.initializeDatabase();
+
 
 
         try {
@@ -488,6 +495,8 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         new DumpCommand();
         new CheatCommand();
         new InfoCommand();
+        new DebugCommand();
+        new DamageCommand();
         new AbilityCommand();
         new ResourceCommand();
         new ForgeCommand();
@@ -902,4 +911,7 @@ public class Main extends JavaPlugin implements BedwarsAPI {
         setEnabled(bool);
     }
 
+    public void setIALoaded() {
+        this.IALoaded = true;
+    }
 }

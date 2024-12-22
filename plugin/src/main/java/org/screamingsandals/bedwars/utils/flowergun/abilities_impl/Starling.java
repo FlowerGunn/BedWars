@@ -32,7 +32,7 @@ public class Starling extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.RANGER);
         this.abilityCategories.add(AbilityCategory.SUPPORT);
 
-        this.description = "При получении урона на уровне здоровья#менее 50% от максимального, игрок получит эффекты#Скорости 2 и Свечения на (values1) секунд.";
+        this.description = "При получении урона на уровне здоровья менее 50%#от максимального, игрок получит эффекты Скорости 2,#Спешки 2 и Свечения на (values1) секунд.";
     }
 
     @Override
@@ -65,6 +65,7 @@ public class Starling extends Ability implements IAbility {
                 playFXSpeed(victim,1);
                 notifyPlayerOnAbilityActivation(victim);
                 victim.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, calculateIntValue1(level), 1));
+                victim.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 1));
                 victim.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, calculateIntValue1(level), 0));
             }
         }

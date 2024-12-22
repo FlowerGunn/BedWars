@@ -26,12 +26,12 @@ public class Slingshooter extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.SNOWMAN);
         this.abilityCategories.add(AbilityCategory.RANGER);
 
-        this.description = "Урон снежков увеличивается на (values2) ед.,#кулдаун увеличивается на (values1) секунд.";
+        this.description = "Урон снежков увеличивается на (values2) ед.,#кулдаун уменьшается на (values1) секунд.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 20 * level;
+        return 15 + 10 * level;
     }
 
 //    @Override
@@ -41,18 +41,19 @@ public class Slingshooter extends Ability implements IAbility {
 
     @Override
     public double calculateDoubleValue1(int level) {
-        return 2 + 1.2 * level;
+        return 4 + 1 * level;
     }
 
     @Override
     public String formatValue1(int level) {
-        return "" + calculateIntValue1(level) / 20;
+        return FlowerUtils.doubleDecimal.format( calculateIntValue1(level) / 20 );
     }
+
 
 
     @Override
     public String formatValue2(int level) {
-        return FlowerUtils.singleDecimal.format( calculateDoubleValue1(level) );
+        return FlowerUtils.doubleDecimal.format( calculateDoubleValue1(level) );
     }
 
 
@@ -67,7 +68,7 @@ public class Slingshooter extends Ability implements IAbility {
     public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
 
         if ( damageInstance.damageSource == DamageSource.PLAYER && damageInstance.damageType == DamageType.SNOWBALL ) {
-            compoundValueModifier.addDouble(calculateDoubleValue1(level));
+            compoundValueModifier.addDouble(-1 * calculateDoubleValue1(level));
         }
     }
 }

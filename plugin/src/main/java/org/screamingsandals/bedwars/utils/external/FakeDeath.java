@@ -106,7 +106,7 @@ public class FakeDeath {
 
         if (!event.getKeepInventory()) {
             gamePlayer.invClean();
-            Bukkit.getConsoleSender().sendMessage("invclean3");
+//            Bukkit.getConsoleSender().sendMessage("invclean3");
         }
         gamePlayer.resetLife();
         try {

@@ -7,6 +7,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
@@ -25,26 +26,29 @@ public class LuckyPiere extends Ability implements IAbility {
 
         this.name = "Счастливчик";
         this.id = "luckypiere";
-        this.item = Material.IRON_NUGGET;
+        this.item = Material.EMERALD;
         this.rarity = 5;
-        this.icon = IconType.DAMAGE_RESISTANCE;
+        this.icon = IconType.EMERALD;
 
+        this.abilityCategories.add(AbilityCategory.ECONOMIST);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
-        this.abilityCategories.add(AbilityCategory.TANK);
+        this.abilityCategories.add(AbilityCategory.SCOUT);
 
-        this.description = "При получении урона от противников, когда у игрока#меньше 30% максимального здоровья эта атака#заблокируется, а игрок получит эффект#Сопротивления 4 на (values1) секунд.#Кулдаун: (values2) минуты.";
+        this.description = "При получении урона от противников, когда#у игрока меньше 30% максимального здоровья игрок#излечится на (values3) ед. и получит 1 изумруд.#Перезарядка: (values2) минуты.";
         this.isOnCooldown = false;
     }
 
-    @Override
-    public int calculateIntValue1(int level) {
-        return 20 + 10 * level;
-    }
+//    @Override
+//    public int calculateIntValue1(int level) {
+//        return 40 - 10 * level;
+//    }
+//
+//    @Override
+//    public String formatValue1(int level) {
+//        return FlowerUtils.singleDecimal.format(calculateIntValue1(level) / 20.0);
+//    }
 
-    @Override
-    public String formatValue1(int level) {
-        return FlowerUtils.singleDecimal.format(calculateIntValue1(level) / 20.0);
-    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     @Override
     public int calculateIntValue2(int level) {
@@ -54,6 +58,15 @@ public class LuckyPiere extends Ability implements IAbility {
     @Override
     public String formatValue2(int level) {
         return FlowerUtils.singleDecimal.format(calculateIntValue2(level) / 20.0 / 60.0);
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    @Override
+    public double calculateDoubleValue1(int level) {
+        return 1 + 0.5 * level;
+    }
+    @Override
+    public String formatValue3(int level) {
+        return FlowerUtils.singleDecimal.format(calculateDoubleValue1(level) );
     }
 
 
@@ -75,22 +88,22 @@ public class LuckyPiere extends Ability implements IAbility {
 
                 if ( current <= max * 0.3 ) {
 
-                    playFXDefensiveUtility(victim, 3);
+//                    playFXDefensiveUtility(victim, 3);
                     notifyPlayerOnAbilityActivation(victim);
 
-                    victim.getLocation().getWorld().playSound(victim.getLocation(), Sound.ENTITY_ITEM_BREAK, 0.4F, 0.5F);
-                    victim.getLocation().getWorld().playSound(victim.getLocation(), Sound.BLOCK_BELL_USE, 0.2F, 1.5F);
+//                    victim.getLocation().getWorld().playSound(victim.getLocation(), Sound.ENTITY_ITEM_BREAK, 0.4F, 0.5F);
+//                    victim.getLocation().getWorld().playSound(victim.getLocation(), Sound.BLOCK_BELL_USE, 0.2F, 1.5F);
+//
+//                    event.setCancelled(true);
 
-                    event.setCancelled(true);
+//                    victim.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, calculateIntValue1(level), 0, false, false));
+                    Ability.healHealth(victim, victim, calculateDoubleValue1(level));
+                    Ability.playFXHealing(victim,victim,2);
+                    ItemStack kit = Main.getSpawnerType("emerald").getStack();
+                    victim.getInventory().addItem(kit);
+                    playFXItemGained(victim, 3);
 
-                    victim.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, calculateIntValue1(level), 3, false, false));
-
-                    this.isOnCooldown = true;
-                    Player finalAttacker = victim;
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                        notifyPlayerOnCooldownEnd(finalAttacker);
-                        this.isOnCooldown = false;
-                    }, calculateIntValue2(level));
+                    putOnCooldown(victim,calculateIntValue2(level));
                 }
             }
         }

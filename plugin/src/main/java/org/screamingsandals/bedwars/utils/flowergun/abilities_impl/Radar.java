@@ -34,8 +34,9 @@ public class Radar extends Ability implements IAbility {
 
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
 
-        this.description = "Убийства и помощи в убийстве накладывают#Свечение и снижают макс.здоровье на 4 ед.#на (values1) секунд всем врагам#в радиусе (values2) блоков вокруг игрока.";
+        this.description = "Убийства и помощи в убийстве накладывают#Свечение и снижают макс.здоровье на 2 ед.#на (values1) секунд всем врагам#в радиусе (values2) блоков вокруг игрока.";
     }
 
     @Override
@@ -86,7 +87,7 @@ public class Radar extends Ability implements IAbility {
                 double distance = gamePlayer.player.getLocation().distance(gPlayer.player.getLocation());
                 if ( distance < calculateIntValue2(level) ) {
                     gamePlayer.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, calculateIntValue1(level), 0, false, false ));
-                    gamePlayer.addCustomStatusEffect(new CustomStatusEffect("radar_hp", gamePlayer, gamePlayer, Attribute.GENERIC_MAX_HEALTH, new CompoundValueModifier( -4, 0, 0), calculateIntValue1(level), true));
+                    gamePlayer.addCustomStatusEffect(new CustomStatusEffect("radar_hp", gamePlayer, gamePlayer, Attribute.GENERIC_MAX_HEALTH, new CompoundValueModifier( -2, 0, 0), calculateIntValue1(level), false));
                     playFXDebuff(gamePlayer.player, 3);
                     playerFound = true;
                 }

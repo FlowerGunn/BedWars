@@ -30,7 +30,7 @@ public class Slimy extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.SUPPORT);
         this.abilityCategories.add(AbilityCategory.SCOUT);
 
-        this.description = "Ближний урон игрока уменьшен на 50%,#раз в (values2) секунд противник атакующий игрока#в ближнем бою получит Слабость 1 на (values1) секунд.";
+        this.description = "Ближний урон игрока уменьшен на 35%,#раз в (values2) секунд противник атакующий игрока#в ближнем бою получит Слабость 1 и Замедление 2#на (values1) секунд.";
         this.isOnCooldown = false;
     }
 
@@ -73,13 +73,10 @@ public class Slimy extends Ability implements IAbility {
                 playFXSlow(attacker, 3);
                 notifyPlayerOnAbilityActivation(victim);
                 (attacker).addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, calculateIntValue1(level), 0));
+                (attacker).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, calculateIntValue1(level), 1));
 
-                this.isOnCooldown = true;
-                Player finalAttacker = victim;
-                Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                    notifyPlayerOnCooldownEnd(finalAttacker);
-                    this.isOnCooldown = false;
-                },calculateIntValue2(level));
+
+                putOnCooldown(victim,calculateIntValue2(level));
 
             }
         }
@@ -90,7 +87,7 @@ public class Slimy extends Ability implements IAbility {
 //        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
         if (Main.isPlayerInGame(attacker)) {
             if (damageInstance.damageRelay == DamageRelay.MELEE) {
-                compoundValueModifier.addExp(-0.5);
+                compoundValueModifier.addExp(-0.35);
             }
         }
     }

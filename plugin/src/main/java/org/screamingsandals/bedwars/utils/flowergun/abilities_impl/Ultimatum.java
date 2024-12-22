@@ -1,12 +1,16 @@
 package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
@@ -29,7 +33,7 @@ public class Ultimatum extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
 
-        this.description = "Раз в (values1) секунд следующая полностью заряженная#ближняя атака по противнику при удержании SHIFT#наложит на обоих игроков эффект Замедление 4#и отключит прыжки на (values2) секунд.";
+        this.description = "Раз в (values1) секунд следующая полностью заряженная#ближняя атака по противнику при удержании SHIFT#наложит на обоих игроков эффект Замедление 4 и привяжет#противника к текущему месту на (values2) секунд.#Противник не может покинуть место#привязки в радиусе 3ёх блоков.";
         this.isOnCooldown = false;
     }
 
@@ -60,7 +64,7 @@ public class Ultimatum extends Ability implements IAbility {
 
         if (event.isCancelled()) return;
 
-        if ( event.getFinalDamage() >= 3 && attacker.isSneaking() && damageInstance.damageTarget == DamageTarget.PLAYER && damageInstance.damageRelay == DamageRelay.MELEE)
+        if ( FlowerUtils.isPlayersWeaponFullyCharged(attacker) && attacker.isSneaking() && damageInstance.damageTarget == DamageTarget.PLAYER && damageInstance.damageRelay == DamageRelay.MELEE)
 
         if (Main.isPlayerInGame(attacker)) {
 
@@ -71,17 +75,34 @@ public class Ultimatum extends Ability implements IAbility {
             playFXSlow(attacker,3);
             playFXSlow(victim,3);
 
-            victim.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, calculateIntValue2(level), 3));
-            victim.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, calculateIntValue2(level), 128));
-            attacker.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, calculateIntValue2(level), 3));
-            attacker.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, calculateIntValue2(level), 128));
+            int ticksDuration = calculateIntValue2(level);
 
-            this.isOnCooldown = true;
-            Player finalAttacker = attacker;
-            Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                notifyPlayerOnCooldownEnd(finalAttacker);
-                this.isOnCooldown = false;
-            },calculateIntValue1(level));
+            victim.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, ticksDuration, 3));
+            attacker.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, ticksDuration, 3));
+
+            Location tiedTo = victim.getLocation().clone();
+            double radius = 3.0;
+
+            new BukkitRunnable() {
+
+                int ticks = 0;
+                @Override
+                public void run() {
+                    if ( ticks > ticksDuration ) this.cancel();
+
+                    if ( victim.getLocation().distance(tiedTo) > radius ) {
+                        victim.setVelocity( tiedTo.toVector().subtract(victim.getLocation().toVector()).multiply(0.1) );
+                        Ability.playLineFX(victim.getLocation(), tiedTo, Color.fromRGB(161, 34, 34));
+                        playFXSlow(victim, 3);
+                    } else {
+                        Ability.playLineFX(victim.getLocation(), tiedTo, Color.fromRGB(54, 54, 54));
+                    }
+
+                    ticks += 5;
+                }
+            }.runTaskTimer(Main.getInstance(), 0L, 5L);
+
+            putOnCooldown(attacker,calculateIntValue1(level));
 
         }
 

@@ -1,6 +1,7 @@
 package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -12,6 +13,7 @@ import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
@@ -35,7 +37,7 @@ public class Fiend extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.BULLDOZER);
         this.abilityCategories.add(AbilityCategory.MADMAN);
 
-        this.description = "При съедании цветка хоруса все враги в радиусе#10 блоков получат эффекты Темноты и Слабости 1,#и потеряют 2 ед. брони на (values1) секунд.";
+        this.description = "При съедании цветка хоруса все враги в радиусе#10 блоков получат эффекты Темноты,#и потеряют 3 ед. брони на (values1) секунд.";
 
         this.radius = 10;
 
@@ -64,17 +66,14 @@ public class Fiend extends Ability implements IAbility {
                 if ( enemies.size() > 0 ) {
                     for ( GamePlayer enemy : enemies ) {
                         enemy.player.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, calculateIntValue1(activeLevel), 0, false, false));
-                        enemy.player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, calculateIntValue1(activeLevel), 0, false, false));
+//                        enemy.player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, calculateIntValue1(activeLevel), 0, false, false));
+                        enemy.addCustomStatusEffect(new CustomStatusEffect("fiend_max_health", Main.getPlayerGameProfile(player), enemy, Attribute.GENERIC_ARMOR, new CompoundValueModifier(-3, 0, 0), calculateIntValue1(activeLevel), false));
                         playFXDebuff(enemy.player, 2);
                     }
                     notifyPlayerOnAbilityActivation(player);
                 }
-
-
             }
         }
-
-
     };
 
 

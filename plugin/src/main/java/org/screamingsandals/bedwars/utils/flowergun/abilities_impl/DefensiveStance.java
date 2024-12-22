@@ -39,6 +39,7 @@ public class DefensiveStance extends Ability implements IAbility {
 
 
 
+
     @Override
     public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
 //        if (!(event instanceof EntityDamageByEntityEvent)) return;

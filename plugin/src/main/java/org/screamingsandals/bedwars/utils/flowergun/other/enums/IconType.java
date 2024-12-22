@@ -98,6 +98,64 @@ public enum IconType {
     ANOMALY,
     SEMICONDUCTOR,
     GOLD_SHEET,
+    BED_CROSSED,
+    BED_CROSSED_ALT,
+    BED_WHITE,
+    BED_RED,
+    BED_GRAY,
+    BED_ORANGE,
+    BED_YELLOW,
+    BED_LIME,
+    BED_LIGHT_BLUE,
+    BED_CYAN,
+    BED_BLUE,
+    BED_MAGENTA,
+    BED_PURPLE,
+    BLUE_RIGHT,
+    BLUE_RIGHT_DARK,
+    BLUE_LEFT,
+    BLUE_LEFT_DARK,
+    CYAN_RIGHT,
+    CYAN_RIGHT_DARK,
+    CYAN_LEFT,
+    CYAN_LEFT_DARK,
+    GRAY_RIGHT,
+    GRAY_RIGHT_DARK,
+    GRAY_LEFT,
+    GRAY_LEFT_DARK,
+    GREEN_RIGHT,
+    GREEN_RIGHT_DARK,
+    GREEN_LEFT,
+    GREEN_LEFT_DARK,
+    LIGHT_BLUE_RIGHT,
+    LIGHT_BLUE_RIGHT_DARK,
+    LIGHT_BLUE_LEFT,
+    LIGHT_BLUE_LEFT_DARK,
+    ORANGE_RIGHT,
+    ORANGE_RIGHT_DARK,
+    ORANGE_LEFT,
+    ORANGE_LEFT_DARK,
+    PINK_RIGHT,
+    PINK_RIGHT_DARK,
+    PINK_LEFT,
+    PINK_LEFT_DARK,
+    PURPLE_RIGHT,
+    PURPLE_RIGHT_DARK,
+    PURPLE_LEFT,
+    PURPLE_LEFT_DARK,
+    RED_RIGHT,
+    RED_RIGHT_DARK,
+    RED_LEFT,
+    RED_LEFT_DARK,
+    YELLOW_RIGHT,
+    YELLOW_RIGHT_DARK,
+    YELLOW_LEFT,
+    YELLOW_LEFT_DARK,
+    GRAY_RIGHT_SHADED,
+    GRAY_LEFT_SHADED,
+
+    GLOBAL,
+
     COAL,
     VIP("%img_vip_blue%"),
     PREMIUM("%img_premium_orange%"),
@@ -107,6 +165,7 @@ public enum IconType {
 
     THUMBS_UP("띕"),
     OFFSET_MINUS_3("\uF804"), BLAZE_POWDER, ECHO_SHARD, ENDER_PEARL, LAPIS("%img_lapis_lazuli%"), NETHERITE_INGOT("img_iron_ingot");
+
 
     IconType (String id) {
         this.iconId = id;
@@ -122,6 +181,10 @@ public enum IconType {
         String icon = IconsManager.requestIcon(this, player);
         if (icon == null) return this.getIconId();
         else return icon;
+    }
+
+    public String getIcon() {
+        return IconsManager.requestIcon(this);
     }
 
     

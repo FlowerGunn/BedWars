@@ -67,7 +67,7 @@ public class BloodPact extends Ability implements IAbility {
     public void playerRespawn(int level, GamePlayer gamePlayer) {
 
         notifyPlayerOnAbilityActivation(gamePlayer.player);
-        gamePlayer.addCustomStatusEffect(new CustomStatusEffect("bloodpact_armor", gamePlayer, gamePlayer, Attribute.GENERIC_ARMOR, new CompoundValueModifier( 4, 0, 0), calculateIntValue1(level), true));
+        gamePlayer.addCustomStatusEffect(new CustomStatusEffect("bloodpact_armor", gamePlayer, gamePlayer, Attribute.GENERIC_ARMOR, new CompoundValueModifier( -4, 0, 0), calculateIntValue1(level), false));
 
 //        gamePlayer.player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, calculateIntValue1(level), 0));
 

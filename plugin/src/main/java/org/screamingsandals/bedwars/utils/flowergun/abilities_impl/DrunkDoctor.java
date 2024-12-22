@@ -4,6 +4,7 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -53,12 +54,14 @@ public class DrunkDoctor extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue2(int level) {
-        return 20 + 8 * level;
+        return 20 + 10 * level;
     }
 
 
     @Override
     public void projectileHit(int level, Player shooter, ProjectileHitEvent event) {
+
+
 
         if ( event.isCancelled() ) return;
 

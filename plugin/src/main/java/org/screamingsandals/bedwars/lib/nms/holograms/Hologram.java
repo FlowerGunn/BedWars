@@ -188,6 +188,7 @@ public class Hologram {
 	}
 
 	private void updateEntities(int startIndex, boolean justThisIndex) {
+		if (1 == 1) return;
 		try {
 			List<Object> packets = new ArrayList<>();
 			boolean positionChanged = !justThisIndex && this.lines.size() != this.entities.size();

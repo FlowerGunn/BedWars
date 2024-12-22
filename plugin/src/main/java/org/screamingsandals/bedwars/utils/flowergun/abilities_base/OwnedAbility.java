@@ -3,20 +3,16 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_base;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.TextComponent;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.customobjects.Resource;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
 import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
-
-import static org.screamingsandals.bedwars.game.Game.ALL_ABILITIES_MODE;
 
 public class OwnedAbility{
 
@@ -68,7 +64,7 @@ public class OwnedAbility{
     }
 
     public boolean isAvailable() {
-        if (this.isOwned() || Main.getConfigurator().config.getBoolean(ALL_ABILITIES_MODE)) return true;
+        if (this.isOwned() || getAbility().isTemporarilyAvailable() ) return true;
         return false;
     }
 
@@ -96,12 +92,12 @@ public class OwnedAbility{
     }
 
     public ArrayList<String> parseDescription(int slot) {
-        int effectiveOwnedLevel = Main.getConfigurator().config.getBoolean(ALL_ABILITIES_MODE) ? 3 : this.ownedLevel;
+        int effectiveOwnedLevel = getAbility().isTemporarilyAvailable() ? 3 : this.ownedLevel;
         return this.getAbility().parseDescription(effectiveOwnedLevel, Math.min(effectiveOwnedLevel, slot), slot );
     }
 
     public TextComponent parseDescriptionComponent(int slot, Player player) {
-        int effectiveOwnedLevel = Main.getConfigurator().config.getBoolean(ALL_ABILITIES_MODE) ? 3 : this.ownedLevel;
+        int effectiveOwnedLevel = getAbility().isTemporarilyAvailable() ? 3 : this.ownedLevel;
         return this.getAbility().parseDescriptionComponent( player, effectiveOwnedLevel, Math.min(effectiveOwnedLevel, slot), slot );
     }
 
@@ -141,10 +137,20 @@ public class OwnedAbility{
 
         }
 
-        if ( showDevServerWarning && Main.getConfigurator().config.getBoolean(ALL_ABILITIES_MODE)) {
-            lore.add("");
-            lore.addAll(FlowerUtils.alphaWarning);
+        if ( showDevServerWarning ) {
+            if ( getAbility().isDailyTrial() ) {
+                lore.add("");
+                lore.addAll(FlowerUtils.trialMessage);
+                lore.add("");
+            } else
+            if (getAbility().isTemporarilyAvailable()) {
+                lore.add("");
+                lore.addAll(FlowerUtils.alphaWarning);
+                lore.add("");
+            }
         }
+
+
 
 
 

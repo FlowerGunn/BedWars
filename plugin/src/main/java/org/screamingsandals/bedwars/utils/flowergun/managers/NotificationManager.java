@@ -3,12 +3,18 @@ package org.screamingsandals.bedwars.utils.flowergun.managers;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentBuilder;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.OwnedAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.Resource;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceChestReward;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 
 import java.util.ArrayList;
@@ -41,14 +47,14 @@ public class NotificationManager {
     public static ArrayList<String> getInsufficientMaterialsMessage() {
         ArrayList<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add( ColoursManager.gray + "[ " + ColoursManager.red + "画\uF804爲" + ColoursManager.gray + " ]");
+        lore.add( ColoursManager.gray + "[ " + ColoursManager.red + IconType.RED_LEFT.getIcon() + IconType.RED_RIGHT + ColoursManager.gray + " ]");
         return lore;
     }
 
-    public static ArrayList<String> getSufficientMaterialsMessage() {
+    public static ArrayList<String> getSufficientMaterialsMessage() {//夜
         ArrayList<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add( ColoursManager.gray + "[ " + ColoursManager.green + "夜\uF804亱" + ColoursManager.gray + " ]");
+        lore.add( ColoursManager.gray + "[ " + ColoursManager.green + IconType.GREEN_LEFT.getIcon() + IconType.GREEN_RIGHT.getIcon() + ColoursManager.gray + " ]");
         return lore;
     }
 
@@ -138,5 +144,49 @@ public class NotificationManager {
 
     public static void sendEventRewardMessage(String eventName, String reason, Player player) {
         player.sendMessage(IconsManager.green_excl + ColoursManager.gray + " Награда за событие " + ColoursManager.green + eventName + ColoursManager.gray + " (" + ColoursManager.light_blue + reason + ColoursManager.gray + ") :");
+    }
+
+    public static void abilityAutomaticallyLoaded(Player player, OwnedAbility ownedAbility, int level, int slot, AbilityCategory abilityCategory) {
+        if ( abilityCategory == null )
+            player.sendMessage(IconsManager.blue_excl + ColoursManager.gray + " Автоустановка : " + ChatColor.RESET + ownedAbility.getAbility().getNameWithIcon(ownedAbility.getOwner()) + ColoursManager.gray + " [ " + ColoursManager.darkGray + "?" + ColoursManager.gray + " ]");
+        else
+            player.sendMessage(IconsManager.blue_excl + ColoursManager.gray + " Автоустановка : " + ChatColor.RESET + ownedAbility.getAbility().getNameWithIcon(ownedAbility.getOwner()) + " " + abilityCategory.getFullName());
+    }
+
+    public static void abilitySelectionLockedMessage(Player player, int played, int required) {
+        player.sendMessage("");
+        player.sendMessage(IconsManager.yellow_excl + ColoursManager.yellow + " Сыграйте ещё " + ColoursManager.white + Math.max( required - played, 0 ) + ColoursManager.yellow + " игр, чтобы разблокировать выбор способностей." );
+        player.sendMessage("");
+    }
+
+    public static void sendListOfAbilitiesInChat(CommandSender messageReveiver, GamePlayer gamePlayer, int tickDelay, int ticksInterval) {
+        messageReveiver.sendMessage("   ");
+        new BukkitRunnable() {
+            int i = 0;
+            @Override
+            public void run() {
+                if ( i > 2 ) {
+                    this.cancel();
+                    return;
+                }
+
+                LoadedAbility loadedAbility = gamePlayer.loadedAbilities.get(i);
+                messageReveiver.sendMessage("   " + AbilitiesManager.formatLoadedAbilityNameInSlot(gamePlayer, i));
+                if (messageReveiver instanceof Player player)
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5F, 1.0F);
+                if (!loadedAbility.isEmpty()) {
+                    ArrayList<String> lore = loadedAbility.getOwnedAbility().getAbility().parseDescriptionOnly(loadedAbility.getActiveLevel(), i + 1);
+                    for ( String line : lore ) {
+                        messageReveiver.sendMessage("     " + line);
+                    }
+                }
+                messageReveiver.sendMessage("   ");
+
+                i++;
+            }
+        }.runTaskTimer(Main.getInstance(), tickDelay, ticksInterval);
+        for (int i = 0; i < gamePlayer.loadedAbilities.size(); i++) {
+
+        }
     }
 }

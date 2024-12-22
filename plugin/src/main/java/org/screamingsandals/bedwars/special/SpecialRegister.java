@@ -20,6 +20,7 @@
 package org.screamingsandals.bedwars.special;
 
 import org.bukkit.plugin.Plugin;
+import org.screamingsandals.bedwars.listener.ItemAdderLoadChecker;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.InventoryGUICleaner;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.InventoryGUIClickListener;
 import org.screamingsandals.bedwars.special.listener.*;
@@ -69,6 +70,13 @@ public class SpecialRegister {
         plugin.getServer().getPluginManager().registerEvents(new PhantomListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new BlazeListener(), plugin);
 
+        plugin.getServer().getPluginManager().registerEvents(new GhastListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new GuardianListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new HuskListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new StrayListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new SlimeListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new ShulkerListener(), plugin);
+
         plugin.getServer().getPluginManager().registerEvents(new ItemUseListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new MobSpawnListener(), plugin);
 
@@ -78,6 +86,10 @@ public class SpecialRegister {
         plugin.getServer().getPluginManager().registerEvents(new PlayerDeathTridentListener(), plugin);
 
         plugin.getServer().getPluginManager().registerEvents(new ProjectileProcessingEvent(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new UniversalMobTargetingListener(), plugin);
+
+        plugin.getServer().getPluginManager().registerEvents(new ItemAdderLoadChecker(), plugin);
     }
 
 }

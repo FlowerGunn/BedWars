@@ -28,7 +28,7 @@ public class Sniper extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.ECONOMIST);
         this.abilityCategories.add(AbilityCategory.RANGER);
 
-        this.description = "Попадание снарядом по противнику на дистанции минимум#(values2) блоков даст игроку 4 серебра.#Перезарядка: (values1) секунд";
+        this.description = "Попадание снарядом по противнику на дистанции минимум#(values2) блоков даст игроку 3 серебра.#Перезарядка: (values1) секунд";
         this.isOnCooldown = false;
     }
 
@@ -38,7 +38,7 @@ public class Sniper extends Ability implements IAbility {
     }
     @Override
     public int calculateIntValue2(int level) {
-        return 23 + -3 * level;
+        return 22 + -2 * level;
     }
 
     @Override
@@ -53,6 +53,8 @@ public class Sniper extends Ability implements IAbility {
 
         if (this.isOnCooldown) return;
 
+        if ( event.isCancelled() ) return;
+
         if ( event.getFinalDamage() > 0 && damageInstance.damageTarget == DamageTarget.PLAYER && damageInstance.damageRelay == DamageRelay.PROJECTILE)
 
             if (Main.isPlayerInGame(attacker)) {
@@ -62,17 +64,13 @@ public class Sniper extends Ability implements IAbility {
                 if ( attacker.getLocation().distance(victim.getLocation()) < calculateIntValue2(level) ) return;
 
                 ItemStack reward = Main.getSpawnerType("iron").getStack();
-                reward.setAmount(4);
+                reward.setAmount(3);
                 attacker.getInventory().addItem(reward);
                 playFXItemGained(attacker, 1);
                 notifyPlayerOnAbilityActivation(attacker);
 
-                this.isOnCooldown = true;
-                Player finalAttacker = attacker;
-                Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                    notifyPlayerOnCooldownEnd(finalAttacker);
-                    this.isOnCooldown = false;
-                },calculateIntValue1(level));
+
+                putOnCooldown(attacker,calculateIntValue1(level));
 
             }
 

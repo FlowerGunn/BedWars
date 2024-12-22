@@ -73,7 +73,7 @@ public class ResourceManager {
             GamePlayer gamePlayer = Main.getPlayerGameProfile(Bukkit.getPlayer(uniqueId));
             OwnedResource preloadedOwnedResource = gamePlayer.ownedResourceBundle.getOwnedResource(resourceType);
             if ( preloadedOwnedResource == null || preloadedOwnedResource.getAmount() != dbOwnedResource.getAmount() ) {
-                Bukkit.getConsoleSender().sendMessage("DB resource amount mismatch - " + dbOwnedResource.getType() + " - db=" + dbOwnedResource.getAmount() + " gp=" + preloadedOwnedResource.getAmount());
+                Bukkit.getConsoleSender().sendMessage("DB resource amount mismatch - " + dbOwnedResource.getType() + " - db=" + dbOwnedResource.getAmount() + " gp=??");
                 gamePlayer.ownedResourceBundle.getOwnedResource(resourceType).amount = dbOwnedResource.getAmount();
             }
         }
@@ -104,6 +104,6 @@ public class ResourceManager {
     }
 
     public boolean isIdValid(String resourceId) {
-        return ResourceType.valueOf(resourceId) == null ? false : true;
+        return ResourceType.valueOf(resourceId) != null;
     }
 }

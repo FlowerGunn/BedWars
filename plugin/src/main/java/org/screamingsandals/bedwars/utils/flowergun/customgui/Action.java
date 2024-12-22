@@ -2,7 +2,6 @@ package org.screamingsandals.bedwars.utils.flowergun.customgui;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,16 +11,12 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.Team;
-import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ActiveForgeRecipe;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.RecipeBook;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.Resource;
-import org.screamingsandals.bedwars.utils.flowergun.managers.ForgeManager;
 import org.screamingsandals.bedwars.utils.flowergun.managers.NotificationManager;
 import org.screamingsandals.bedwars.utils.flowergun.managers.ResourceManager;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.MenuType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.Shop;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.ShopCategory;
@@ -36,7 +31,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import static org.screamingsandals.bedwars.game.Game.ALL_ABILITIES_MODE;
 import static org.screamingsandals.bedwars.lib.lang.I.i18n;
 
 public class Action {
@@ -211,7 +205,7 @@ public class Action {
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
                 }
                 else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.8F, 1.0F);
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.2F, 1.0F);
                 }
 
                 ArrayList<GamePlayer> gamePlayers = new ArrayList<>(game.getConnectedGamePlayers());
@@ -248,7 +242,7 @@ public class Action {
                     gamePlayer.resetLoadedAbility( chosenAbility );
 
 
-                    int effectiveOwnedLevel = Main.getConfigurator().config.getBoolean(ALL_ABILITIES_MODE) ? 3 : chosenAbility.ownedLevel;
+                    int effectiveOwnedLevel = chosenAbility.getAbility().isTemporarilyAvailable() ? 3 : chosenAbility.ownedLevel;
 
                     int level = Math.min( effectiveOwnedLevel, slot + 1 );
                     loadedAbilities.set(slot, new LoadedAbility( chosenAbility, level ));
@@ -256,9 +250,12 @@ public class Action {
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
                     CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
                     customGUI.load();
+
+                    game.updateScoreboard( gamePlayer );
+
                 }
                 else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.8F, 1.0F);
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.2F, 1.0F);
                 }
 
                 break;
@@ -268,17 +265,67 @@ public class Action {
                 int slot = Integer.parseInt(arg);
                 GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
 
+                gamePlayer.loadedAbilities.set(slot, LoadedAbility.getEmptyLoadedAbility());
                 gamePlayer.randomlySelectAbilityInSlot(slot);
+
 
                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
                 CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
                 customGUI.load();
+
+                gamePlayer.getGame().updateScoreboard( gamePlayer );
                 break;
             }
             case "RANDOMIZE_ALL_ABILITIES": {
                 GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
 
+                gamePlayer.loadedAbilities.set(0, LoadedAbility.getEmptyLoadedAbility());
+                gamePlayer.loadedAbilities.set(1, LoadedAbility.getEmptyLoadedAbility());
+                gamePlayer.loadedAbilities.set(2, LoadedAbility.getEmptyLoadedAbility());
                 gamePlayer.randomlySelectAllAbilities();
+
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
+                CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
+                customGUI.load();
+                gamePlayer.getGame().updateScoreboard( gamePlayer );
+                break;
+            }
+            case "RANDOMIZE_ALL_ABILITIES_BY_CATEGORY": {
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+
+                gamePlayer.loadedAbilities.set(0, LoadedAbility.getEmptyLoadedAbility());
+                gamePlayer.loadedAbilities.set(1, LoadedAbility.getEmptyLoadedAbility());
+                gamePlayer.loadedAbilities.set(2, LoadedAbility.getEmptyLoadedAbility());
+
+                gamePlayer.randomlySelectAllAbilitiesFromCategory(AbilityCategory.valueOf(arg));
+
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
+                CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
+                customGUI.load();
+                gamePlayer.getGame().updateScoreboard( gamePlayer );
+                break;
+            }
+            case "SWITCH_SETTING": {
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+
+                PlayerConfigType type = PlayerConfigType.valueOf(arg);
+
+                boolean config = gamePlayer.getSetting(type);
+
+                gamePlayer.setSetting( type, !config ? "1" : "0" );
+
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
+                CustomGUI customGUI = new CustomGUI(player, "SETTINGS");
+                customGUI.load();
+                break;
+            }
+            case "SWITCH_SIMPLE_ABILITY_SELECTION": {
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+
+
+                boolean config = gamePlayer.getSetting(PlayerConfigType.SIMPLIFIED_ABILITY_SELECTION);
+
+                gamePlayer.setSetting( PlayerConfigType.SIMPLIFIED_ABILITY_SELECTION, !config ? "1" : "0" );
 
                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
                 CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
@@ -378,7 +425,7 @@ public class Action {
                 break;
             }
             case "ERROR": {
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.8F, 1.0F);
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.2F, 1.0F);
                 break;
             }
             default: {

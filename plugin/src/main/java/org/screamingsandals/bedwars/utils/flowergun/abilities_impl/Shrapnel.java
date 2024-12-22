@@ -29,8 +29,9 @@ public class Shrapnel extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.DEMOLITIONIST);
         this.abilityCategories.add(AbilityCategory.PYROTECHNIC);
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.RANGER);
 
-        this.description = "Весь ваш взрывной урон уменьшает#броню противников на 2 ед. и замедляет#их на -(values1)% на 2 секунды.";
+        this.description = "Весь ваш взрывной урон уменьшает#броню противников на 4 ед. и замедляет#их на -(values1)% на 2 секунды.";
     }
 
     @Override
@@ -54,7 +55,7 @@ public class Shrapnel extends Ability implements IAbility {
                 GamePlayer gAttacker = Main.getPlayerGameProfile(attacker);
                 GamePlayer gVictim = Main.getPlayerGameProfile((Player) event.getEntity());
                 gVictim.addCustomStatusEffect(new CustomStatusEffect("shrapnel_slow", gVictim, gAttacker, Attribute.GENERIC_MOVEMENT_SPEED, new CompoundValueModifier(0, 0,  calculateIntValue1(level) * -0.01), 40, false));
-                gVictim.addCustomStatusEffect(new CustomStatusEffect("shrapnel_armor", gVictim, gAttacker, Attribute.GENERIC_ARMOR, new CompoundValueModifier(-2, 0,  0), 40, false));
+                gVictim.addCustomStatusEffect(new CustomStatusEffect("shrapnel_armor", gVictim, gAttacker, Attribute.GENERIC_ARMOR, new CompoundValueModifier(-4, 0,  0), 40, false));
                 playFXDebuff(gVictim.player, 1);
                 playFXSlow(gVictim.player, 1);
 

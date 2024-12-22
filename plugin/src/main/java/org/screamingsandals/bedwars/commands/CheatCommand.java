@@ -53,7 +53,7 @@ public class CheatCommand extends BaseCommand {
 
 
 //        Bukkit.getConsoleSender().sendMessage("Arg0 = " + args.get(0));
-        if (args.get(0).equalsIgnoreCase("setcountdown")) {
+        if (args.size() > 0 && args.get(0).equalsIgnoreCase("setcountdown")) {
 
             if (args.size() < 2 || args.size() > 3) {
                 sender.sendMessage(i18n("unknown_usage"));
@@ -83,6 +83,29 @@ public class CheatCommand extends BaseCommand {
             return true;
         }
 
+        if (args.get(0).equalsIgnoreCase("rerollTrials")) {
+
+            if ( args.size() > 1 ) {
+                int seed = Integer.parseInt(args.get(1));
+                Main.getAbilitiesManager().generateDailyTrialAbilities(seed);
+            } else Main.getAbilitiesManager().generateDailyTrialAbilities();
+            return true;
+        }
+
+        if (args.get(0).equalsIgnoreCase("leave")) {
+            if ( sender instanceof Player player ) {
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+                Game game = gamePlayer.getGame();
+
+                if ( game != null ) {
+                    game.internalLeavePlayer(gamePlayer);
+                    gamePlayer.game = null;
+                    gamePlayer.clean();
+                    Game.clearScoreboard(player);
+                }
+
+            }
+        }
 
         if (args.size() >= 1) {
             Player player = (Player) sender;
@@ -199,7 +222,7 @@ public class CheatCommand extends BaseCommand {
         }
 
         if (args.size() == 1) {
-            completion.addAll(Arrays.asList("give", "kill", "startemptygame","setcountdown","tpall"));
+            completion.addAll(Arrays.asList("give", "kill", "startemptygame","setcountdown","tpall", "leave", "rerollTrials"));
         } else if (args.get(0).equals("setcountdown") && args.size() == 2) {
             completion.addAll(Main.getGameNames());
         }

@@ -35,6 +35,7 @@ import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
 import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
 
 import static org.screamingsandals.bedwars.lib.lang.I.i18nc;
 
@@ -88,20 +89,22 @@ public class WarpPowder extends SpecialItem implements org.screamingsandals.bedw
             public void run() {
                 if (teleportingTime == 0) {
                     cancelTeleport(false);
-                    if (item.getAmount() > 1) {
-                        item.setAmount(item.getAmount() - 1);
-                    } else {
-                        try {
-                            if (player.getInventory().getItemInOffHand().equals(item)) {
-                                player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
-                            } else {
+                    if ( !Main.getPlayerGameProfile(player).hasFlag(GameFlag.FREE_TP) ) {
+                        if (item.getAmount() > 1) {
+                            item.setAmount(item.getAmount() - 1);
+                        } else {
+                            try {
+                                if (player.getInventory().getItemInOffHand().equals(item)) {
+                                    player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+                                } else {
+                                    player.getInventory().remove(item);
+                                }
+                            } catch (Throwable e) {
                                 player.getInventory().remove(item);
                             }
-                        } catch (Throwable e) {
-                            player.getInventory().remove(item);
                         }
+                        player.updateInventory();
                     }
-                    player.updateInventory();
                     Triggers.gadgetUsed(player, GadgetType.TP);
                     PlayerUtils.teleportPlayer(player, team.getTeamSpawn());
                     player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.8F);

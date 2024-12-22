@@ -2,13 +2,17 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.Game;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.DamageInstance;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
@@ -27,11 +31,13 @@ public class Trader extends Ability implements IAbility {
         this.id = "trader";
         this.item = Material.GOLD_NUGGET;
         this.icon = IconType.GOLD_INGOT;
+        this.stacks = 0;
+        this.maxStacks = 10;
 
         this.abilityCategories.add(AbilityCategory.GUARDIAN);
         this.abilityCategories.add(AbilityCategory.ECONOMIST);
 
-        this.description = "Игрок получает эффект Сопротивления 2 на (values2)#секунд при любой покупке в магазине, а также#имеет шанс в (values1)% вернуть 1 золото при#покупке любого предмета требующего золото.";
+        this.description = "Игрок имеет шанс в (values1)% вернуть 1 золото при#покупке любого предмета требующего золото. Срабатывание#навыка даёт игроку заряд Торгаша, который уменьшает#весь получаемый урон на 1% за заряд.#Максимум 10 зарядов.";
     }
 
     @Override
@@ -40,10 +46,10 @@ public class Trader extends Ability implements IAbility {
     }
 
 
-    @Override
-    public int calculateIntValue2(int level) {
-        return 200 + level * 60;
-    }
+//    @Override
+//    public int calculateIntValue2(int level) {
+//        return 20*20 + level * 20 * 3;
+//    }
 
 
     @Override
@@ -51,6 +57,19 @@ public class Trader extends Ability implements IAbility {
         return "" + calculateIntValue2(level) / 20;
     }
 
+    public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
+        if (!(event instanceof EntityDamageByEntityEvent)) return;
+
+        if (event.isCancelled()) return;
+
+//        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
+        if (Main.isPlayerInGame(victim)) {
+            if (victim.isBlocking() && event.getFinalDamage() == 0) {
+                playFXDefensiveUtility(victim, 1);
+                compoundValueModifier.addExp(-0.01 * stacks);
+            }
+        }
+    }
 
     @Override
     public void shopPurchase(int level, Game game, Player player, PurchasableItem item, int amount) {
@@ -65,7 +84,13 @@ public class Trader extends Ability implements IAbility {
             ItemStack discount = Main.getSpawnerType("gold").getStack();
 
             for ( int i = 0; i < amount; i++ ) {
-                if ( random.nextInt(100) < chance ) player.getInventory().addItem(discount);
+                if ( random.nextInt(100) < chance ) {
+                    player.getInventory().addItem(discount);
+                    if ( stacks < maxStacks ) {
+                        this.stacks++;
+                        notifyPlayerOnAbilityActivation(player);
+                    }
+                }
             }
         }
     }

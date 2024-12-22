@@ -25,6 +25,9 @@ import org.bukkit.entity.Player;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.game.Game;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.screamingsandals.bedwars.lib.lang.I.i18n;
@@ -38,7 +41,7 @@ public class AllJoinCommand extends BaseCommand {
     @Override
     public boolean execute(CommandSender sender, List<String> args) {
         Game game = null;
-        if (args.size() == 1) {
+        if (args.size() >= 1) {
             String arenaName = args.get(0);
             if (Main.isGameExists(arenaName)) {
                 game = Main.getGame(arenaName);
@@ -53,16 +56,34 @@ public class AllJoinCommand extends BaseCommand {
         }
 
         final Game finalGame = game;
-        for ( Player player : Bukkit.getOnlinePlayers() ) {
-            if (player.hasPermission("bw.disable.joinall")) {
-                continue;
-            }
 
-            if (Main.isPlayerInGame(player)) {
-                continue;
-//                Main.getPlayerGameProfile(player).getGame().leaveFromGame(player);
+        if ( args.size() == 2) {
+            if ( args.get(1).equals("*") ){
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    sender.sendMessage("Sending " + player.getName() + " to arena " + game.getName());
+                    finalGame.joinToGame(player);
+                }
+            } else {
+                ArrayList<String> players = new ArrayList<>(Arrays.asList(args.get(1).split(",")));
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (players.contains(player.getName())) {
+                        sender.sendMessage("Sending " + player.getName() + " to arena " + game.getName());
+                        finalGame.joinToGame(player);
+                    }
+                }
             }
-            finalGame.joinToGame(player);
+        } else {
+            for ( Player player : Bukkit.getOnlinePlayers() ) {
+                if (player.hasPermission("bw.disable.joinall")) {
+                    continue;
+                }
+
+                if (Main.isPlayerInGame(player)) {
+                    continue;
+//                Main.getPlayerGameProfile(player).getGame().leaveFromGame(player);
+                }
+                finalGame.joinToGame(player);
+            }
         }
 
         return true;

@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.ItemStack;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
@@ -28,21 +29,24 @@ public class Anger extends Ability implements IAbility {
         this.icon = IconType.INCREASE_DAMAGE;
 
         this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.SCOUT);
+        this.abilityCategories.add(AbilityCategory.BULLDOZER);
 
-        this.description = "Когда игрока убивает противник, игрок начинает#сильно злиться. Под статусом Злобы игрок наносит#на (values1)% больше урона своему убийце или на (values2)%#больше любому союзнику убийцы. Злоба кончается#когда игрок совершает любое убийство.";
+        this.description = "Когда игрока убивает противник, игрок начинает#сильно злиться. Под статусом Злобы игрок наносит#на (values1)% больше урона своему убийце#или любому союзнику убийцы.#Длительность Злобы: (values2) секунд.";
         this.revengeTarget = null;
     }
 
     private GamePlayer revengeTarget;
+    private int chargedTimestamp;
 
     @Override
     public int calculateIntValue1(int level) {
-        return 17 + 3 * level;
+        return 13 + 2 * level;
     }
 
     @Override
     public int calculateIntValue2(int level) {
-        return 10 + 2 * level;
+        return 60 + 20 * level;
     }
 
 
@@ -57,6 +61,13 @@ public class Anger extends Ability implements IAbility {
     }
 
     @Override
+    public void playerRespawn(int level, GamePlayer gamePlayer) {
+
+        this.chargedTimestamp = gamePlayer.getGame().countdown;
+
+    }
+
+    @Override
     public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
 
         if (event.isCancelled()) return;
@@ -64,18 +75,17 @@ public class Anger extends Ability implements IAbility {
         GamePlayer gAttacker = Main.getPlayerGameProfile(attacker);
 
         if ( damageInstance.damageTarget == DamageTarget.PLAYER ) {
-
-            GamePlayer gVictim = Main.getPlayerGameProfile((Player) event.getEntity());
             Game game = gAttacker.getGame();
 
-            if ( gVictim == this.revengeTarget ) {
-                compoundValueModifier.addExp(calculateIntValue1(level) * 0.01 );
-                playFXDamage(gVictim.player, 2);
-            } else if ( game.getPlayerTeam(gAttacker) == game.getPlayerTeam(gVictim) ) {
-                compoundValueModifier.addExp(calculateIntValue2(level) * 0.01 );
-                playFXDamage(gVictim.player, 1);
-            }
+            if ( this.chargedTimestamp - game.countdown <= calculateIntValue2(level) ) {
 
+                GamePlayer gVictim = Main.getPlayerGameProfile((Player) event.getEntity());
+                if (game.getPlayerTeam(gAttacker) == game.getPlayerTeam(gVictim)) {
+                    compoundValueModifier.addExp(calculateIntValue1(level) * 0.01);
+                    playFXDamage(gVictim.player, 1);
+                }
+
+            }
         }
 
     }

@@ -60,7 +60,7 @@ public class SnowballListener implements Listener {
                     else victim.setVelocity( snowball.getVelocity().clone().multiply( 0.8 * Math.max(1.0 - victim.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue(), 0.0 ) ));
 
                     gamePlayerShooter.incomingDealtDamageInstance = new DamageInstance(DamageSource.PLAYER, DamageTarget.PLAYER, DamageRelay.PROJECTILE, DamageType.SNOWBALL);
-
+                    gamePlayerShooter.incomingDealtDamageInstance.relayEntity = snowball;
                     victim.damage(damage, shooter);
 //                    Bukkit.getConsoleSender().sendMessage( "knockback res " + victim.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue() + "");
 

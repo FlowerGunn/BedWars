@@ -1,5 +1,6 @@
 package org.screamingsandals.bedwars.utils.flowergun;
 
+import dev.lone.itemsadder.api.CustomStack;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -51,7 +52,7 @@ public class FlowerUtils {
     public static int snowballColldown = 80;
     public static double snowballDamage = 3.5;
     public static int deathmatchWarning = 60;
-    public static double golemDamage = 5;
+    public static double golemDamage = 1;
     public static double zoglinDamage = 3;
     public static double phantomDamage = 6;
     public static double blazeDamage = 3;
@@ -81,6 +82,16 @@ public class FlowerUtils {
     public static int bonusBookChance1 = 100;
     public static int bonusBookChance2 = 80;
     public static ArrayList<Material> flowers = new ArrayList<>();
+    public static double universalFollowRange = 20;
+    public static int unlockAbilitySelectionGamesPlayedRequirement = 5;
+    public static int unlockResourcesGamesPlayedRequirement = 10;
+    public static int unlockForgeGamesPlayedRequirement = 15;
+    public static double huskDamage = 5;
+    public static double strayDamage = 7;
+    public static double slimeDamage = 4;
+    public static double shulkerDamage = 4;
+    public static double ghastDamage = 3;
+    public static double guardianDamage = 8;
 
     public boolean destroyResources;
 
@@ -97,8 +108,10 @@ public class FlowerUtils {
     public static final int axesChance = 80;
     public static final int swordsChance = 40;
     public static int swordOnShieldCooldown = 40;
-    public static String versionName = "0.1";
-    public static List<String> alphaWarning = Arrays.asList(ColoursManager.darkRed + "" + ChatColor.BOLD + "ПРИВАТНЫЙ СЕРВЕР!!!", ColoursManager.darkRed + "Всем игрокам доступны все", ColoursManager.darkRed + "способности на максимальном уровне.");
+    public static String versionName = "0.2.4";
+    public static int trialAbilitiesPool = 3;
+    public static List<String> alphaWarning = Arrays.asList(ColoursManager.green + "" + "Способность временно", ColoursManager.green + "в Нелимитированном Режиме", ColoursManager.green + "   !!!   !!!   !!!   !!!   !!!   ");
+    public static List<String> trialMessage = Arrays.asList(ColoursManager.yellow + "" + "Ежедневная ротация!", ColoursManager.orange + "Способность временно", ColoursManager.orange + "в Нелимитированном Режиме");
 
     public static DecimalFormat singleDecimal = new DecimalFormat("#.#");
     public static DecimalFormat doubleDecimal = new DecimalFormat("#.##");
@@ -316,6 +329,10 @@ public class FlowerUtils {
         allowedRecipes.add(Material.SMOOTH_SANDSTONE_STAIRS);
         allowedRecipes.add(Material.CHISELED_SANDSTONE);
 
+        allowedRecipes.add(Material.IRON_BARS);
+        allowedRecipes.add(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
+        allowedRecipes.add(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
+
         flowers.add(Material.BLUE_ORCHID);
         flowers.add(Material.ORANGE_TULIP);
         flowers.add(Material.PINK_TULIP);
@@ -343,129 +360,24 @@ public class FlowerUtils {
     //ev3 20em 10gold 3iron 1br
 
     public static void firstEventRun(Game game) {
-        List<ItemSpawner> itemSpawners = new ArrayList<>(game.unsafeGetItemSpawners());
-        for (ItemSpawner itemSpawner: itemSpawners) {
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("gold")) itemSpawner.setInterval(30);
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("emerald")) itemSpawner.setInterval(60);
-        }
-
-        for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ChatColor.GOLD + i18n("event1_text", "Gold and Emerald activated!", false), 5, 40, 5);
-        }
-//        Bukkit.getConsoleSender().sendMessage("event1 happened " + game.gameFlags.size() + " "  + game.gameFlags);
-        game.gameFlags.add(GameFlag.GOLD_AND_EMERALDS_SPAWN);
-
-//        Bukkit.getConsoleSender().sendMessage("event1 end " + game.gameFlags.size() + " " + game.gameFlags);
-
-        BossBar bossbar = (BossBar) game.statusbar;
-        if (bossbar instanceof BossBar19) {
-            BossBar19 bossbar19 = (BossBar19) bossbar;
-//            bossbar19.setColor(BarColor.WHITE);
-//            bossbar19.setMessage("Stage 2: Gold and Emerald Spawn");
-            bossbar19.setMessage(i18nonly("event1_bossbar"));
-        }
-
-        Bukkit.getConsoleSender().sendMessage("Спавн золота на арене " + game.getName());
 
     }
 
     public static void secondEventRun(Game game) {
-        List<ItemSpawner> itemSpawners = new ArrayList<>(game.unsafeGetItemSpawners());
-        for (ItemSpawner itemSpawner: itemSpawners) {
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("gold")) itemSpawner.setInterval(20);
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("emerald")) itemSpawner.setInterval(40);
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("iron")) itemSpawner.setInterval(6);
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("bronze")) itemSpawner.setInterval(1);
-        }
 
-        BossBar bossbar = (BossBar) game.statusbar;
-        if (bossbar instanceof BossBar19) {
-            BossBar19 bossbar19 = (BossBar19) bossbar;
-//            bossbar19.setColor(BarColor.WHITE);
-//            bossbar19.setMessage("Stage 3: Generators Speed Up");
-            bossbar19.setMessage(i18nonly("event2_bossbar"));
-        }
-
-        for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ChatColor.GOLD + i18n("event2_text", "Gold and Emerald sped UP!", false), 5, 40, 5);
-        }
-
-        Bukkit.getConsoleSender().sendMessage("Ускорение генераторов на арене " + game.getName());
     }
 
     public static void thirdEventRun(Game game) {
-        List<ItemSpawner> itemSpawners = new ArrayList<>(game.unsafeGetItemSpawners());
-        for (ItemSpawner itemSpawner: itemSpawners) {
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("gold")) itemSpawner.setInterval(10);
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("emerald")) itemSpawner.setInterval(20);
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("iron")) itemSpawner.setInterval(3);
-            if (itemSpawner.getItemSpawnerType().getConfigKey().equals("bronze")) itemSpawner.setInterval(1);
-        }
 
-        BossBar bossbar = (BossBar) game.statusbar;
-        if (bossbar instanceof BossBar19) {
-            BossBar19 bossbar19 = (BossBar19) bossbar;
-//            bossbar19.setColor(BarColor.WHITE);
-//            bossbar19.setMessage("Stage 4: Generators Overload");
-            bossbar19.setMessage(i18nonly("event3_bossbar"));
-        }
-
-        for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ChatColor.GOLD + i18n("event3_text", "Gold and Emerald on OVERDRIVE!", false), 5, 40, 5);
-        }
-
-        Bukkit.getConsoleSender().sendMessage("Перегрев генераторов на арене " + game.getName());
     }
 
     public static void deathmatchStart(Game game) {
-        Bukkit.getConsoleSender().sendMessage("deathmatch happened " + game.deathmatchStart + " " + game.deathmatchTime);
-        BossBar bossbar = (BossBar) game.statusbar;
 
-        game.arenaRadius = Math.max(Math.abs(game.getPos1().getBlockX() - game.getPos2().getBlockX()), Math.abs(game.getPos1().getBlockZ() - game.getPos2().getBlockZ())) / 2;
-
-        game.arenaCeiling = Math.max(game.getPos1().getBlockY(), game.getPos2().getBlockY());
-        game.arenaFloor = Math.min(game.getPos1().getBlockY(), game.getPos2().getBlockY());
-
-//        game.currentCeiling = game.arenaCeiling;
-//        game.currentFloor = game.arenaFloor;
-//        game.currentRadius = game.arenaRadius;
-
-        game.isDeathmatch = true;
-
-        game.breakAllBeds();
-
-        game.currentDeathmatchProgress = (double) game.deathmatchTime / (game.countdown - game.deathmatchStart);
-
-        if (bossbar instanceof BossBar19) {
-            BossBar19 bossbar19 = (BossBar19) bossbar;
-            bossbar19.setColor(BarColor.PURPLE);
-//            bossbar19.setMessage("Stage 5: Deathmatch");
-            bossbar19.setMessage(i18nonly("event_deathmatch_bossbar"));
-        }
-
-        for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ChatColor.GOLD + i18n("event_deathmatch_text", "Deathmatch!", false), 5, 40, 5);
-            player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 1.0F);
-        }
 
     }
 
     public static void deathmatchEnd(Game game) {
 
-        game.isAnnihilation = true;
-
-        Bukkit.getConsoleSender().sendMessage("deathmatch end");
-        BossBar bossbar = (BossBar) game.statusbar;
-        if (bossbar instanceof BossBar19) {
-            BossBar19 bossbar19 = (BossBar19) bossbar;
-            bossbar19.setColor(BarColor.PINK);
-//            bossbar19.setMessage("Stage 6: Annihilation");
-            bossbar19.setMessage(i18nonly("event_annihilation_bossbar"));
-        }
-        for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ColoursManager.annihilation + i18n("event_annihilation_text", "Annihilation!", false), 5, 40, 5);
-            player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0F, 1.0F);
-        }
     }
 
 
@@ -561,8 +473,8 @@ public class FlowerUtils {
                     gamePlayer.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 0));
                     if (!game.isAnnihilation) {
                         if ( gamePlayer.player.getHealth() > gamePlayer.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * ( 1 - game.currentDeathmatchProgress )  ) {
-                            gamePlayer.player.damage(4);
                             gamePlayer.player.setHealth( Math.min(gamePlayer.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * ( 1 - game.currentDeathmatchProgress ) + 1, gamePlayer.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() ) );
+                            gamePlayer.player.damage(4);
                             gamePlayer.player.playSound( location, Sound.ENTITY_PLAYER_HURT, 0.2F, 1.0F);
                         }
                     }
@@ -630,16 +542,10 @@ public class FlowerUtils {
     }
 
     public static void deathmatchWarning(Game game) {
-        for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ColoursManager.purple + i18n("event_deathmatch_warning", "Deathmatch in 60 seconds!", false), 5, 80, 5);
-            player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0F, 1.0F);
-        }
+
     }
     public static void deathmatchWarning2(Game game) {
-        for (Player player : game.getConnectedPlayers()) {
-            player.sendTitle("", ColoursManager.purple + i18n("event_deathmatch_warning2", "Deathmatch in 180 seconds!", false), 5, 80, 5);
-            player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0F, 1.0F);
-        }
+
     }
 
 
@@ -651,11 +557,19 @@ public class FlowerUtils {
         return itemStack;
     }
 
+    public static ItemStack getAbilitiesMenuLockedItemStack() {
+        ItemStack itemStack = CustomStack.getInstance("anicloud:slot_locked").getItemStack();
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName(i18nonly("abilities_menu_locked_item_name"));
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
     public static int calculateRespawnTime(Game game) {
 
         double percentComplete = (double) ( game.getGameTime() - game.countdown ) / game.getGameTime();
 
-        return (int) Math.floor( percentComplete * 10 + 3 );
+        return (int) Math.floor( percentComplete * 12 + 5 );
 
 
     }

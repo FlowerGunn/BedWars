@@ -50,7 +50,7 @@ public class ElytraBlocker extends BukkitRunnable {
             player.getLocation().getWorld().spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, player.getLocation(), 5, 1, 1, 1, 0);
 
 
-            if (timer == allowedDuration) {
+            if (timer >= allowedDuration) {
                 player.setGliding(false);
                 gamePlayer.blockElytra = true;
                 player.sendTitle("", net.md_5.bungee.api.ChatColor.GRAY + "...энергия иссякла...", 5, 20, 5);
@@ -60,8 +60,8 @@ public class ElytraBlocker extends BukkitRunnable {
         }
         else {
 
-            Location location = player.getLocation().clone();
-            location.add(0, -1, 0);
+//            Location location = player.getLocation().clone();
+//            location.add(0, -1, 0);
 
 //            if (location.getBlock().getType() == Material.AIR) {
             if (!player.isOnGround()) {

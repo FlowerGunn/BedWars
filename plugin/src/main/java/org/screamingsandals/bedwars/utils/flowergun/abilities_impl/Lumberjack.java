@@ -29,12 +29,12 @@ public class Lumberjack extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.SCOUT);
         this.abilityCategories.add(AbilityCategory.BUILDER);
 
-        this.description = "Покупка деревянных блоков в магазине стоит#на (values2) ресурсов дешевле. Ломая деревянные блоки#игрок получает эффект Спешки 3 на (values1) секунд#и восполняет себе (values3) ед. сытости.";
+        this.description = "Покупка деревянных блоков в магазине стоит#на (values2) ресурсов дешевле. Ломая деревянные блоки#игрок получает эффект Спешки 1 на (values1) секунд#и восполняет себе (values3) ед. сытости.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 40 + level * 40;
+        return 80 + level * 20;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class Lumberjack extends Ability implements IAbility {
         if (material.contains("LOG") || material.contains("PLANKS") || material.contains("FENCE") || material.contains("GATE")) {
 
 
-            event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 2, false, false));
+            event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 1, false, false));
             Ability.healFood( event.getPlayer(), event.getPlayer(), 0, calculateDoubleValue1(level) );
             notifyPlayerOnAbilityActivation(event.getPlayer());
 

@@ -26,10 +26,12 @@ public class EagleEye extends Ability implements IAbility {
         this.rarity = 3;
         this.icon = IconType.BLINDNESS;
 
+        this.abilityCategories.add(AbilityCategory.ARCHER);
+        this.abilityCategories.add(AbilityCategory.RANGER);
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
         this.abilityCategories.add(AbilityCategory.SUPPORT);
 
-        this.description = "Попадание снарядом по противнику под эффектом#Свечения или Левитации снизит их защиту#на 3 ед. на (values1) секунд.";
+        this.description = "Попадание снарядом по противнику под эффектом#Свечения или Левитации снизит их защиту#на 4 ед. на (values1) секунд.";
         this.isOnCooldown = false;
     }
 
@@ -57,7 +59,7 @@ public class EagleEye extends Ability implements IAbility {
                 if ( victim.hasPotionEffect(PotionEffectType.LEVITATION) || victim.hasPotionEffect(PotionEffectType.GLOWING) ) {
 
                     GamePlayer gVictim = Main.getPlayerGameProfile(victim);
-                    gVictim.addCustomStatusEffect(new CustomStatusEffect("eagle_eye", gVictim, Main.getPlayerGameProfile(attacker), Attribute.GENERIC_ARMOR, new CompoundValueModifier(-3, 0, 0), calculateIntValue1(level), false));
+                    gVictim.addCustomStatusEffect(new CustomStatusEffect("eagle_eye", gVictim, Main.getPlayerGameProfile(attacker), Attribute.GENERIC_ARMOR, new CompoundValueModifier(-4, 0, 0), calculateIntValue1(level), false));
                     playFXDebuff(victim, 2);
                     notifyPlayerOnAbilityActivation(attacker);
 

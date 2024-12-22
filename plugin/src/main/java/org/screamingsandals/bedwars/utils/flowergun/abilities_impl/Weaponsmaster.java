@@ -29,8 +29,9 @@ public class Weaponsmaster extends Ability implements IAbility {
 
         this.abilityCategories.add(AbilityCategory.RANGER);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
+        this.abilityCategories.add(AbilityCategory.SNOWMAN);
 
-        this.description = "После попадания полностью заряженной атакой#в ближнем бою cледующая дальняя атака#в течении (values1) секунд нанесёт#2,5ед. бонусного урона.";
+        this.description = "После попадания дальней атакой#cледующая атака в ближнем бою#в течении (values1) секунд нанесёт#3ед. бонусного урона.";
         this.isOnCooldown = false;
     }
 
@@ -49,27 +50,7 @@ public class Weaponsmaster extends Ability implements IAbility {
 //        if (this.isOnCooldown) return;
 
         if ( event.getFinalDamage() > 0 )
-        if ( FlowerUtils.isPlayersWeaponFullyCharged(attacker) && damageInstance.damageRelay == DamageRelay.MELEE) {
-            if (Main.isPlayerInGame(attacker)) {
-
-                LivingEntity victim = (LivingEntity) event.getEntity();
-
-//                if ( attacker.getLocation().distance(victim.getLocation()) < calculateIntValue2(level) ) return;
-//                ItemStack reward = Main.getSpawnerType("iron").getStack();
-//                attacker.getInventory().addItem(reward);
-
-                this.charged = true;
-                this.chargedTimestamp = Main.getPlayerGameProfile(attacker).getGame().countdown;
-
-//                this.isOnCooldown = true;
-//                Player finalAttacker = attacker;
-//                Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-//                    notifyPlayerOnCooldownEnd(finalAttacker);
-//                    this.isOnCooldown = false;
-//                },calculateIntValue1(level));
-            }
-        }
-        else if ( damageInstance.damageRelay == DamageRelay.PROJECTILE) {
+        if ( damageInstance.damageRelay == DamageRelay.MELEE) {
             if (Main.isPlayerInGame(attacker)) {
 
                 if ( this.charged && this.chargedTimestamp - Main.getPlayerGameProfile(attacker).getGame().countdown <= calculateIntValue1(level)) {
@@ -79,8 +60,15 @@ public class Weaponsmaster extends Ability implements IAbility {
                     playFXDamage(victim, 1);
                     notifyPlayerOnAbilityActivation(attacker);
 
-                    compoundValueModifier.addDouble(2.5);
+                    compoundValueModifier.addDouble(3);
                 }
+
+            }
+        }
+        else if ( damageInstance.damageRelay == DamageRelay.PROJECTILE) {
+            if (Main.isPlayerInGame(attacker)) {
+                this.charged = true;
+                this.chargedTimestamp = Main.getPlayerGameProfile(attacker).getGame().countdown;
 
             }
         }

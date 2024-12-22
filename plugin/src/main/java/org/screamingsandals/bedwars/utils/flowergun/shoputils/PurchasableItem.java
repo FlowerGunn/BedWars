@@ -14,6 +14,7 @@ import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomItem;
 import org.screamingsandals.bedwars.game.*;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ItemCategory;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
@@ -291,19 +292,19 @@ public class PurchasableItem {
 
         switch (net.md_5.bungee.api.ChatColor.stripColor(buyFor1.getItemMeta().getDisplayName())) {
             case "Медь": {
-                icon = i18nonly("resource_bronze_icon");
+                icon = IconType.COPPER_INGOT.getIcon();
                 break;
             }
             case "Железо": {
-                icon = i18nonly("resource_iron_icon");
+                icon = IconType.IRON_INGOT.getIcon();
                 break;
             }
             case "Золото": {
-                icon = i18nonly("resource_gold_icon");
+                icon = IconType.GOLD_INGOT.getIcon();
                 break;
             }
             case "Изумруд": {
-                icon = i18nonly("resource_emerald_icon");
+                icon = IconType.EMERALD.getIcon();
                 break;
             }
             default: {
@@ -335,19 +336,19 @@ public class PurchasableItem {
 
             switch (net.md_5.bungee.api.ChatColor.stripColor(buyFor2.getItemMeta().getDisplayName())) {
                 case "Медь": {
-                    icon = i18nonly("resource_bronze_icon");
+                    icon = IconType.COPPER_INGOT.getIcon();
                     break;
                 }
                 case "Железо": {
-                    icon = i18nonly("resource_iron_icon");
+                    icon = IconType.IRON_INGOT.getIcon();
                     break;
                 }
                 case "Золото": {
-                    icon = i18nonly("resource_gold_icon");
+                    icon = IconType.GOLD_INGOT.getIcon();
                     break;
                 }
                 case "Изумруд": {
-                    icon = i18nonly("resource_emerald_icon");
+                    icon = IconType.EMERALD.getIcon();
                     break;
                 }
                 default: {

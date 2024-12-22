@@ -2,17 +2,26 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
+
+import java.util.ArrayList;
 
 public class Appleperson extends Ability implements IAbility {
 
@@ -26,74 +35,95 @@ public class Appleperson extends Ability implements IAbility {
         this.item = Material.APPLE;
         this.rarity = 3;
         this.icon = IconType.ABSORPTION;
+        this.maxStacks = 5;
 
         this.abilityCategories.add(AbilityCategory.ECONOMIST);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
 
-        this.description = "При убийстве противника одно обычное яблоко#в инвентаре игрока превратится в золотое.#Перезарядка: (values1) секунд#Каждая атака по противнику даст#игроку одно яблоко.";
+        this.description = "Каждые 5 убийств или помощей одно обычное яблоко#в инвентаре игрока превратится в золотое.#Съедание яблок восполнит игроку дополнительные#(values1) сытости и (values2) насыщения.";
     }
 
 
     @Override
     public int calculateIntValue1(int level) {
-        return 20 * 20 - 5 * 20 * level;
+        return 2 + level;
+    }
+
+
+    @Override
+    public double calculateDoubleValue1(int level) {
+        return 1 + 0.2 * level;
     }
 
     @Override
-    public String formatValue1(int level) {
-        return "" + calculateIntValue1(level) / 20;
+    public String formatValue2(int level) {
+        return "" + FlowerUtils.singleDecimal.format( calculateDoubleValue1(level) );
     }
 
     @Override
     public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
-
-        if (this.isOnCooldown) return;
-
-        Inventory inventory = killer.getInventory();
-
-        for (ItemStack itemStack : inventory) {
-            if (itemStack != null) {
-                if (itemStack.getType() == Material.APPLE) {
-                    ItemStack stolen = new ItemStack(Material.GOLDEN_APPLE);
-                    itemStack.setAmount(itemStack.getAmount() - 1);
-                    stolen.setAmount(1);
-                    inventory.addItem(stolen);
-                    notifyPlayerOnAbilityActivation(killer);
-                    playFXItemGained(killer, 3);
-
-                    this.isOnCooldown = true;
-                    Player finalAttacker = killer;
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                        notifyPlayerOnCooldownEnd(finalAttacker);
-                        this.isOnCooldown = false;
-                    }, calculateIntValue1(level));
-
-                    break;
-                }
-            }
-        }
-
+        progressApples(killer);
+    }
+    @Override
+    public void playerKillAssist(int level, Player killer, Player victim, Player assistant) {
+        progressApples(assistant);
+//        notifyPlayerOnAbilityActivation(assistant);
     }
 
-        @Override
-    public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
+    private void progressApples(Player player) {
+        this.stacks++;
+        if ( this.stacks >= this.maxStacks ) {
+            this.stacks = 0;
+            Inventory inventory = player.getInventory();
 
-        if (this.isOnCooldown) return;
+            for (ItemStack itemStack : inventory) {
+                if (itemStack != null) {
+                    if (itemStack.getType() == Material.APPLE) {
+                        ItemStack stolen = new ItemStack(Material.GOLDEN_APPLE);
+                        itemStack.setAmount(itemStack.getAmount() - 1);
+                        stolen.setAmount(1);
+                        inventory.addItem(stolen);
+                        notifyPlayerOnAbilityActivation(player);
+                        playFXItemGained(player, 3);
+
+                        break;
+                    }
+                }
+            }
+        } else notifyPlayerOnStackCount(player);
+    }
+
+    @Override
+    public void itemConsume(int activeLevel, Player player, PlayerItemConsumeEvent event) {
 
         if (event.isCancelled()) return;
 
-//        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
-        if (Main.isPlayerInGame(attacker)) {
-            if (damageInstance.damageTarget == DamageTarget.PLAYER && event.getFinalDamage() > 0) {
-
-                Inventory inventory = attacker.getInventory();
-                ItemStack apple = new ItemStack(Material.APPLE);
-                inventory.addItem(apple);
-                playFXItemGained(attacker, 1);
-
+        if (Main.isPlayerInGame(player)) {
+            if ( event.getItem().getType() == Material.APPLE ) {
+                healFood(player, player, calculateIntValue1(activeLevel), calculateDoubleValue1(activeLevel));
             }
         }
+    };
 
-    }
+//        @Override
+//    public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
+//
+//        if (this.isOnCooldown) return;
+//
+//        if (event.isCancelled()) return;
+//
+////        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
+//        if (Main.isPlayerInGame(attacker)) {
+//            if (damageInstance.damageTarget == DamageTarget.PLAYER && event.getFinalDamage() > 0) {
+//
+//                Inventory inventory = attacker.getInventory();
+//                ItemStack apple = new ItemStack(Material.APPLE);
+//                inventory.addItem(apple);
+//                playFXItemGained(attacker, 1);
+//
+//            }
+//        }
+//
+//    }
 
 }

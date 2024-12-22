@@ -1,5 +1,6 @@
 package org.screamingsandals.bedwars.utils.flowergun.other.enums;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class DamageInstance {
@@ -8,8 +9,9 @@ public class DamageInstance {
     public DamageTarget damageTarget;
     public DamageRelay damageRelay;
     public DamageType damageType;
-    public Player attackerPlayer;
-    public Player victimPlayer;
+    public Player attackerPlayer = null;
+    public Player victimPlayer = null;
+    public Entity relayEntity = null;
 
     public DamageInstance( DamageSource damageSource, DamageTarget damageTarget, DamageRelay damageRelay, DamageType damageType ) {
         this.damageRelay = damageRelay;
