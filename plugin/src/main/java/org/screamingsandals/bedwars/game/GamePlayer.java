@@ -40,6 +40,7 @@ import org.screamingsandals.bedwars.utils.flowergun.customobjects.*;
 import org.screamingsandals.bedwars.utils.flowergun.managers.AbilitiesManager;
 import org.screamingsandals.bedwars.utils.flowergun.managers.ForgeManager;
 import org.screamingsandals.bedwars.utils.flowergun.managers.NewPlayerExperienceManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.NotificationManager;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.ShopInstance;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
@@ -49,22 +50,55 @@ import org.screamingsandals.bedwars.utils.flowergun.other.comparators.SortByRari
 import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactInstance;
 import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactLog;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
-import static org.screamingsandals.bedwars.game.Game.ALL_ABILITIES_MODE;
+import java.util.*;
 
 public class GamePlayer {
     public Player player;
     public ArrayList<ActiveForgeRecipe> activeForgeRecipes;
     public ArrayList<ForgeRecipe> availableRecipes;
+    public ArrayList<PlayerConfig> customBuilds;
+    public ArrayList<PlayerConfig> settings;
+    public ArrayList<PlayerConfig> quests;
+    public ArrayList<PlayerConfig> eventRewards;
+    private boolean damageDebug = false;
+
+    public boolean getSetting( PlayerConfigType type ) {
+        for ( PlayerConfig config : this.settings ) {
+            if ( config.getPlayerConfigType() == type ) return Integer.parseInt(config.getParameter1()) > 0;
+        }
+        return Integer.parseInt(type.getDefaultValue()) > 0;
+    }
+
+    public void putSetting( PlayerConfig config ) {
+        this.settings.add(config);
+        Main.getDatabaseManager().storeDatabaseConfig(config);
+    }
+
+    public boolean settingExists( PlayerConfigType type ) {
+        for ( PlayerConfig config : this.settings ) {
+            if ( config.getPlayerConfigType() == type ) return true;
+        }
+        return false;
+    }
+
+    public void setSetting( PlayerConfigType type, String value ) {
+        for ( PlayerConfig config : this.settings ) {
+            if ( config.getPlayerConfigType() == type ) {
+                config.setParameter1(value);
+                Main.getDatabaseManager().storeDatabaseConfig( config );
+                return;
+            }
+        }
+        Bukkit.getConsoleSender().sendMessage("couldn't set setting " + type + " for value " + value + " for player " + player.getName());
+        PlayerConfig config = new PlayerConfig( Main.getDatabaseManager().getMaxConfigEntryId() + 1, player.getUniqueId(), type, value, null, null, null, null, null, null, null, null );
+        this.putSetting(config);
+    }
+
 
     //    public boolean isReturning = false;
 //    public boolean isDisconnected = false;
     @Getter
-    private ImpactLog impactLog;
+    public ImpactLog impactLog;
     public DamageRelay damageRelayAttackInstance = DamageRelay.MELEE;
     public DamageRelay damageRelayDefenceInstance;
     public Game game = null;
@@ -114,9 +148,9 @@ public class GamePlayer {
     public ArrayList<LoadedAbility> loadedAbilities = new ArrayList<>();
     public ArrayList<OwnedAbility> ownedAbilities = new ArrayList<>();
 
-    private int previousFlagCount;
+    public int previousFlagCount;
 
-    private ArrayList<CustomStatusEffect> customStatusEffects = new ArrayList<>();
+    public ArrayList<CustomStatusEffect> customStatusEffects = new ArrayList<>();
 
     public GamePlayer(Player player) {
 
@@ -126,16 +160,16 @@ public class GamePlayer {
         this.player = player;
         //WAYPOINT DONE load player owned abilities
 
-        this.ownedAbilities = Main.getInstance().getAbilitiesManager().getAllAbilitiesByUUID(player.getUniqueId());
+        this.ownedAbilities = Main.getAbilitiesManager().getAllAbilitiesByUUID(player.getUniqueId());
 
 
-        for ( Class clazz : Main.getInstance().getAbilitiesManager().getAllAbilitiesClasses() ) {
+        for ( Class clazz : Main.getAbilitiesManager().getAllAbilitiesClasses() ) {
             IAbility ability = Ability.generateAbility(clazz);
             if ( !AbilitiesManager.abilitiesContainId(this.ownedAbilities, ability.getId()) )
             this.ownedAbilities.add(new OwnedAbility( -1 ,player, ability, 0, 0, 0, -1 ));
         }
 
-        Collections.sort(this.ownedAbilities, new SortByRarityOwnedAbility());
+        this.ownedAbilities.sort(new SortByRarityOwnedAbility());
 
         this.impactLog = new ImpactLog();
 
@@ -143,9 +177,11 @@ public class GamePlayer {
         loadAllResources();
         ForgeManager.loadAvailableRecipes(this);
 
+        Main.getPlayerConfigurationManager().loadPlayerConfigs(this);
+
         Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
         NewPlayerExperienceManager.loadPlayerStarterGoodies(this);
-        }, 100L);
+        }, 60L);
 
     }
 
@@ -197,37 +233,8 @@ public class GamePlayer {
 
     public void changeGame(Game game) {
 
-        //WAYPOINT flags reset
-        this.previousFlagCount = -1;
-        this.playerFlags = new ArrayList<>();
-        this.lastReceivedDamageInstance = null;
-        this.impactLog = new ImpactLog();
-
-        this.customStatusEffects.clear();
-        this.recalculateCustomEffects();
-
-//        this.isDisconnected = false;
-
-        //WAYPOINT DONE saving loaded abilities between matches
-//        Bukkit.getConsoleSender().sendMessage("resetting abilities for " + player.getName());
-        this.loadedAbilities = new ArrayList<>();
-        this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
-        this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
-        this.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
 
 
-        for ( OwnedAbility ownedAbility : this.ownedAbilities ) {
-            if ( ownedAbility.lastEquippedSlot >= 0 ) {
-
-                int slot = ownedAbility.lastEquippedSlot;
-                int level = ownedAbility.ownedLevel;
-
-                if (slot + 1 < level) level = slot + 1;
-
-                this.loadedAbilities.set(slot, new LoadedAbility(ownedAbility, level));
-
-            }
-        }
 
         this.blockElytra = false;
 
@@ -235,7 +242,7 @@ public class GamePlayer {
             this.game.internalLeavePlayer(this);
             this.game = null;
 //            this.isSpectator = false;
-            this.clean();
+            //this.clean();
             if (Game.isBungeeEnabled()) {
                 BungeeUtils.movePlayerToBungeeServer(player, Main.isDisabling());
             } else {
@@ -249,7 +256,7 @@ public class GamePlayer {
             this.mainLobbyUsed = false;
             this.game.internalJoinPlayer(this);
             this.latestCurrentTeam = null;
-            Bukkit.getConsoleSender().sendMessage("player joined a game and reset the currentteam");
+//            Bukkit.getConsoleSender().sendMessage("player joined a game and reset the currentteam");
 //            if (this.game != null) {
 //                this.latestGame = this.game.getName();
 //            }
@@ -263,6 +270,12 @@ public class GamePlayer {
 //            if (this.game != null) {
 //                this.latestGame = this.game.getName();
 //            }
+        }
+
+        if ( game != null ) {
+            game.updateScoreboard(this);
+        } else {
+            Game.clearScoreboard(this.player);
         }
     }
 
@@ -296,6 +309,7 @@ public class GamePlayer {
     }
 
     public void restoreInv() {
+        Bukkit.getConsoleSender().sendMessage("restoreInv");
         isTeleportingFromGame_justForInventoryPlugins = true;
         if (!mainLobbyUsed) {
             teleport(oldInventory.leftLocation, this::restoreRest);
@@ -365,6 +379,7 @@ public class GamePlayer {
     }
 
     public void clean() {
+//        Bukkit.getConsoleSender().sendMessage("invclean4");
         invClean();
         resetLife();
         new ArrayList<>(this.hiddenPlayers).forEach(this::showPlayer);
@@ -492,6 +507,7 @@ public class GamePlayer {
                 i--;
             }
             else {
+                if ( effect.attribute == null ) continue;
                 switch (effect.attribute) {
                     case GENERIC_MOVEMENT_SPEED -> {
                         speedModifier.join( effect.valueChange );
@@ -591,32 +607,108 @@ public class GamePlayer {
         this.randomlySelectAbilityInSlot(2);
     }
 
+    public void randomlySelectAllAbilitiesFromCategory( AbilityCategory abilityCategory ) {
+        this.randomlySelectAbilityInSlot(0, abilityCategory);
+        this.randomlySelectAbilityInSlot(1, abilityCategory);
+        this.randomlySelectAbilityInSlot(2, abilityCategory);
+    }
+
+    public void randomlyFillAllAbilities() {
+        if ( this.loadedAbilities.get(0).isEmpty() ) this.randomlySelectAbilityInSlot(0);
+        if ( this.loadedAbilities.get(1).isEmpty() ) this.randomlySelectAbilityInSlot(1);
+        if ( this.loadedAbilities.get(2).isEmpty() ) this.randomlySelectAbilityInSlot(2);
+    }
+
+
     public boolean randomlySelectAbilityInSlot(int slot) {
-        ArrayList<OwnedAbility> rareOwnedAbilities = new ArrayList<>();
+        return randomlySelectAbilityInSlot(slot, null);
+    }
 
-        for ( OwnedAbility ownedAbility : this.ownedAbilities ) {
-            if (ownedAbility.getAbility().getRarity() == 3 && ownedAbility.isAvailable()) rareOwnedAbilities.add(ownedAbility);
-        }
+    public boolean randomlySelectAbilityInSlot(int slot, AbilityCategory category) {
+        ArrayList<OwnedAbility> copyOfOwnedAbilities = new ArrayList<>(this.ownedAbilities);
+        ArrayList<OwnedAbility> allAvailableOwnedAbilities = new ArrayList<>();
+        Map<AbilityCategory, Integer> recommendedCategories = new LinkedHashMap<>();
 
-        for ( int i = 0; i < this.loadedAbilities.size(); i++ ) {
-            LoadedAbility loadedAbility = this.loadedAbilities.get(i);
-            if ( rareOwnedAbilities.contains(loadedAbility.getOwnedAbility()) ) {
-                rareOwnedAbilities.remove(loadedAbility.getOwnedAbility());
+        Collections.shuffle(copyOfOwnedAbilities);
+
+        for ( OwnedAbility ownedAbility : copyOfOwnedAbilities ) {
+//            if (ownedAbility.getAbility().getRarity() == 3 && ownedAbility.isAvailable()) rareOwnedAbilities.add(ownedAbility);
+            if (ownedAbility.isAvailable()) {
+                allAvailableOwnedAbilities.add(ownedAbility);
             }
         }
 
-        if ( rareOwnedAbilities.size() <= 0 ) {
-            return false;
+        boolean foundLoadedAbility = false;
+        for ( LoadedAbility loadedAbility : this.loadedAbilities ) {
+            if (!loadedAbility.isEmpty() && loadedAbility.getOwnedAbility().isAvailable()) {
+                foundLoadedAbility = true;
+                for ( AbilityCategory abilityCategory : loadedAbility.getOwnedAbility().getAbility().getAbilityCategories() ) {
+                    if ( recommendedCategories.containsKey(abilityCategory) ) {
+                        int a = recommendedCategories.get(abilityCategory);
+                        recommendedCategories.replace(abilityCategory, a, a + 1);
+                    } else recommendedCategories.put(abilityCategory, 1);
+                }
+                allAvailableOwnedAbilities.remove(loadedAbility.getOwnedAbility());
+            }
         }
 
-        Collections.shuffle(rareOwnedAbilities);
+        if ( !foundLoadedAbility ) {
+            if ( category == null ) {
+                int effectiveOwnedLevel = allAvailableOwnedAbilities.get(0).getAbility().isTemporarilyAvailable() ? 3 : allAvailableOwnedAbilities.get(0).ownedLevel;
+                int level = Math.min(effectiveOwnedLevel, slot + 1);
+                this.loadedAbilities.set(slot, new LoadedAbility(allAvailableOwnedAbilities.get(0), level));
+                NotificationManager.abilityAutomaticallyLoaded(player, allAvailableOwnedAbilities.get(0), level, slot, null);
+            } else {
+                for ( OwnedAbility ownedAbility : allAvailableOwnedAbilities ) {
+                    if (ownedAbility.getAbility().getAbilityCategories().contains(category)) {
+                        int effectiveOwnedLevel = ownedAbility.getAbility().isTemporarilyAvailable() ? 3 : ownedAbility.ownedLevel;
+                        int level = Math.min(effectiveOwnedLevel, slot + 1);
+                        this.loadedAbilities.set(slot, new LoadedAbility(ownedAbility, level));
+                        NotificationManager.abilityAutomaticallyLoaded(player, ownedAbility, level, slot, category);
+                        return true;
+                    }
+                }
+            }
+            return true;
+        }
 
-        int effectiveOwnedLevel = Main.getConfigurator().config.getBoolean(ALL_ABILITIES_MODE) ? 3 : rareOwnedAbilities.get(0).ownedLevel;
+//        Bukkit.getConsoleSender().sendMessage(String.valueOf(recommendedCategories));
+        int j = 0;
+        while (j < 10) {
+//            Bukkit.getConsoleSender().sendMessage("j = " + j);
+            int maxValue = 0;
+            AbilityCategory abilityCategory;
 
-        int level = Math.min( effectiveOwnedLevel, slot + 1 );
+            if ( category == null ) {
+                abilityCategory = null;
+                for (Map.Entry<AbilityCategory, Integer> entry : recommendedCategories.entrySet()) {
+                    if (entry.getValue() > maxValue) {
+                        maxValue = entry.getValue();
+                        abilityCategory = entry.getKey();
+                    }
+                }
+                recommendedCategories.remove(abilityCategory);
+            } else {
+                abilityCategory = category;
+                category = null;
+            }
 
-        this.loadedAbilities.set(slot, new LoadedAbility(rareOwnedAbilities.get(0), level));
-        return true;
+            for (OwnedAbility ownedAbility : allAvailableOwnedAbilities) {
+                if (ownedAbility.getAbility().getAbilityCategories().contains(abilityCategory)) {
+
+                    int effectiveOwnedLevel = ownedAbility.getAbility().isTemporarilyAvailable() ? 3 : ownedAbility.ownedLevel;
+                    int level = Math.min(effectiveOwnedLevel, slot + 1);
+                    this.loadedAbilities.set(slot, new LoadedAbility(ownedAbility, level));
+                    NotificationManager.abilityAutomaticallyLoaded(player, ownedAbility, level, slot, abilityCategory);
+                    return true;
+
+                }
+            }
+
+            j++;
+        }
+
+        return false;
 
     }
 
@@ -625,4 +717,13 @@ public class GamePlayer {
         this.setCustomGUIShopInstance(new ShopInstance( this.player, game.shop ));
     }
 
+    public void switchDamageDebug() {
+        if ( this.damageDebug ) this.damageDebug = false;
+        else this.damageDebug = true;
+        player.sendMessage("Damage Debug mode - " + this.damageDebug);
+    }
+
+    public boolean isDD() {
+        return this.damageDebug;
+    }
 }

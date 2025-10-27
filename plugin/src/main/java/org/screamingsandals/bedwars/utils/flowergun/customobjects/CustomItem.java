@@ -98,6 +98,12 @@ public class CustomItem {
         return this;
     }
 
+    public CustomItem addArmorToughnessPointsModifier(double value, AttributeModifier.Operation attributeModifierOperation, EquipmentSlot equipmentSlot){
+        AttributeModifier am = new AttributeModifier(UUID.randomUUID(), "generic.toughness", value, attributeModifierOperation, equipmentSlot);
+        this.itemMeta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, am);
+        return this;
+    }
+
     public CustomItem addKnockbackResistanceModifier(double value, AttributeModifier.Operation attributeModifierOperation, EquipmentSlot equipmentSlot){
         AttributeModifier am = new AttributeModifier(UUID.randomUUID(), "generic.knockbackResistance", value, attributeModifierOperation, equipmentSlot);
         this.itemMeta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, am);
@@ -235,11 +241,11 @@ public class CustomItem {
                 break;
             }
             case PLATFORM: {
-                property = "Module:RescuePlatform:true:3:-1:1:GLASS";
+                property = "Module:RescuePlatform:true:8:-1:1:GLASS";
                 break;
             }
             case PLATFORM_SLIME: {
-                property = "Module:RescuePlatform:false:5:10:1:SLIME_BLOCK";
+                property = "Module:RescuePlatform:true:8:-1:1:SLIME_BLOCK";
                 break;
             }
             case WALL: {
@@ -272,6 +278,30 @@ public class CustomItem {
             }
             case PHANTOM: {
                 property = "Module:Phantom:0.40:10.0:20.0:true:10:false:%teamcolor%%team%";
+                break;
+            }
+            case STRAY: {
+                property = "Module:Stray:0.25:10.0:20.0:true:10:false:%teamcolor%%team%";
+                break;
+            }
+            case HUSK: {
+                property = "Module:Husk:0.25:10.0:20.0:true:10:false:%teamcolor%%team%";
+                break;
+            }
+            case SLIME: {
+                property = "Module:Slime:0.25:10.0:20.0:true:10:false:%teamcolor%%team%";
+                break;
+            }
+            case GUARDIAN: {
+                property = "Module:Guardian:0.25:10.0:20.0:true:10:false:%teamcolor%%team%";
+                break;
+            }
+            case SHULKER: {
+                property = "Module:Shulker:0.25:10.0:20.0:true:10:false:%teamcolor%%team%";
+                break;
+            }
+            case GHAST: {
+                property = "Module:Ghast:0.40:10.0:10.0:true:10:false:%teamcolor%%team%";
                 break;
             }
             case TRACKER: {

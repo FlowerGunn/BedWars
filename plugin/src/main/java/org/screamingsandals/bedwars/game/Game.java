@@ -90,13 +90,18 @@ import org.screamingsandals.bedwars.boss.BossBar18;
 import org.screamingsandals.bedwars.boss.BossBarSelector;
 import org.screamingsandals.bedwars.boss.XPBar;
 import org.screamingsandals.bedwars.commands.StatsCommand;
+import org.screamingsandals.bedwars.lib.nms.entity.PlayerUtils;
+import org.screamingsandals.bedwars.lib.sternalboard.api.SternalBoardHandler;
 import org.screamingsandals.bedwars.special.Trap;
 import org.screamingsandals.bedwars.utils.external.*;
-import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_base.*;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_impl.Confidence;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_impl.Equipment;
+import org.screamingsandals.bedwars.utils.flowergun.abilities_impl.Stash;
 import org.screamingsandals.bedwars.utils.flowergun.managers.*;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.MenuType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
+import org.screamingsandals.bedwars.utils.flowergun.mechanics.ImpactLog;
+import org.screamingsandals.bedwars.utils.flowergun.other.comparators.SortByTeamGamePlayers;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.Shop;
 import org.screamingsandals.bedwars.inventories.TeamSelectorInventory;
@@ -108,11 +113,9 @@ import org.screamingsandals.bedwars.lib.debug.Debug;
 import org.screamingsandals.bedwars.lib.nms.entity.EntityUtils;
 import org.screamingsandals.bedwars.lib.nms.holograms.Hologram;
 import org.screamingsandals.bedwars.lib.signmanager.SignBlock;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.ShopCategory;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomBlock;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
-import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
 import org.screamingsandals.simpleinventories.utils.MaterialSearchEngine;
 import org.screamingsandals.simpleinventories.utils.StackParser;
 
@@ -170,6 +173,12 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
     public Shop shop = null;
     private String gameId;
+    private HashMap<Integer, GameEventType> gameEvents;
+    private int nextEventTimestamp;
+    private int nextSeparatorEventTimestamp;
+    private int lastEventTimestamp;
+    private int lastSeparatorEventTimestamp;
+    private int timer;
 
 
     public List<GamePlayer> getMatchedPlayers() {
@@ -827,7 +836,6 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
         gamePlayer.lastDeathCounter = this.countdown;
 
-        gamePlayer.player.damage(1000);
 
         if (Main.getTabManager() != null) {
             players.forEach(Main.getTabManager()::modifyForPlayer);
@@ -853,6 +861,17 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         gamePlayer.restoreInv();
 
         gamePlayer.recalculateCustomEffects();
+
+        this.updateScoreboard(gamePlayer);
+
+        player.setHealth(0.5);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                PlayerUtils.teleportPlayer(player, player.getLocation().add(0, -200, 0));
+            }
+        }.runTaskLater(Main.getInstance(), 25L);
+
 
         return true;
     }
@@ -887,7 +906,6 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             gamePlayer.player.setPlayerTime(arenaTime.time, false);
         }
 
-
         if (arenaWeather != null) {
             gamePlayer.player.setPlayerWeather(arenaWeather);
         }
@@ -909,7 +927,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
             gamePlayer.teleport(lobbySpawn, () -> {
                 gamePlayer.invClean(); // temp fix for inventory issues?
-                Bukkit.getConsoleSender().sendMessage("invclean2");
+//                Bukkit.getConsoleSender().sendMessage("invclean2");
                 SpawnEffects.spawnEffect(Game.this, gamePlayer.player, "game-effects.lobbyjoin");
 
                 if (getOriginalOrInheritedJoinRandomTeamOnJoin()) {
@@ -949,9 +967,39 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                     }
                 }
 
-                ItemStack abilties = FlowerUtils.getAbilitiesMenuItemStack();
-                gamePlayer.player.getInventory().setItem(6, abilties);
+                ItemStack abilities;
+                if ( gamePlayer.getSetting(PlayerConfigType.DEFAULT_ABILITIES_AUTOSELECT) ) {
+                    abilities = FlowerUtils.getAbilitiesMenuLockedItemStack();
+                } else {
+                    abilities = FlowerUtils.getAbilitiesMenuItemStack();
+                }
+                gamePlayer.player.getInventory().setItem(6, abilities);
 
+                //WAYPOINT flags reset
+                gamePlayer.previousFlagCount = -1;
+                gamePlayer.playerFlags = new ArrayList<>();
+                gamePlayer.lastReceivedDamageInstance = null;
+                gamePlayer.impactLog = new ImpactLog();
+
+                gamePlayer.customStatusEffects.clear();
+                gamePlayer.recalculateCustomEffects();
+
+//        gamePlayer.isDisconnected = false;
+
+                //WAYPOINT DONE saving loaded abilities between matches
+//        Bukkit.getConsoleSender().sendMessage("resetting abilities for " + player.getName());
+                gamePlayer.loadedAbilities = new ArrayList<>();
+                gamePlayer.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
+                gamePlayer.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
+                gamePlayer.loadedAbilities.add(LoadedAbility.getEmptyLoadedAbility());
+
+
+                NewPlayerExperienceManager.setDefaultAbilities(gamePlayer);
+
+                NewPlayerExperienceManager.sendOutATip(gamePlayer);
+                this.updateScoreboard();
+
+                //WAYPOINT LOBBY GAME JOIN
             });
 
             if (isEmpty) {
@@ -1014,6 +1062,8 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             });
         }
 
+        updateScoreboard();
+
         BedwarsPlayerJoinedEvent joinedEvent = new BedwarsPlayerJoinedEvent(this, getPlayerTeam(gamePlayer), gamePlayer.player);
         Main.getInstance().getServer().getPluginManager().callEvent(joinedEvent);
     }
@@ -1045,6 +1095,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
         players.remove(gamePlayer);
         updateSigns();
+        updateScoreboard();
 
         if (status == GameStatus.WAITING) {
             SpawnEffects.spawnEffect(this, gamePlayer.player, "game-effects.lobbyleave");
@@ -1530,8 +1581,11 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     public static Game createGame(String name) {
         Game game = new Game();
         game.name = name;
-        game.pauseCountdown = 60;
-        game.gameTime = 3600;
+        game.pauseCountdown = 90;
+        game.deathmatchRadius = 10;
+        game.deathmatchTime = 300;
+        game.deathmatchStart = 1800;
+        game.gameTime = 2400;
         game.minPlayers = 2;
 
         return game;
@@ -1541,7 +1595,9 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         if (status == GameStatus.DISABLED) {
 
             Random random = new Random();
-            this.gameId = ((long) Math.floor(random.nextDouble() * 10000000) + (long) Math.floor(random.nextDouble() * 10000000) * 10000000) + "";
+//            this.gameId = ((long) Math.floor(random.nextDouble() * 10000000) + (long) Math.floor(random.nextDouble() * 10000000) * 10000000) + "";
+            Timestamp time = Timestamp.valueOf(LocalDateTime.now());
+            this.gameId = time.getTime() + "";
 
             preparing = true;
             status = GameStatus.WAITING;
@@ -1845,7 +1901,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         gamePlayer.teleport(immidiateTeleportLocation, () -> {
             if (!getOriginalOrInheritedKeepInventory() || leaveItem) {
                 gamePlayer.invClean(); // temp fix for inventory issues?
-                Bukkit.getConsoleSender().sendMessage("invclean1");
+//                Bukkit.getConsoleSender().sendMessage("invclean1");
             }
             player.setAllowFlight(true);
             player.setFlying(true);
@@ -2055,7 +2111,16 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
             } else {
                 nextCountdown--;
             }
-            setBossbarProgress(countdown, gameTime);
+            //WAYPOINT BOSSBAR PROGRESS
+            //__________LLLLLLLLLLL
+            //____NNNNNNNNNNNNNNNNN
+            //CCCCCCCTTTTTTTTTTTTTT
+            //    N-L
+            //          L
+            //       T-L
+            //n - t
+
+            setBossbarProgress( nextSeparatorEventTimestamp - timer, nextSeparatorEventTimestamp - lastSeparatorEventTimestamp);
             updateScoreboardTimer();
         } else if (status == GameStatus.GAME_END_CELEBRATING) {
             if (countdown == 0) {
@@ -2182,11 +2247,12 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
 
                     ComponentBuilder chatMessage = Component.text();
-
+                    this.players.sort(new SortByTeamGamePlayers());
                     for (GamePlayer player : this.players) {
 
-                        if ( player.loadedAbilities.get(0).isEmpty() && player.loadedAbilities.get(1).isEmpty() && player.loadedAbilities.get(2).isEmpty() ) {
-                            player.randomlySelectAllAbilities();
+                        if ( player.loadedAbilities.get(0).isEmpty() || player.loadedAbilities.get(1).isEmpty() || player.loadedAbilities.get(2).isEmpty() ) {
+                            player.player.sendMessage("");
+                            player.randomlyFillAllAbilities();
                         }
 
                         chatMessage.append(Component.newline());
@@ -2196,17 +2262,23 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
                     this.matchedPlayers = new ArrayList<>();
 
+                    Main.getInstance().getLogger().info("Game starting on arena " + name);
+
                     for (GamePlayer player : this.players) {
                         CurrentTeam team = getPlayerTeam(player);
                         player.latestCurrentTeam = team;
-                        Bukkit.getConsoleSender().sendMessage("team1 = " + team.getName());
+                        Bukkit.getConsoleSender().sendMessage( player.player.getName() + " = " + team.getName());
                         player.player.getInventory().clear();
+                        player.player.setFlying(false);
                         // Player still had armor on legacy versions
                         player.player.getInventory().setHelmet(null);
                         player.player.getInventory().setChestplate(null);
                         player.player.getInventory().setLeggings(null);
                         player.player.getInventory().setBoots(null);
                         // WAYPOINT FIRST PLAYER SPAWN
+
+
+                        updateScoreboard();
 
                         this.matchedPlayers.add(player);
 
@@ -2229,7 +2301,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         Bukkit.getScheduler().runTaskAsynchronously( Main.getInstance(), () -> {
                             for (LoadedAbility loadedAbility : player.loadedAbilities ) {
                                 if (!loadedAbility.isEmpty())
-                                Main.getDatabaseManager().storeDatabaseLog("gamestart", FlowerUtils.versionName, player.player.getUniqueId() + "", loadedAbility.getOwnedAbility().getAbility().getRawName(), loadedAbility.activeLevel + "", loadedAbility.getOwnedAbility().ownedLevel + "", team.getName(), gameId, logTime);
+                                Main.getDatabaseManager().storeDatabaseLog("gamestart", FlowerUtils.versionName, player.player.getUniqueId() + "", loadedAbility.getOwnedAbility().getAbility().getId(), loadedAbility.activeLevel + "", loadedAbility.getOwnedAbility().ownedLevel + "", team.getName(), gameId, logTime);
                             }
                         });
 
@@ -2240,6 +2312,49 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                         player.player.sendMessage("");
                         player.player.sendMessage(IconsManager.blue_excl + ColoursManager.gray + " Способности игроков: (наведите курсор на иконки)");
                         player.player.sendMessage(chatMessage);
+
+                        PlayerStatistic statistic = Main.getPlayerStatisticsManager().getStatistic(player.player);
+                        final int gamesPlayed = statistic.getGames();
+
+                        final boolean noSelection = player.getSetting( PlayerConfigType.DEFAULT_ABILITIES_AUTOSELECT );
+                        final boolean simpleSelection = player.getSetting( PlayerConfigType.SIMPLIFIED_ABILITY_SELECTION );
+                        if ( noSelection || simpleSelection ) {
+                            new BukkitRunnable() {
+                                int i = 0;
+
+                                @Override
+                                public void run() {
+                                    if (i > 10) {
+                                        this.cancel();
+                                        return;
+                                    }
+                                    switch (i) {
+                                        case 0: {
+                                            player.player.playSound(player.player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5F, 1.0F);
+                                            player.player.sendMessage(IconsManager.yellow_excl + ColoursManager.gray + " Кроме иконок в чате для просмотра способностей");
+                                            player.player.sendMessage(IconsManager.yellow_excl + ColoursManager.gray + " вы можете использовать: " + ColoursManager.orange + "/bw info " + ColoursManager.yellow + "<никнейм>");
+                                            player.player.sendMessage("");
+
+                                            break;
+                                        }
+                                        case 1: {
+                                            player.player.playSound(player.player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5F, 1.0F);
+                                            player.player.sendMessage(IconsManager.green_excl + ColoursManager.gray + " Ваши способности:");
+                                            NotificationManager.sendListOfAbilitiesInChat(player.player, player, 0, 40);
+                                            break;
+                                        }
+                                        case 4: {
+                                                if ( simpleSelection ) {
+                                                player.player.playSound(player.player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5F, 1.0F);
+                                                player.player.sendMessage(IconsManager.yellow_excl + ColoursManager.yellow + " Сыграйте ещё " + ColoursManager.white + Math.max(FlowerUtils.unlockAbilitySelectionGamesPlayedRequirement - gamesPlayed, 1) + ColoursManager.yellow + " игр, чтобы разблокировать выбор способностей.");
+                                                player.player.sendMessage("");
+                                            }
+                                        }
+                                    }
+                                    i++;
+                                }
+                            }.runTaskTimer(Main.getInstance(), 40L, 40L);
+                        }
 
                         player.lastDeathCounter = this.gameTime;
 //                        Title.send(player.player, gameStartTitle, gameStartSubtitle);
@@ -2302,6 +2417,25 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                     //WAYPOINT game flags reset and customblocks reset
                     this.gameFlags = new ArrayList<>();
                     this.customBlocks = new ArrayList<>();
+
+                    this.gameEvents = new HashMap<>();
+
+//                    this.nextEventTimestamp = 0;
+                    this.lastEventTimestamp = 0;
+                    this.lastSeparatorEventTimestamp = 0;
+
+                    this.gameEvents.put( FlowerUtils.firstEventTimestamp , GameEventType.GENERATORS_SPEED_UP_1);
+                    this.gameEvents.put( FlowerUtils.secondEventTimestamp , GameEventType.GENERATORS_SPEED_UP_2);
+                    this.gameEvents.put( FlowerUtils.thirdEventTimestamp , GameEventType.GENERATORS_SPEED_UP_3);
+
+                    this.gameEvents.put( deathmatchStart - FlowerUtils.deathmatchWarning , GameEventType.DEATHMATCH_WARNING_1);
+                    this.gameEvents.put( deathmatchStart - FlowerUtils.deathmatchWarning2 , GameEventType.DEATHMATCH_WARNING_2);
+                    this.gameEvents.put( deathmatchStart , GameEventType.DEATHMATCH);
+                    this.gameEvents.put( deathmatchStart + deathmatchTime , GameEventType.ANNIHILATION);
+                    this.gameEvents.put( gameTime , GameEventType.END);
+
+                    calculateNextEventTimestamp();
+                    calculateNextSeparatorEventTimestamp();
 
                     for (CurrentTeam team : teamsInGame) {
                         Block block = team.getTargetBlock().getBlock();
@@ -2376,7 +2510,12 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                     BedwarsGameStartedEvent startedEvent = new BedwarsGameStartedEvent(this);
                     Main.getInstance().getServer().getPluginManager().callEvent(startedEvent);
                     Main.getInstance().getServer().getPluginManager().callEvent(statusE);
-                    updateScoreboard();
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            updateScoreboard();
+                        }
+                    }.runTaskLater(Main.getInstance(), 20L);
                 }
             }
             // Phase 6.2: If status is same as before
@@ -2387,14 +2526,29 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 //                Bukkit.getConsoleSender().sendMessage("countdown " + countdown + " ");
 
                 //WAYPOINT events
-                int seconds = gameTime - countdown;
-                if (seconds == FlowerUtils.firstEventTimestamp) FlowerUtils.firstEventRun(this);
-                else if (seconds == FlowerUtils.secondEventTimestamp) FlowerUtils.secondEventRun(this);
-                else if (seconds == FlowerUtils.thirdEventTimestamp) FlowerUtils.thirdEventRun(this);
-                if (seconds == deathmatchStart) FlowerUtils.deathmatchStart(this);
-                else if (seconds == deathmatchStart + deathmatchTime) FlowerUtils.deathmatchEnd(this);
-                else if (seconds == deathmatchStart - FlowerUtils.deathmatchWarning) FlowerUtils.deathmatchWarning(this);
-                else if (seconds == deathmatchStart - FlowerUtils.deathmatchWarning2) FlowerUtils.deathmatchWarning2(this);
+//                updateScoreboard();
+
+                if ( timer == nextEventTimestamp ) {
+                    GameEventType event = gameEvents.get(nextEventTimestamp);
+                    processEvent(event);
+
+                    lastEventTimestamp = nextEventTimestamp;
+                    calculateNextEventTimestamp();
+
+                    if ( event.isSeparator() ) {
+                        lastSeparatorEventTimestamp = nextSeparatorEventTimestamp;
+                        calculateNextSeparatorEventTimestamp();
+                    }
+                }
+
+//                int seconds = gameTime - countdown;
+//                if (seconds == FlowerUtils.firstEventTimestamp) FlowerUtils.firstEventRun(this);
+//                else if (seconds == FlowerUtils.secondEventTimestamp) FlowerUtils.secondEventRun(this);
+//                else if (seconds == FlowerUtils.thirdEventTimestamp) FlowerUtils.thirdEventRun(this);
+//                if (seconds == deathmatchStart) FlowerUtils.deathmatchStart(this);
+//                else if (seconds == deathmatchStart + deathmatchTime) FlowerUtils.deathmatchEnd(this);
+//                else if (seconds == deathmatchStart - FlowerUtils.deathmatchWarning) FlowerUtils.deathmatchWarning(this);
+//                else if (seconds == deathmatchStart - FlowerUtils.deathmatchWarning2) FlowerUtils.deathmatchWarning2(this);
 
                 if (isDeathmatch) FlowerUtils.processDeathmatch(this);
                 if (isAnnihilation) FlowerUtils.processAnnihilation(this);
@@ -2435,21 +2589,13 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                     if (getPlayerTeam(player) == t) {
 
 
-                                        if ( player.getTrulyOwnedAbilityById("flowermadness") == null ) {
-                                            NotificationManager.sendEventRewardMessage( "\"1 апреля\"", "Первая победа дня", player.player);
-                                            for ( int i = 0; i < 6; i++ )
-                                                Main.getAbilitiesManager().giveAbilityToById(player.player.getUniqueId(), "flowermadness", 1);
-                                            ResourceManager.giveResourcesTo(player.player.getUniqueId(), ResourceType.BOOK_EVIL1, 1, true);
-                                        }
+//                                        if ( player.getTrulyOwnedAbilityById("flowermadness") == null ) {
+//                                            NotificationManager.sendEventRewardMessage( "\"1 апреля\"", "Первая победа дня", player.player);
+//                                            for ( int i = 0; i < 6; i++ )
+//                                                Main.getAbilitiesManager().giveAbilityToById(player.player.getUniqueId(), "flowermadness", 1);
+//                                            ResourceManager.giveResourcesTo(player.player.getUniqueId(), ResourceType.BOOK_EVIL1, 1, true);
+//                                        }
 
-                                        int amount = (this.getGameTime() - this.countdown) / 120;
-                                        Main.getStatsManager().addResourceToPlayer(player.player, ResourceType.EXP_CRYSTAL_LVL1, amount + 10);
-                                        Main.getStatsManager().reward(player.player);
-
-                                        //WAYPOINT PLAYER WON
-//                                        Title.send(player.player, i18nonly("you_won"), subtitle);
-                                        player.player.sendTitle(i18n("you_won", false), subtitle, 20, 40, 20);
-                                        player.player.playSound(player.player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 1.25F);
 
 
                                         Main.depositPlayer(player.player, Main.getVaultWinReward());
@@ -2476,6 +2622,18 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                                             }
 
                                         }
+
+
+                                        int amount = (this.getGameTime() - this.countdown) / 120;
+                                        Main.getStatsManager().addResourceToPlayer(player.player, ResourceType.EXP_CRYSTAL_LVL1, amount + 10);
+                                        Main.getStatsManager().reward(player.player);
+
+                                        //WAYPOINT PLAYER WON
+//                                        Title.send(player.player, i18nonly("you_won"), subtitle);
+                                        player.player.sendTitle(i18n("you_won", false), subtitle, 20, 40, 20);
+                                        player.player.playSound(player.player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 1.25F);
+
+
 
                                         if (Main.getConfigurator().config.getBoolean("rewards.enabled")) {
                                             final Player pl = player.player;
@@ -2612,6 +2770,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
         // Phase 7: Update status and countdown for next tick
         countdown = tick.getNextCountdown();
+        this.timer = gameTime - countdown;
         status = tick.getNextStatus();
 
         // Phase 8: Check if game end celebrating started and remove title on bossbar
@@ -2697,6 +2856,144 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         }
     }
 
+
+    private void processEvent(GameEventType gameEventType) {
+        //WAYPOINT GAME EVENTS
+        switch (gameEventType) {
+            case END -> {
+
+            }
+            case GENERATORS_SPEED_UP_1 -> {
+                List<org.screamingsandals.bedwars.api.game.ItemSpawner> itemSpawners = new ArrayList<>(unsafeGetItemSpawners());
+                for (org.screamingsandals.bedwars.api.game.ItemSpawner itemSpawner: itemSpawners) {
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("gold")) itemSpawner.setInterval(30);
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("emerald")) itemSpawner.setInterval(60);
+                }
+                for (Player player : getConnectedPlayers()) {
+                    player.sendTitle("", net.md_5.bungee.api.ChatColor.GOLD + i18n("event1_text", "Gold and Emerald activated!", false), 5, 40, 5);
+                }
+                gameFlags.add(GameFlag.GOLD_AND_EMERALDS_SPAWN);
+                BossBar bossbar = (BossBar) statusbar;
+                if (bossbar instanceof BossBar19) {
+                    BossBar19 bossbar19 = (BossBar19) bossbar;
+                    bossbar19.setMessage(i18nonly("event1_bossbar"));
+                }
+                Bukkit.getConsoleSender().sendMessage("Спавн золота на арене " + getName());
+            }
+            case GENERATORS_SPEED_UP_2 -> {
+                List<org.screamingsandals.bedwars.api.game.ItemSpawner> itemSpawners = new ArrayList<>(unsafeGetItemSpawners());
+                for (org.screamingsandals.bedwars.api.game.ItemSpawner itemSpawner: itemSpawners) {
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("gold")) itemSpawner.setInterval(20);
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("emerald")) itemSpawner.setInterval(40);
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("iron")) itemSpawner.setInterval(6);
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("bronze")) itemSpawner.setInterval(1);
+                }
+
+                BossBar bossbar = (BossBar) statusbar;
+                if (bossbar instanceof BossBar19) {
+                    BossBar19 bossbar19 = (BossBar19) bossbar;
+                    bossbar19.setMessage(i18nonly("event2_bossbar"));
+                }
+
+                for (Player player : getConnectedPlayers()) {
+                    player.sendTitle("", net.md_5.bungee.api.ChatColor.GOLD + i18n("event2_text", "Gold and Emerald sped UP!", false), 5, 40, 5);
+                }
+
+                Bukkit.getConsoleSender().sendMessage("Ускорение генераторов на арене " + getName());
+            }
+            case GENERATORS_SPEED_UP_3 -> {
+                List<org.screamingsandals.bedwars.api.game.ItemSpawner> itemSpawners = new ArrayList<>(unsafeGetItemSpawners());
+                for (org.screamingsandals.bedwars.api.game.ItemSpawner itemSpawner: itemSpawners) {
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("gold")) itemSpawner.setInterval(10);
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("emerald")) itemSpawner.setInterval(20);
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("iron")) itemSpawner.setInterval(3);
+                    if (itemSpawner.getItemSpawnerType().getConfigKey().equals("bronze")) itemSpawner.setInterval(1);
+                }
+
+                BossBar bossbar = (BossBar) statusbar;
+                if (bossbar instanceof BossBar19) {
+                    BossBar19 bossbar19 = (BossBar19) bossbar;
+                    bossbar19.setMessage(i18nonly("event3_bossbar"));
+                }
+
+                for (Player player : getConnectedPlayers()) {
+                    player.sendTitle("", net.md_5.bungee.api.ChatColor.GOLD + i18n("event3_text", "Gold and Emerald on OVERDRIVE!", false), 5, 40, 5);
+                }
+
+                Bukkit.getConsoleSender().sendMessage("Перегрев генераторов на арене " + getName());
+            }
+            case DEATHMATCH -> {
+                Bukkit.getConsoleSender().sendMessage("deathmatch happened " + deathmatchStart + " " + deathmatchTime);
+                BossBar bossbar = (BossBar) statusbar;
+
+                arenaRadius = Math.max(Math.abs(getPos1().getBlockX() - getPos2().getBlockX()), Math.abs(getPos1().getBlockZ() - getPos2().getBlockZ())) / 2;
+
+                arenaCeiling = Math.max(getPos1().getBlockY(), getPos2().getBlockY());
+                arenaFloor = Math.min(getPos1().getBlockY(), getPos2().getBlockY());
+
+                isDeathmatch = true;
+                breakAllBeds();
+                if (bossbar instanceof BossBar19) {
+                    BossBar19 bossbar19 = (BossBar19) bossbar;
+                    bossbar19.setColor(BarColor.PURPLE);
+                    bossbar19.setMessage(i18nonly("event_deathmatch_bossbar"));
+                }
+                for (Player player : getConnectedPlayers()) {
+                    player.sendTitle("", net.md_5.bungee.api.ChatColor.GOLD + i18n("event_deathmatch_text", "Deathmatch!", false), 5, 40, 5);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 1.0F);
+                }
+            }
+            case ANNIHILATION -> {
+                isAnnihilation = true;
+                Bukkit.getConsoleSender().sendMessage("deathmatch end");
+                BossBar bossbar = (BossBar) statusbar;
+                if (bossbar instanceof BossBar19) {
+                    BossBar19 bossbar19 = (BossBar19) bossbar;
+                    bossbar19.setColor(BarColor.PINK);
+                    bossbar19.setMessage(i18nonly("event_annihilation_bossbar"));
+                }
+                for (Player player : getConnectedPlayers()) {
+                    player.sendTitle("", ColoursManager.annihilation + i18n("event_annihilation_text", "Annihilation!", false), 5, 40, 5);
+                    player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0F, 1.0F);
+                }
+            }
+            case DEATHMATCH_WARNING_1 -> {
+                for (Player player : getConnectedPlayers()) {
+                    player.sendTitle("", ColoursManager.purple + i18n("event_deathmatch_warning", "Deathmatch in 60 seconds!", false), 5, 80, 5);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0F, 1.0F);
+                }
+            }
+            case DEATHMATCH_WARNING_2 -> {
+                for (Player player : getConnectedPlayers()) {
+                    player.sendTitle("", ColoursManager.purple + i18n("event_deathmatch_warning2", "Deathmatch in 180 seconds!", false), 5, 80, 5);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0F, 1.0F);
+                }
+            }
+        }
+    }
+
+
+    private void calculateNextSeparatorEventTimestamp() {
+        int minKey = 1000000;
+        for ( Map.Entry<Integer,GameEventType> set : gameEvents.entrySet() ) {
+            if ( set.getKey() < minKey && set.getKey() > lastSeparatorEventTimestamp && set.getValue().isSeparator() ) {
+                minKey = set.getKey();
+                //new event must be after the last event and the closest one
+            }
+        }
+        this.nextSeparatorEventTimestamp = minKey;
+    }
+    private void calculateNextEventTimestamp() {
+        int minKey = 1000000;
+        for ( Integer key : gameEvents.keySet() ) {
+            if ( key < minKey && key > lastEventTimestamp ) {
+                minKey = key;
+                //new event must be after the last event and the closest one
+            }
+        }
+        this.nextEventTimestamp = minKey;
+    }
+
     public void clearItems() {
         for (Entity e : this.world.getEntities()) {
             if (GameCreator.isInArea(e.getLocation(), pos1, pos2)) {
@@ -2764,22 +3061,23 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
         fakeEnderChests.clear();
 
         // Remove remaining entities registered by other plugins
-        for (Entity entity : Main.getGameEntities(this)) {
-            Chunk chunk = entity.getLocation().getChunk();
-            if (!chunk.isLoaded()) {
-                chunk.load();
-            }
-            entity.remove();
-            Main.unregisterGameEntity(entity);
-        }
+//        for (Entity entity : Main.getGameEntities(this)) {
+//            Chunk chunk = entity.getLocation().getChunk();
+//            if (!chunk.isLoaded()) {
+//                chunk.load();
+//            }
+//            entity.remove();
+//            Main.unregisterGameEntity(entity);
+//        }
 
         for (Entity entity : this.getWorld().getEntities() ) {
 
-            if (entity.getType() != EntityType.DROPPED_ITEM && entity.getType() != EntityType.ITEM_FRAME) continue;
+            //if (entity.getType() != EntityType.DROPPED_ITEM && entity.getType() != EntityType.ITEM_FRAME && !(entity instanceof Mob)) continue;
             Chunk chunk = entity.getLocation().getChunk();
             if (!chunk.isLoaded()) {
                 chunk.load();
             }
+            if ( entity instanceof Player ) continue;
             entity.remove();
         }
 
@@ -2868,49 +3166,123 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     }
 
     public void updateScoreboard() {
+        updateScoreboard(this.players);
+    }
 
-        //SCOREBOARD KILLER
-        if (1 == 1) return;
+    public void updateScoreboard( GamePlayer gamePlayer ) {
+        ArrayList<GamePlayer> gamePlayers = new ArrayList<>();
+        gamePlayers.add(gamePlayer);
+        updateScoreboard(gamePlayers);
+    }
 
-        if (!getOriginalOrInheritedScoreaboard()) {
-            return;
-        }
+    public static void clearScoreboard( Player player ) {
+        SternalBoardHandler board = new SternalBoardHandler(player);
+        board.delete();
+    }
+    public void updateScoreboard( List<GamePlayer> gamePlayers ) {
 
+        if ( this.status == GameStatus.WAITING ) {
 
-        Component component = Component.newline();
-        component.insertion(this.formatScoreboardTitle());
-        Objective obj = this.gameScoreboard.getObjective("display");
-        if (obj == null) {
-            obj = this.gameScoreboard.registerNewObjective("display", "dummy", component);
-        }
+            ArrayList<String> universalLines = new ArrayList<>();
+            universalLines.add("");
+            universalLines.add( ColoursManager.gray +" Арена: " + ColoursManager.red + this.getName());
+            universalLines.add("");
+            universalLines.add( ColoursManager.gray + " Игроки: " + ColoursManager.red + this.getConnectedGamePlayers().size() + ColoursManager.gray + " / " +ColoursManager.darkRed + this.getMaxPlayers());
 
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-//        obj.displayName(component);
+            for (GamePlayer player : gamePlayers) {
+                SternalBoardHandler board = new SternalBoardHandler(player.player);
+                board.updateTitle(ColoursManager.white + "   ʙᴇᴅᴡᴀʀs   ");
 
+                ArrayList<String> lines = new ArrayList<>();
+                lines.addAll(universalLines);
+                lines.add("");
+                lines.addAll(formatPlayerAbilities(player));
+                lines.add("");
+                board.updateLines(lines);
+            }
 
+        } else if ( this.status == GameStatus.RUNNING || this.status == GameStatus.GAME_END_CELEBRATING ) {
 
-        for (String key : this.gameScoreboard.getEntries()) {
-            String firstSymbol = ChatColor.stripColor(key).substring(0, 1);
-//            Bukkit.getConsoleSender().sendMessage(ChatColor.stripColor(key) + "  " + firstSymbol + "   " + anchorEmptyString());
-            if ( firstSymbol.contains(ChatColor.stripColor(anchorEmptyString())) || firstSymbol.contains(ChatColor.stripColor(bedExistString())) ) {
-                this.gameScoreboard.resetScores(key);
-//                Bukkit.getConsoleSender().sendMessage("removed");
+            ArrayList<String> universalLines = formatScoreboardTeams();
+            for (GamePlayer player : gamePlayers) {
+
+                SternalBoardHandler board = new SternalBoardHandler(player.player);
+
+                board.updateTitle(ColoursManager.white + "   ʙᴇᴅᴡᴀʀs   ");
+
+                ArrayList<String> lines = new ArrayList<>();
+                lines.add("");
+                lines.addAll(universalLines);
+                lines.add("");
+                lines.addAll(formatPlayerAbilities(player));
+                lines.add("");
+
+                board.updateLines(lines);
             }
         }
+        //SCOREBOARD KILLER
+//        if (1 == 1) return;
+//
+//        if (!getOriginalOrInheritedScoreaboard()) {
+//            return;
+//        }
+//
+//
+//        Component component = Component.newline();
+//        component.insertion(this.formatScoreboardTitle());
+//        Objective obj = this.gameScoreboard.getObjective("display");
+//        if (obj == null) {
+//            obj = this.gameScoreboard.registerNewObjective("display", "dummy", component);
+//        }
+//
+//        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+////        obj.displayName(component);
+//
+//
+//
+//        for (String key : this.gameScoreboard.getEntries()) {
+//            String firstSymbol = ChatColor.stripColor(key).substring(0, 1);
+////            Bukkit.getConsoleSender().sendMessage(ChatColor.stripColor(key) + "  " + firstSymbol + "   " + anchorEmptyString());
+//            if ( firstSymbol.contains(ChatColor.stripColor(anchorEmptyString())) || firstSymbol.contains(ChatColor.stripColor(bedExistString())) ) {
+//                this.gameScoreboard.resetScores(key);
+////                Bukkit.getConsoleSender().sendMessage("removed");
+//            }
+//        }
+//
+//        for (CurrentTeam team : teamsInGame) {
+////            int max_players = team.getMaxPlayers();
+////            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, false, false));
+////            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, false, true));
+////            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, true, false));
+//
+//            Score score = obj.getScore(this.formatScoreboardTeam(team, !team.isBed, team.isBed && "RESPAWN_ANCHOR".equals(team.teamInfo.bed.getBlock().getType().name()) && Player116ListenerUtils.isAnchorEmpty(team.teamInfo.bed.getBlock())));
+//            score.setScore(team.players.size());
+//        }
+//
+//        for (GamePlayer player : players) {
+//            player.player.setScoreboard(gameScoreboard);
+//        }
+    }
 
-        for (CurrentTeam team : teamsInGame) {
-//            int max_players = team.getMaxPlayers();
-//            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, false, false));
-//            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, false, true));
-//            this.gameScoreboard.resetScores(this.formatScoreboardTeam(team, true, false));
 
-            Score score = obj.getScore(this.formatScoreboardTeam(team, !team.isBed, team.isBed && "RESPAWN_ANCHOR".equals(team.teamInfo.bed.getBlock().getType().name()) && Player116ListenerUtils.isAnchorEmpty(team.teamInfo.bed.getBlock())));
-            score.setScore(team.players.size());
+
+    public ArrayList<String> formatPlayerAbilities( GamePlayer gamePlayer ) {
+        ArrayList<String> lines = new ArrayList<>();
+        for ( int i = 0; i < gamePlayer.loadedAbilities.size(); i++ ) {
+            lines.add(AbilitiesManager.formatLoadedAbilityNameInSlot(gamePlayer, i));
+        }
+        return lines;
+    }
+
+    public ArrayList<String> formatScoreboardTeams() {
+
+        ArrayList<String> lines = new ArrayList<>();
+        for ( CurrentTeam team : teamsInGame ) {
+            lines.add(formatScoreboardTeam(team, !team.isBed, team.isBed && "RESPAWN_ANCHOR".equals(team.teamInfo.bed.getBlock().getType().name()) && Player116ListenerUtils.isAnchorEmpty(team.teamInfo.bed.getBlock())));
         }
 
-        for (GamePlayer player : players) {
-            player.player.setScoreboard(gameScoreboard);
-        }
+        return lines;
+
     }
 
     public String formatScoreboardTeam(CurrentTeam team, boolean destroy, boolean empty) {
@@ -2925,16 +3297,16 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
 
         String show = "%bed% ";
         for (int i = 1; i <= maxPlayers; i++ ){
-            if( i <= presentPlayers ) show += team.teamInfo.color.chatColor;
-            else show += ChatColor.GRAY;
-            show += "■";
+            if( i <= presentPlayers ) show += team.teamInfo.color.getSupportCell();
+            else show += team.teamInfo.color.getSupportCellEmpty();
         }
         show += " " + team.teamInfo.color.chatColor + "%team%";
 
         //return Main.getConfigurator().config.getString("scoreboard.teamTitle")
         return (show)
                 .replace("%team%", team.teamInfo.name)
-                .replace("%bed%", destroy ? bedLostString() : (empty ? anchorEmptyString() : bedExistString()));
+                .replace("%bed%", destroy ? IconType.BED_CROSSED.getIcon() : (empty ? IconType.BED_CROSSED.getIcon() : team.teamInfo.color.getBed()));
+//                .replace("%bed%", destroy ? bedLostString() : (empty ? anchorEmptyString() : bedExistString()));
     }
 
     public static String bedExistString() {
@@ -3910,7 +4282,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                 File finalSchematic = schematic;
                 Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
                     ClipboardFormat format = ClipboardFormats.findByFile(finalSchematic);
-                    Bukkit.getConsoleSender().sendMessage("found schematic - " + this.getName());
+                    Bukkit.getConsoleSender().sendMessage("used schematic - " + this.getName());
 
                     try (ClipboardReader reader = format.getReader(new FileInputStream(finalSchematic))) {
                         clipboard[0] = reader.read();
@@ -3931,6 +4303,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
                             .createPaste(session)
                             .to(BlockVector3.at(this.schematicPosition.getBlockX(), this.schematicPosition.getBlockY(), this.schematicPosition.getBlockZ()))
                             .ignoreAirBlocks(false)
+                            .copyEntities(true)
                             .build();
                     Operations.complete(operation);
                     session.close();
@@ -3953,6 +4326,7 @@ public class Game implements org.screamingsandals.bedwars.api.game.Game {
     }
 
     public void removeProtectedPlayer(Player player) {
+        Main.getInstance().getLogger().info("trying to remove protection " + player.getName());
         RespawnProtection respawnProtection = respawnProtectionMap.get(player);
         if (respawnProtection == null) {
             return;

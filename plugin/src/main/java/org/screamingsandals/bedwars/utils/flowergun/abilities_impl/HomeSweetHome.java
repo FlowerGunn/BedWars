@@ -3,10 +3,13 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
@@ -28,49 +31,71 @@ public class HomeSweetHome extends Ability implements IAbility {
         this.rarity = 4;
         this.icon = IconType.GOLD_INGOT;
 
+        this.hidden = true;
+
         this.abilityCategories.add(AbilityCategory.GUARDIAN);
         this.abilityCategories.add(AbilityCategory.ECONOMIST);
 
-        this.description = "Использование гаджета Телепортации на базу#вернёт его игроку с шансом (values1)%, а также#даст эффект Сопротивления 1 и Скорости 3 на (values2) секунд.";
+        this.description = "Использование гаджета Телепортации на базу вернёт его игроку.#Игрок получит 1 Телепорт на базу при первом спавне.#Игрок наносит на (values1)% больше урона#при наличии кровати.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 70 + 10 * level;
+        return 6 + level;
+    }
+
+//    @Override
+//    public int calculateIntValue2(int level) {
+//        return 300 + 100 * level;
+//    }
+
+//    @Override
+//    public String formatValue2(int level) {
+//        return "" + calculateIntValue2(level) / 20;
+//    }
+
+    @Override
+    public void playerFirstSpawn(int level, GamePlayer gamePlayer) {
+
+        gamePlayer.playerFlags.add(GameFlag.FREE_TP);
+        gamePlayer.getCustomGUIShopInstance().findItemById("tp").giveForFree(gamePlayer.player);
+
     }
 
     @Override
-    public int calculateIntValue2(int level) {
-        return 300 + 100 * level;
-    }
+    public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
 
-    @Override
-    public String formatValue2(int level) {
-        return "" + calculateIntValue2(level) / 20;
-    }
+        if ( event.isCancelled() ) return;
 
-
-
-    @Override
-    public void gadgetUsed(int level, GamePlayer gamePlayer, GadgetType gadgetType, CompoundValueModifier compoundValueModifier) {
-        if (gadgetType == GadgetType.TP) {
-            Random random = new Random();
-            int chance = calculateIntValue1(level);
-
-            Player player = gamePlayer.player;
-            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, calculateIntValue2(level), 0, false, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, calculateIntValue2(level), 2, false, false));
-
-            playFXDefensiveUtility(player, 1);
-            notifyPlayerOnAbilityActivation(player);
-
-            if ( random.nextInt(100) < chance ) {
-
-
-                gamePlayer.getCustomGUIShopInstance().findItemById("tp").giveForFree(player);
-                playFXItemGained(player, 1);
+        GamePlayer gAttacker = Main.getPlayerGameProfile(attacker);
+        Game game = gAttacker.getGame();
+        if ( game.getPlayerTeam(gAttacker).isBed ) {
+            if (event.getFinalDamage() > 0) {
+                compoundValueModifier.addExp(calculateIntValue1(level) * 0.01);
             }
         }
     }
+
+//    @Override
+//    public void gadgetUsed(int level, GamePlayer gamePlayer, GadgetType gadgetType, CompoundValueModifier compoundValueModifier) {
+//        if (gadgetType == GadgetType.TP) {
+//            Random random = new Random();
+//            int chance = calculateIntValue1(level);
+//
+//            Player player = gamePlayer.player;
+//            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, calculateIntValue2(level), 0, false, false));
+//            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, calculateIntValue2(level), 2, false, false));
+//
+//            playFXDefensiveUtility(player, 1);
+//            notifyPlayerOnAbilityActivation(player);
+//
+//            if ( random.nextInt(100) < chance ) {
+//
+//
+//                gamePlayer.getCustomGUIShopInstance().findItemById("tp").giveForFree(player);
+//                playFXItemGained(player, 1);
+//            }
+//        }
+//    }
 
 }

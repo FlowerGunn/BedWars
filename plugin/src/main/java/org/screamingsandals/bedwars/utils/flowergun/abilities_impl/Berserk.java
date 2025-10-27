@@ -32,7 +32,6 @@ public class Berserk extends Ability implements IAbility {
         this.icon = IconType.SPEED;
 
         this.abilityCategories.add(AbilityCategory.VIKING);
-        this.abilityCategories.add(AbilityCategory.BUILDER);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
 
@@ -41,11 +40,11 @@ public class Berserk extends Ability implements IAbility {
     }
 
     @Override
-    public int calculateIntValue1(int level) { return 30 + 5 * level; }
+    public int calculateIntValue1(int level) { return 15 + 5 * level; }
 
 
     @Override
-    public int calculateIntValue2(int level) { return 13 + 2 * level; }
+    public int calculateIntValue2(int level) { return 13 + 3 * level; }
 
 
     @Override

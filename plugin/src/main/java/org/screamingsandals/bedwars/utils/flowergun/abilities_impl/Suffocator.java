@@ -29,7 +29,7 @@ public class Suffocator extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.CLOWN);
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
 
-        this.description = "Нанося урон противникам игрок лечит#противника на 6 ед. и накладывает#Левитацию 1 на (values1) секунд.";
+        this.description = "Нанося урон противникам они получат 6 ед.#лечения и эффект Левитации 1 на (values1) секунд,#а игрок получит Отравление 1 и Медленное#Копание 3 на (values1) секунд.";
     }
 
     @Override
@@ -53,6 +53,7 @@ public class Suffocator extends Ability implements IAbility {
                 playFXDebuff(victim, 1);
                 healHealth(attacker, victim, 6);
                 victim.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, calculateIntValue1(level), 0, false, false));
+                attacker.addPotionEffect(new PotionEffect(PotionEffectType.POISON, calculateIntValue1(level), 0, false, false));
             }
         }
     }

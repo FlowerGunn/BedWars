@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -88,17 +89,14 @@ public class MagmaSkin extends Ability implements IAbility {
                     playFXFire(victim, 1);
                     notifyPlayerOnAbilityActivation(victim);
 
-                    this.isOnCooldown = true;
-                    Player user = victim;
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                        notifyPlayerOnCooldownEnd(user);
-                        this.isOnCooldown = false;
-                    },calculateIntValue1(level));
+                    putOnCooldown(victim, calculateIntValue1(level));
 
                 }
-            } else if ( damageInstance.damageRelay == DamageRelay.MELEE ) {
-                Entity attacker = event.getEntity();
+            } else if ( event instanceof EntityDamageByEntityEvent event1 && damageInstance.damageRelay == DamageRelay.MELEE ) {
+                if ( isOnCooldown ) {
+                Entity attacker = event1.getDamager();
                 attacker.setFireTicks(100);
+                }
             }
         }
     }

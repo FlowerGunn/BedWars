@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -19,6 +18,7 @@ import org.screamingsandals.bedwars.game.Team;
 import org.screamingsandals.bedwars.game.CurrentTeam;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.statistics.PlayerStatistic;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.OwnedAbility;
@@ -27,9 +27,7 @@ import org.screamingsandals.bedwars.utils.flowergun.customobjects.*;
 import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
 import org.screamingsandals.bedwars.utils.flowergun.managers.IconsManager;
 import org.screamingsandals.bedwars.utils.flowergun.managers.NotificationManager;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.GameFlag;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
-import org.screamingsandals.bedwars.utils.flowergun.other.enums.MenuType;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.ShopCategory;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.ShopInstance;
@@ -40,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.screamingsandals.bedwars.game.Game.ALL_ABILITIES_MODE;
 import static org.screamingsandals.bedwars.inventories.TeamSelectorInventory.formatLore;
 import static org.screamingsandals.bedwars.lib.lang.I.i18n;
 import static org.screamingsandals.bedwars.lib.lang.I.i18nonly;
@@ -67,6 +64,7 @@ public class CustomGUI {
     public static ArrayList<CustomGUIButton> abilitiesOrangePanes;
     public static ArrayList<CustomGUIButton> abilitiesYellowPanes;
     public static ArrayList<CustomGUIButton> abilitiesHoppers;
+    public static ArrayList<CustomGUIButton> simpleAbilitiesHoppers;
     public static ArrayList<CustomGUIButton> abilities;
 
     static {
@@ -76,6 +74,7 @@ public class CustomGUI {
         abilitiesOrangePanes = new ArrayList<>();
         abilitiesYellowPanes = new ArrayList<>();
         abilitiesHoppers = new ArrayList<>();
+        simpleAbilitiesHoppers = new ArrayList<>();
         abilities = new ArrayList<>();
 
         abilitiesRedPanes.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(0,0).setMaterial(Material.RED_STAINED_GLASS_PANE).setName(" ").build());
@@ -104,6 +103,14 @@ public class CustomGUI {
         abilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3,1).setMaterial(Material.HOPPER).setName(" ").build());
         abilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(4,1).setMaterial(Material.HOPPER).setName(" ").build());
         abilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(5,1).setMaterial(Material.HOPPER).setName(" ").build());
+
+        simpleAbilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(1,3).setMaterial(Material.HOPPER).setName(" ").build());
+        simpleAbilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(2,3).setMaterial(Material.HOPPER).setName(" ").build());
+        simpleAbilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3,3).setMaterial(Material.HOPPER).setName(" ").build());
+        simpleAbilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(4,3).setMaterial(Material.HOPPER).setName(" ").build());
+        simpleAbilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(5,3).setMaterial(Material.HOPPER).setName(" ").build());
+        simpleAbilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(6,3).setMaterial(Material.HOPPER).setName(" ").build());
+        simpleAbilitiesHoppers.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(7,3).setMaterial(Material.HOPPER).setName(" ").build());
 
         abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(2,2).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" ").build());
         abilitiesGrayPanes2.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(6,2).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" ").build());
@@ -392,25 +399,26 @@ public class CustomGUI {
                     ItemStack item = CustomStack.getInstance("anicloud:slot_locked").getItemStack();
                     String name = ColoursManager.gray + "Пустой слот";
 
-                    lore.add("");
-//                    lore.add(ChatColor.GRAY + "Максимальная уровень способности");
-//                    lore.add(ChatColor.GRAY + "в этом слоте - " + ChatColor.WHITE + "" + ChatColor.BOLD + (i + 1) );
-//                    lore.add("");
+                    lore.addAll(loadedAbility.getOwnedAbility().parseDescription(i + 1));
+                    lore.addAll(loadedAbility.getOwnedAbility().generateInventoryInfo(player, false, false, false, true));
 
-                    if (!loadedAbility.isEmpty()) {
-                        name = loadedAbility.getOwnedAbility().getAbility().getName();
-                        item = loadedAbility.getOwnedAbility().getAbility().getAbilityGuiItem();
-                        lore.addAll(loadedAbility.getOwnedAbility().parseDescription( i + 1));
-                    }
-//                    else {
-//                        lore.add("");
-//                        lore.add(ChatColor.GRAY + "Кликните, чтобы выбрать способность...");
+//
+//                    if (!loadedAbility.isEmpty()) {
+//                        name = loadedAbility.getOwnedAbility().getAbility().getName();
+//                        item = loadedAbility.getOwnedAbility().getAbility().getAbilityGuiItem();
+//                        lore.addAll(loadedAbility.getOwnedAbility().parseDescription( i + 1));
 //                    }
-                    if ( game.getAllAbilitiesMode() ) {
-                        lore.add("");
-                        lore.addAll(FlowerUtils.alphaWarning);
-                    }
-                    this.buttons.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3 + i, 2).setItemstack(item).setName(name).setLore(lore).build());
+//
+//                    boolean enchanted = false;
+//                    if ( loadedAbility.getOwnedAbility().getAbility().isPublicTesting() ) {
+//                        lore.add("");
+//                        lore.addAll(FlowerUtils.alphaWarning);
+//                    } else if ( loadedAbility.getOwnedAbility().getAbility().isDailyTrial() ) {
+//                        lore.add("");
+//                        lore.addAll(FlowerUtils.trialMessage);
+//                        enchanted = true;
+//                    }
+                    this.buttons.add(new CustomGUIButton("BLOCKER").setArgs("").setXY(3 + i, 2).setItemstack(item).setName(name).setLore(lore).addHiddenEnchantment(loadedAbility.getOwnedAbility().getAbility().isDailyTrial()).build());
                 }
 
                 this.buttons.addAll(abilities);
@@ -422,8 +430,6 @@ public class CustomGUI {
                 break;
             }
             case "ABILITIES": {
-
-
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_WORK_LIBRARIAN, 1.0F, 1.0F);
 
                 GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
@@ -434,36 +440,65 @@ public class CustomGUI {
 
                 LoadedAbility loadedAbility;
 
+                boolean simpleMode = gamePlayer.getSetting(PlayerConfigType.SIMPLIFIED_ABILITY_SELECTION);
+
+
+
+                if ( simpleMode ) {
+
+                } else {
+
+                }
+
                 for (int i = 0; i < loadedAbilities.size(); i++) {
                     loadedAbility = loadedAbilities.get(i);
                     lore = new ArrayList<>();
                     ItemStack item = new ItemStack(Material.LIME_DYE);
-                    String name = ColoursManager.green + "Пустой слот";
+                    String name = simpleMode ? ColoursManager.darkGray + "- Пустой слот" : ColoursManager.green + "> Пустой слот";
 
                     lore.add("");
                     lore.add(ChatColor.GRAY + "Максимальная уровень способности");
-                    lore.add(ChatColor.GRAY + "в этом слоте - " + ChatColor.WHITE + "" + ChatColor.BOLD + (i + 1) );
+                    lore.add(ChatColor.GRAY + "в этом слоте - " + ChatColor.WHITE + "" + ChatColor.BOLD + (i + 1));
 
                     if (!loadedAbility.isEmpty()) {
                         name = loadedAbility.getOwnedAbility().getAbility().getName();
                         item = loadedAbility.getOwnedAbility().getAbility().getAbilityGuiItem();//loadedAbility.getOwnedAbility().ownedLevel, Math.min(loadedAbility.getOwnedAbility().ownedLevel, i + 1),
-                        lore.addAll(loadedAbility.getOwnedAbility().parseDescription( i + 1 ));
-                        lore.addAll(loadedAbility.getOwnedAbility().generateInventoryInfo(player, true, false ,false ,true));
-                    }
-                    else {
+                        lore.addAll(loadedAbility.getOwnedAbility().parseDescription(i + 1));
+                        lore.addAll(loadedAbility.getOwnedAbility().generateInventoryInfo(player, true, false, false, true));
+                    } else if ( simpleMode ) {
+                        lore.add("");
+                        lore.add(ColoursManager.orange + "Выберите категорию для автоустановки способностей");
+                        lore.add(ColoursManager.orange + "или отключите автоустановку в левом нижнем углу.");
+                    } else {
                         lore.add("");
                         lore.add(ColoursManager.green + "Кликните, чтобы выбрать способность...");
                     }
 
-                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SELECT_ABILITY", i + "").setXY(3 + i, 2).setItemstack(item).setName(name).setLore(lore).build());
+                    this.buttons.add(new CustomGUIButton(simpleMode ? "ERROR" : "GOGUI").setArgs("SELECT_ABILITY", i + "").setXY(3 + i, 2).setItemstack(item).setName(name).setLore(lore).build());
+                    if ( simpleMode ) {
+                        this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES_BY_CATEGORY").setArgs(AbilityCategory.FIGHTER.toString()).setXY(1 , 4).setMaterial(Material.IRON_SWORD).setName(AbilityCategory.FIGHTER.getColor() + "> Я хочу играть Мечником").setLore(AbilityCategory.FIGHTER.generateFullDescription()).build());
+                        this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES_BY_CATEGORY").setArgs(AbilityCategory.ARCHER.toString()).setXY(2 , 4).setMaterial(Material.BOW).setName(AbilityCategory.ARCHER.getColor() + "> Я хочу играть Лучником").setLore(AbilityCategory.ARCHER.generateFullDescription()).build());
+                        this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES_BY_CATEGORY").setArgs(AbilityCategory.TANK.toString()).setXY(3 , 4).setMaterial(Material.IRON_AXE).setName(AbilityCategory.TANK.getColor() + "> Я хочу играть Танком").setLore(AbilityCategory.TANK.generateFullDescription()).build());
+                        this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES_BY_CATEGORY").setArgs(AbilityCategory.SCOUT.toString()).setXY(4 , 4).setMaterial(Material.IRON_PICKAXE).setName(AbilityCategory.SCOUT.getColor() + "> Я хочу играть Скаутом").setLore(AbilityCategory.SCOUT.generateFullDescription()).build());
+                        this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES_BY_CATEGORY").setArgs(AbilityCategory.MANIPULATOR.toString()).setXY(5 , 4).setMaterial(Material.FLINT_AND_STEEL).setName(AbilityCategory.MANIPULATOR.getColor() + "> Я хочу играть Манипулятором").setLore(AbilityCategory.MANIPULATOR.generateFullDescription()).build());
+                        this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES_BY_CATEGORY").setArgs(AbilityCategory.ECONOMIST.toString()).setXY(6 , 4).setMaterial(Material.IRON_INGOT).setName(AbilityCategory.ECONOMIST.getColor() + "> Я хочу играть Экономистом").setLore(AbilityCategory.ECONOMIST.generateFullDescription()).build());
+                        this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES_BY_CATEGORY").setArgs(AbilityCategory.HEALER.toString()).setXY(7 , 4).setMaterial(Material.GOLDEN_APPLE).setName(AbilityCategory.HEALER.getColor() + "> Я хочу играть Лекарем").setLore(AbilityCategory.HEALER.generateFullDescription()).build());
+                    }
+
+                }
+                this.buttons.addAll(abilities);
+                if ( !simpleMode ) {
+                    this.buttons.addAll(abilitiesHoppers);
+                    this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES").setArgs("").setXY( 4, 5 ).setMaterial(Material.RECOVERY_COMPASS).setName(ColoursManager.purple + "> Выбрать ВСЕ способности случайно...").build());
                 }
 
+                boolean value = gamePlayer.getSetting(PlayerConfigType.SIMPLIFIED_ABILITY_SELECTION);
+                this.buttons.add(new CustomGUIButton("SWITCH_SIMPLE_ABILITY_SELECTION").setArgs("").setXY( 0, 5 ).setItemstack( value ? new ItemStack(Material.LIME_DYE) : new ItemStack( Material.GRAY_DYE )  ).setName(  value ? ColoursManager.red + "> Упрощённые способности [ВКЛЮЧЕНО]" : ColoursManager.green + "> Упрощённые способности [ОТКЛЮЧЕНО]"  ).build());
 
-                this.buttons.add(new CustomGUIButton("RANDOMIZE_ALL_ABILITIES").setArgs("").setXY( 4, 5 ).setMaterial(Material.RECOVERY_COMPASS).setName(ColoursManager.purple + "Выбрать ВСЕ способности случайно...").build());
-
-                this.buttons.addAll(abilities);
-                this.buttons.addAll(abilitiesHoppers);
                 this.buttons.addAll(abilitiesGrayPanes1);
+
+                if (simpleMode)
+                    this.buttons.addAll(simpleAbilitiesHoppers);
 
                 backButtonPrepare("EXIT");
 
@@ -495,7 +530,7 @@ public class CustomGUI {
                     int j = i - FlowerUtils.bwInventoryRows * ( page - 1 ) * 9;
 
                     if (ownedAbility.isAvailable()) {
-                        this.buttons.add(new CustomGUIButton("SELECT_ABILITY_INTO_SLOT").setArgs(ownedAbility.getAbility().getId(), arg, arg2).setXY( j % 9, j / 9 ).setItemstack(ownedAbility.getAbility().getAbilityGuiItem()).setName(ownedAbility.getAbility().getName()).setLore(lore).build());
+                        this.buttons.add(new CustomGUIButton("SELECT_ABILITY_INTO_SLOT").setArgs(ownedAbility.getAbility().getId(), arg, arg2).setXY( j % 9, j / 9 ).setItemstack(ownedAbility.getAbility().getAbilityGuiItem()).setName(ownedAbility.getAbility().getName()).setLore(lore).addHiddenEnchantment(ownedAbility.getAbility().isDailyTrial()).build());
                     }
                     else {
                         buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY(j % 9, j / 9).setMaterial(Material.GRAY_DYE).setName(ownedAbility.getAbility().getName()).setLore(lore).build());
@@ -509,7 +544,7 @@ public class CustomGUI {
                     this.buttons.add(new CustomGUIButton("GOGUI").setArgs("SELECT_ABILITY", slot + "", page - 1 + "").setXY( 0, 5 ).setItemstack(CustomStack.getInstance("anicloud:button_back").getItemStack()).setName( ColoursManager.gray + "Предыдущая страница").build());
 
 
-                this.buttons.add(new CustomGUIButton("RANDOMIZE_ABILITY_INTO_SLOT").setArgs(arg).setXY( 4, 5 ).setMaterial(Material.RECOVERY_COMPASS).setName(ColoursManager.purple + "Выбрать случайно...").build());
+                this.buttons.add(new CustomGUIButton("RANDOMIZE_ABILITY_INTO_SLOT").setArgs(arg).setXY( 4, 5 ).setMaterial(Material.RECOVERY_COMPASS).setName(ColoursManager.purple + "> Выбрать случайно...").build());
                 this.buttons.addAll(abilitiesGrayPanes1);
 
                 backButtonPrepare("ABILITIES");
@@ -573,7 +608,7 @@ public class CustomGUI {
                                     buttons.add(new CustomGUIButton("ERROR").setXY(i + 1, 3).setMaterial(Material.YELLOW_STAINED_GLASS_PANE).setName(" ").build());
                                 } else {
                                     lore.add("");
-                                    lore.add(ColoursManager.green + "Рецепт завершён.");
+                                    lore.add(ColoursManager.green + "> Рецепт завершён.");
                                     buttons.add(new CustomGUIButton("FORGE_RECIPE_CLAIM").setArgs(i + "").setXY(i + 1, 2).setItemstack(itemStack).setLore(lore).build());
                                     buttons.add(new CustomGUIButton("ERROR").setXY(i + 1, 1).setMaterial(Material.LIME_STAINED_GLASS_PANE).setName(" ").build());
                                     buttons.add(new CustomGUIButton("ERROR").setXY(i + 1, 3).setMaterial(Material.LIME_STAINED_GLASS_PANE).setName(" ").build());
@@ -583,7 +618,7 @@ public class CustomGUI {
                             }
                         }
                         if (found) continue;
-                        buttons.add(new CustomGUIButton("GOGUI").setArgs("CHOOSE_FORGE_RECIPE", i + "").setXY(i + 1, 2).setMaterial(Material.LIME_DYE).setName(ColoursManager.green + "Запустить новый крафт...").build());
+                        buttons.add(new CustomGUIButton("GOGUI").setArgs("CHOOSE_FORGE_RECIPE", i + "").setXY(i + 1, 2).setMaterial(Material.LIME_DYE).setName(ColoursManager.green + "> Запустить новый крафт...").build());
                         buttons.add(new CustomGUIButton("ERROR").setXY(i + 1, 1).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" ").build());
                         buttons.add(new CustomGUIButton("ERROR").setXY(i + 1, 3).setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" ").build());
                     }
@@ -592,7 +627,7 @@ public class CustomGUI {
                         lore.add("");
                         switch (i) {
                             case 3: {
-                                lore.add(ColoursManager.blue + "Доступно с привилегии " + ChatColor.WHITE + IconsManager.requestIcon(IconType.VIP, player));
+                                lore.add(ColoursManager.light_blue + "Доступно с привилегии " + ChatColor.WHITE + IconsManager.requestIcon(IconType.VIP, player));
                                 break;
                             }
                             case 4: {
@@ -677,19 +712,122 @@ public class CustomGUI {
                 meta.setOwningPlayer(player);
                 head.setItemMeta(meta);
 
-                Main.getPlayerGameProfile(player).setLastMenuVisited(MenuType.INVENTORY);
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+                gamePlayer.setLastMenuVisited(MenuType.INVENTORY);
 
-                buttons.add(new CustomGUIButton("BLOCK").setArgs("").setXY( 1, 1 ).setItemstack(head).setName( ColoursManager.gray + "Игрок " + player.getDisplayName()).build());
-                buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITIES").setXY( 3, 1 ).setMaterial(Material.BLAZE_POWDER).setName( ColoursManager.blue + "Способности").build());
-                buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_RESOURCES").setXY( 4, 1 ).setItemstack(CustomStack.getInstance("anicloud:catalyst_epic").getItemStack()).setName( ColoursManager.blue + "Ресурсы").build());
-                buttons.add(new CustomGUIButton("GOGUI").setArgs("CASES").setXY( 6, 1 ).setItemstack(CustomStack.getInstance("anicloud:book_evil2").getItemStack()).setName( ColoursManager.blue + "Сундуки").build());
-                buttons.add(new CustomGUIButton("GOGUI").setArgs("FORGE").setXY( 7, 1 ).setMaterial(Material.ANVIL).setName( ColoursManager.blue + "Кузница").build());
-//                buttons.add(new CustomGUIButton("GOGUI").setArgs("FORGE").setXY( 5, 1 ).setItemstack(CustomStack.getInstance("anicloud:motherboard").getItemStack()).setName( ColoursManager.blue + "Рецепты").build());
-//                buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_STATS").setXY( 6, 1 ).setMaterial(Material.IRON_SWORD).setName( ColoursManager.blue + "Статистика").build());
+                PlayerStatistic statistic = Main.getPlayerStatisticsManager().getStatistic(player);
+
+                ArrayList<String> lore = new ArrayList<>();
+                lore.add("");
+                lore.add( ColoursManager.darkGray + " Ваша статистика: ");
+                lore.add("");
+                lore.add( ColoursManager.gray + " Игр сыграно: " + ColoursManager.white + statistic.getGames());
+                lore.add( ColoursManager.gray + " Побед: " + ColoursManager.green + statistic.getWins());
+                lore.add( ColoursManager.gray + " Проигрышей: " + ColoursManager.red + statistic.getLoses());
+                lore.add("");
+                lore.add( ColoursManager.gray + " Убийств: " + ColoursManager.red + statistic.getKills());
+                lore.add( ColoursManager.gray + " Смертей: " + ColoursManager.darkRed + statistic.getDeaths());
+                lore.add( ColoursManager.gray + " У/С: " + ColoursManager.orange + statistic.getKD());
+                lore.add("");
+                lore.add( ColoursManager.gray + " Сломано кроватей: " + ColoursManager.elytra + statistic.getDestroyedBeds());
+                lore.add("");
+                lore.add( ColoursManager.gray + " Рейтинг: " + ColoursManager.light_blue + statistic.getScore());
+                lore.add("");
+                buttons.add(new CustomGUIButton("GOGUI").setArgs("SETTINGS").setXY( 1, 1 ).setItemstack(head).setName( ColoursManager.light_blue + "" + ChatColor.BOLD + "> Настройки").setLore(lore).build());
+
+                lore = new ArrayList<>();
+                lore.add("");
+                lore.add(ColoursManager.darkGray + " Инвентарь способностей игрока. Способности");
+                lore.add(ColoursManager.darkGray + " устанавливаются в 3 слота перед началом");
+                lore.add(ColoursManager.darkGray + " матча и влияют на стиль игры игрока.");
+                lore.add("");
+                boolean locked = gamePlayer.getSetting( PlayerConfigType.DEFAULT_ABILITIES_AUTOSELECT );
+                if ( locked ) {
+                    lore.add(ColoursManager.yellow + " Сыграйте ещё " + ColoursManager.white + Math.max( FlowerUtils.unlockAbilitySelectionGamesPlayedRequirement - statistic.getGames(), 1 ) + ColoursManager.yellow + " игр," );
+                    lore.add(ColoursManager.yellow + " чтобы разблокировать меню способностей." );
+                    lore.add("");
+                }
+                buttons.add(new CustomGUIButton(!locked ? "GOGUI" : "ERROR").setArgs("INVENTORY_ABILITIES").setXY( 3, 1 ).setItemstack( !locked ? new ItemStack(Material.BLAZE_POWDER) : CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( locked ? ColoursManager.gray + "> Способности [ЗАБЛОКИРОВАНО]" : ColoursManager.light_blue + "" + ChatColor.BOLD + "> Способности").setLore(lore).build());
+
+                lore = new ArrayList<>();
+                lore.add("");
+                lore.add(ColoursManager.darkGray + " Инвентарь ресурсов игрока. Ресурсы");
+                lore.add(ColoursManager.darkGray + " добываются за различные действия ");
+                lore.add(ColoursManager.darkGray + " в игре и используются для крафта ");
+                lore.add(ColoursManager.darkGray + " или улучшения способностей и косметики.");
+                lore.add("");
+                locked = gamePlayer.getSetting( PlayerConfigType.HIDE_RESOURCES );
+                if ( locked ) {
+                    lore.add(ColoursManager.yellow + " Сыграйте ещё " + ColoursManager.white + Math.max( FlowerUtils.unlockResourcesGamesPlayedRequirement - statistic.getGames(), 1 ) + ColoursManager.yellow + " игр," );
+                    lore.add(ColoursManager.yellow + " чтобы разблокировать меню ресурсов." );
+                    lore.add("");
+                }
+                buttons.add(new CustomGUIButton(!locked ? "GOGUI" : "ERROR").setArgs("INVENTORY_RESOURCES").setXY( 4, 1 ).setItemstack( !locked ? CustomStack.getInstance("anicloud:catalyst_epic").getItemStack() : CustomStack.getInstance("anicloud:slot_locked").getItemStack()).setName(  locked ? ColoursManager.gray + "> Ресурсы [ЗАБЛОКИРОВАНО]" : ColoursManager.light_blue + "" + ChatColor.BOLD + "> Ресурсы").setLore(lore).build());
+
+                lore = new ArrayList<>();
+                lore.add("");
+                lore.add(ColoursManager.darkGray + " Меню чтения книг. Книги раскрывают");
+                lore.add(ColoursManager.darkGray + " секреты легендарных бойцов BedWars'a");
+                lore.add(ColoursManager.darkGray + " и обучают игрока новым навыкам. ");
+                lore.add("");
+                locked = gamePlayer.getSetting( PlayerConfigType.HIDE_RESOURCES );
+                if ( locked ) {
+                    lore.add(ColoursManager.yellow + " Сыграйте ещё " + ColoursManager.white + Math.max( FlowerUtils.unlockResourcesGamesPlayedRequirement - statistic.getGames(), 1 ) + ColoursManager.yellow + " игр," );
+                    lore.add(ColoursManager.yellow + " чтобы начать расшифровывать" );
+                    lore.add(ColoursManager.yellow + " потерянные знания." );
+                    lore.add("");
+                }
+                buttons.add(new CustomGUIButton(!locked ? "GOGUI" : "ERROR").setArgs("CASES").setXY( 6, 1 ).setItemstack ( !locked ? CustomStack.getInstance("anicloud:book_evil2").getItemStack() : CustomStack.getInstance("anicloud:slot_locked").getItemStack()).setName(  locked ? ColoursManager.gray + "> Книги [ЗАБЛОКИРОВАНО]" : ColoursManager.light_blue + "" + ChatColor.BOLD + "> Книги").setLore(lore).build());
+
+                lore = new ArrayList<>();
+                lore.add("");
+                lore.add(ColoursManager.darkGray + " Открыть интерфейс Кузницы. Кузница позволяет");
+                lore.add(ColoursManager.darkGray + " объединять простые ресурсы в более редкие и изменять");
+                lore.add(ColoursManager.darkGray + " одни способности на другие с помощью катализаторов.");
+                lore.add("");
+                locked = gamePlayer.getSetting( PlayerConfigType.HIDE_FORGE );
+                if ( locked ) {
+                    lore.add(ColoursManager.yellow + " Сыграйте ещё " + ColoursManager.white + Math.max( FlowerUtils.unlockForgeGamesPlayedRequirement - statistic.getGames(), 1 ) + ColoursManager.yellow + " игр," );
+                    lore.add(ColoursManager.yellow + " чтобы разблокировать Кузницу." );
+                    lore.add("");
+                }
+                buttons.add(new CustomGUIButton(!locked ? "GOGUI" : "ERROR").setArgs("FORGE").setXY( 7, 1 ).setItemstack( !locked ? new ItemStack(Material.ANVIL) : CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( locked ? ColoursManager.gray + "> Кузница [ЗАБЛОКИРОВАНО]" : ColoursManager.light_blue + "" + ChatColor.BOLD + "> Кузница").setLore(lore).build());
+
+//                buttons.add(new CustomGUIButton("GOGUI").setArgs("FORGE").setXY( 5, 1 ).setItemstack(CustomStack.getInstance("anicloud:motherboard").getItemStack()).setName( ColoursManager.light_blue + "Рецепты").build());
+//                buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_STATS").setXY( 6, 1 ).setMaterial(Material.IRON_SWORD).setName( ColoursManager.light_blue + "Статистика").build());
 //                buttons.add(new CustomGUIButton("ERROR").setXY( 4, 2 ).setItemstack(CustomStack.getInstance("anicloud:button_tick").getItemStack()).setName( ChatColor.RED + "ЗАБЛОКИРОВАНО").build());
 //                buttons.add(new CustomGUIButton("ERROR").setXY( 5, 2 ).setItemstack(CustomStack.getInstance("_iainternal:icon_cancel").getItemStack()).setName( ChatColor.RED + "ЗАБЛОКИРОВАНО").build());
 
                 loadButtons( "Инвентарь", "anicloud:bw_menu_3core", buttons, player, 27);
+                break;
+            }
+            case "SETTINGS": {
+
+                player.playSound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.8F, 0.7F);
+
+                backButtonPrepare("INVENTORY", 8, 2);
+
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
+
+                boolean exists;
+                boolean value;
+                exists = gamePlayer.settingExists(PlayerConfigType.DEFAULT_ABILITIES_AUTOSELECT);
+                value = gamePlayer.getSetting(PlayerConfigType.DEFAULT_ABILITIES_AUTOSELECT);
+                buttons.add(new CustomGUIButton(exists ? "SWITCH_SETTING" : "ERROR").setArgs(PlayerConfigType.DEFAULT_ABILITIES_AUTOSELECT.toString()).setXY( 1, 1 ).setItemstack( exists ? ( value ? new ItemStack(Material.LIME_DYE) : new ItemStack( Material.GRAY_DYE ) ) : CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( exists ? ( value ? ColoursManager.red + "> Начальные способности [ВКЛЮЧЕНО]" : ColoursManager.green + "> Начальные способности [ОТКЛЮЧЕНО]" ) : ( ColoursManager.darkGray + "> Начальные способности [ЗАБЛОКИРОВАНО]" ) ).build());
+                exists = gamePlayer.settingExists(PlayerConfigType.SIMPLIFIED_ABILITY_SELECTION);
+                value = gamePlayer.getSetting(PlayerConfigType.SIMPLIFIED_ABILITY_SELECTION);
+                buttons.add(new CustomGUIButton(exists ? "SWITCH_SETTING" : "ERROR").setArgs(PlayerConfigType.SIMPLIFIED_ABILITY_SELECTION.toString()).setXY( 2, 1 ).setItemstack( exists ? ( value ? new ItemStack(Material.LIME_DYE) : new ItemStack( Material.GRAY_DYE ) ) : CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( exists ? ( value ? ColoursManager.red + "> Упрощённые способности [ВКЛЮЧЕНО]" : ColoursManager.green + "> Упрощённые способности [ОТКЛЮЧЕНО]" ) : ( ColoursManager.darkGray + "> Упрощённые способности [ЗАБЛОКИРОВАНО]" ) ).build());
+                exists = gamePlayer.settingExists(PlayerConfigType.HIDE_RESOURCES);
+                value = gamePlayer.getSetting(PlayerConfigType.HIDE_RESOURCES);
+                buttons.add(new CustomGUIButton(exists ? "SWITCH_SETTING" : "ERROR").setArgs(PlayerConfigType.HIDE_RESOURCES.toString()).setXY( 3, 1 ).setItemstack( exists ? ( value ? new ItemStack(Material.LIME_DYE) : new ItemStack( Material.GRAY_DYE ) ) : CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( exists ? ( value ? ColoursManager.red + "> Скрыть ресурсы [ВКЛЮЧЕНО]" : ColoursManager.green + "> Скрыть ресурсы [ОТКЛЮЧЕНО]" ) : ( ColoursManager.darkGray + "> Скрыть ресурсы [ЗАБЛОКИРОВАНО]" ) ).build());
+                exists = gamePlayer.settingExists(PlayerConfigType.HIDE_FORGE);
+                value = gamePlayer.getSetting(PlayerConfigType.HIDE_FORGE);
+                buttons.add(new CustomGUIButton(exists ? "SWITCH_SETTING" : "ERROR").setArgs(PlayerConfigType.HIDE_FORGE.toString()).setXY( 4, 1 ).setItemstack( exists ? ( value ? new ItemStack(Material.LIME_DYE) : new ItemStack( Material.GRAY_DYE ) ) : CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( exists ? ( value ? ColoursManager.red + "> Скрыть кузницу [ВКЛЮЧЕНО]" : ColoursManager.green + "> Скрыть кузницу [ОТКЛЮЧЕНО]" ) : ( ColoursManager.darkGray + "> Скрыть кузницу [ЗАБЛОКИРОВАНО]" ) ).build());
+                exists = gamePlayer.settingExists(PlayerConfigType.ENABLE_TIPS);
+                value = gamePlayer.getSetting(PlayerConfigType.ENABLE_TIPS);
+                buttons.add(new CustomGUIButton(exists ? "SWITCH_SETTING" : "ERROR").setArgs(PlayerConfigType.ENABLE_TIPS.toString()).setXY( 5, 1 ).setItemstack( exists ? ( value ? new ItemStack(Material.LIME_DYE) : new ItemStack( Material.GRAY_DYE ) ) : CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( exists ? ( value ? ColoursManager.green + "> Показывать подсказки [ВКЛЮЧЕНО]" : ColoursManager.red + "> Показывать подсказки [ОТКЛЮЧЕНО]" ) : ( ColoursManager.darkGray + "> Показывать подсказки [ЗАБЛОКИРОВАНО]" ) ).build());
+
+                loadButtons( "Настройки", "anicloud:bw_menu_3core", buttons, player, 27);
                 break;
             }
             case "INVENTORY_ABILITIES": {
@@ -711,19 +849,22 @@ public class CustomGUI {
                     ItemStack item;
                     String action;
                     String arg;
-                    if ( ownedAbility.isAvailable() ) {
+                    if ( ownedAbility.isOwned() ) {
                         item = ownedAbility.getAbility().getAbilityGuiItem();
                         action = "GOGUI";
                         arg = "INVENTORY_ABILITY_INFO";
                     } else {
-                        item = new ItemStack(Material.GRAY_DYE);
+                        if ( ownedAbility.getAbility().isDailyTrial() )
+                            item = ownedAbility.getAbility().getAbilityGuiItem();
+                        else
+                            item = new ItemStack(Material.GRAY_DYE);
                         action = "ERROR";
                         arg = "";
                     }
 
                     int j = i - FlowerUtils.bwInventoryRows * ( page - 1 ) * 9;
 
-                    this.buttons.add(new CustomGUIButton(action).setArgs(arg, ownedAbility.getAbility().getId(), page + "").setXY( j % 9, j / 9 ).setItemstack(item).setName(ownedAbility.getAbility().getName()).setLore(lore).build());
+                    this.buttons.add(new CustomGUIButton(action).setArgs(arg, ownedAbility.getAbility().getId(), page + "").setXY( j % 9, j / 9 ).setItemstack(item).setName(ownedAbility.getAbility().getName()).setLore(lore).addHiddenEnchantment(ownedAbility.getAbility().isDailyTrial()).build());
                 }
 
                 if ( FlowerUtils.bwInventoryRows * ( page ) * 9 < ownedAbilities.size() )
@@ -765,22 +906,22 @@ public class CustomGUI {
                 upgradeLore.addAll(ownedAbility.generateInventoryInfo(player, false, true, false, false));
                 if (ownedAbility.isEnoughToUpgrade()) {
                     upgradeLore.addAll(NotificationManager.getSufficientMaterialsMessage());
-                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITY_INFO_UPGRADE_CONFIRMATION", abilityId, arg2).setXY(3, 1).setItemstack(CustomStack.getInstance("anicloud:emerald_plate").getItemStack()).setName(ColoursManager.green + "Улучшить").setLore(upgradeLore).build());
+                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITY_INFO_UPGRADE_CONFIRMATION", abilityId, arg2).setXY(3, 1).setItemstack(CustomStack.getInstance("anicloud:emerald_plate").getItemStack()).setName(ColoursManager.green + "> Улучшить").setLore(upgradeLore).build());
                 }
                 else {
                     upgradeLore.addAll(NotificationManager.getInsufficientMaterialsMessage());
-                    this.buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY(3, 1).setItemstack(CustomStack.getInstance("anicloud:slot_locked").getItemStack()).setName( ChatColor.STRIKETHROUGH + "" + ColoursManager.red + "Улучшить").setLore(upgradeLore).build());
+                    this.buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY(3, 1).setItemstack(CustomStack.getInstance("anicloud:slot_locked").getItemStack()).setName( ChatColor.STRIKETHROUGH + "" + ColoursManager.red + "> Улучшить").setLore(upgradeLore).build());
                 }
 
                 ArrayList<String> disassembleLore = new ArrayList<>();
                 disassembleLore.addAll(ownedAbility.generateInventoryInfo(player, false, false, true, false));
                 if (ownedAbility.duplicatesOwned > 0) {
                     disassembleLore.addAll(NotificationManager.getSufficientMaterialsMessage());
-                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITY_INFO_DISASSEMBLE_CONFIRMATION", abilityId, arg2).setXY( 4, 1 ).setItemstack( CustomStack.getInstance("anicloud:raw_iron_wood").getItemStack() ).setName( ColoursManager.green + "Разобрать").setLore(disassembleLore).build());
+                    this.buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITY_INFO_DISASSEMBLE_CONFIRMATION", abilityId, arg2).setXY( 4, 1 ).setItemstack( CustomStack.getInstance("anicloud:raw_iron_wood").getItemStack() ).setName( ColoursManager.green + "> Разобрать").setLore(disassembleLore).build());
                 }
                 else {
                     disassembleLore.addAll(NotificationManager.getInsufficientMaterialsMessage());
-                    this.buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY( 4, 1 ).setItemstack( CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( ChatColor.STRIKETHROUGH + "" + ColoursManager.red + "Разобрать").setLore(disassembleLore).build());
+                    this.buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY( 4, 1 ).setItemstack( CustomStack.getInstance("anicloud:slot_locked").getItemStack() ).setName( ChatColor.STRIKETHROUGH + "" + ColoursManager.red + "> Разобрать").setLore(disassembleLore).build());
                 }
 
                 backButtonPrepare("INVENTORY_ABILITIES", 8, 2, arg2);
@@ -802,9 +943,9 @@ public class CustomGUI {
                 loreInfo.addAll(ownedAbility.parseDescription(3));
                 loreConfirm.addAll(ownedAbility.generateInventoryInfo(player, false, true, false, false));
 
-                this.buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY( 2, 1 ).setItemstack( ownedAbility.getAbility().getAbilityGuiItem() ).setName( ColoursManager.blue + "Информация").setLore(loreInfo).build());
-                this.buttons.add(new CustomGUIButton("ABILITY_UPGRADE").setArgs(abilityId).setXY( 4, 1 ).setItemstack( CustomStack.getInstance("anicloud:button_tick").getItemStack() ).setName( ColoursManager.green + "Улучшить").setLore(loreConfirm).build());
-                this.buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITY_INFO",abilityId).setXY( 6, 1 ).setItemstack( CustomStack.getInstance("_iainternal:icon_cancel").getItemStack() ).setName( ColoursManager.red + "Отменить").build());
+                this.buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY( 2, 1 ).setItemstack( ownedAbility.getAbility().getAbilityGuiItem() ).setName( ColoursManager.light_blue + "Информация").setLore(loreInfo).build());
+                this.buttons.add(new CustomGUIButton("ABILITY_UPGRADE").setArgs(abilityId).setXY( 4, 1 ).setItemstack( CustomStack.getInstance("anicloud:button_tick").getItemStack() ).setName( ColoursManager.green + "> Улучшить").setLore(loreConfirm).build());
+                this.buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITY_INFO",abilityId).setXY( 6, 1 ).setItemstack( CustomStack.getInstance("_iainternal:icon_cancel").getItemStack() ).setName( ColoursManager.red + "> Отменить").build());
 
 
                 loadButtons( ColoursManager.darkGray + "Улучшить " + ownedAbility.getAbility().getNameWithIcon(player) + ColoursManager.darkGray + " ?","anicloud:bw_menu_3core", buttons, player, 27);
@@ -823,9 +964,9 @@ public class CustomGUI {
                 loreInfo.addAll(ownedAbility.parseDescription(3));
                 loreConfirm.addAll(ownedAbility.generateInventoryInfo(player, false, false, true, false));
 
-                this.buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY( 2, 1 ).setItemstack( ownedAbility.getAbility().getAbilityGuiItem() ).setName( ColoursManager.blue + "Информация").setLore(loreInfo).build());
-                this.buttons.add(new CustomGUIButton("ABILITY_DISASSEMBLE").setArgs(abilityId).setXY( 4, 1 ).setItemstack( CustomStack.getInstance("anicloud:button_tick").getItemStack() ).setName( ColoursManager.green + "Разобрать").setLore(loreConfirm).build());
-                this.buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITY_INFO", abilityId).setXY( 6, 1 ).setItemstack( CustomStack.getInstance("_iainternal:icon_cancel").getItemStack() ).setName( ColoursManager.red + "Отменить").build());
+                this.buttons.add(new CustomGUIButton("ERROR").setArgs("").setXY( 2, 1 ).setItemstack( ownedAbility.getAbility().getAbilityGuiItem() ).setName( ColoursManager.light_blue + "Информация").setLore(loreInfo).build());
+                this.buttons.add(new CustomGUIButton("ABILITY_DISASSEMBLE").setArgs(abilityId).setXY( 4, 1 ).setItemstack( CustomStack.getInstance("anicloud:button_tick").getItemStack() ).setName( ColoursManager.green + "> Разобрать").setLore(loreConfirm).build());
+                this.buttons.add(new CustomGUIButton("GOGUI").setArgs("INVENTORY_ABILITY_INFO", abilityId).setXY( 6, 1 ).setItemstack( CustomStack.getInstance("_iainternal:icon_cancel").getItemStack() ).setName( ColoursManager.red + "> Отменить").build());
 
 
                 loadButtons( ColoursManager.darkGray + "Разобрать " + ownedAbility.getAbility().getNameWithIcon(player) + ColoursManager.darkGray + " ?","anicloud:bw_menu_3core", buttons, player, 27);
@@ -888,7 +1029,7 @@ public class CustomGUI {
 
                     if (Main.getPlayerGameProfile(player).ownedResourceBundle.isContainingResource(resourceChest.getResourcePrice())) {
                         lore.addAll(NotificationManager.getSufficientMaterialsMessage());
-                        this.buttons.add(new CustomGUIButton("GOGUI").setArgs("OPEN_CASE", resourceChest.getId()).setXY(i % 7 + 1, i / 7 + 1).setItemstack(itemStack).setName(ColoursManager.blue + resourceChest.getName()).setLore(lore).build());
+                        this.buttons.add(new CustomGUIButton("GOGUI").setArgs("OPEN_CASE", resourceChest.getId()).setXY(i % 7 + 1, i / 7 + 1).setItemstack(itemStack).setName(ColoursManager.light_blue + resourceChest.getName()).setLore(lore).build());
                     }
                     else {
                         lore.addAll(NotificationManager.getInsufficientMaterialsMessage());
@@ -934,7 +1075,7 @@ public class CustomGUI {
 
     void backButtonPrepare(String guiName, int x, int y, String arg) {
         ItemStack itemStack = getBackItem();
-        buttons.add( new CustomGUIButton( "GOGUI").setArgs(guiName, arg).setXY(x, y).setItemstack(itemStack).setName( ChatColor.RED + "Назад").build());
+        buttons.add( new CustomGUIButton( "GOGUI").setArgs(guiName, arg).setXY(x, y).setItemstack(itemStack).setName( ChatColor.RED + "> Назад").build());
     }
 
     public static ItemStack getBackItem() {

@@ -2,15 +2,18 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
+
+import java.util.List;
 
 public class Fortification extends Ability implements IAbility {
 
@@ -27,13 +30,13 @@ public class Fortification extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.FIGHTER);
         this.abilityCategories.add(AbilityCategory.TANK);
 
-        this.description = "При получении физического урона#от противника игрок получит 1 ед. щита.#Кулдаун: (values1) секунд.";
+        this.description = "При получении физического урона#от противника игрок получит 0.25 ед.#щита за каждого игрока в радиусе 10 блоков.#Перезарядка: (values1) секунд.";
         this.isOnCooldown = false;
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 180 - 20 * level;
+        return 220 - 20 * level;
     }
 
 
@@ -52,16 +55,20 @@ public class Fortification extends Ability implements IAbility {
 
         if ( damageInstance.damageType == DamageType.PHYSICAL && damageInstance.damageSource == DamageSource.PLAYER && event.getFinalDamage() > 0) {
 
+            List<Entity> entities = victim.getNearbyEntities( 15, 15, 15 );
+            int amount = 0;
+            for ( Entity entity : entities ) {
+                if ( entity instanceof Player && entity.getLocation().distance(victim.getLocation()) <= 10 ) amount++;
+            }
+
+            if ( amount == 0 ) return;
+
             playFXDefensiveUtility(victim,1);
-            healOverhealth(victim, victim, 1);
+            healOverhealth(victim, victim, 0.25 + amount * 0.25);
             notifyPlayerOnAbilityActivation(victim);
 
-            this.isOnCooldown = true;
-            Player user = victim;
-            Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                notifyPlayerOnCooldownEnd(user);
-                this.isOnCooldown = false;
-            },calculateIntValue1(level));
+
+            putOnCooldown(victim,calculateIntValue1(level));
 
         }
 

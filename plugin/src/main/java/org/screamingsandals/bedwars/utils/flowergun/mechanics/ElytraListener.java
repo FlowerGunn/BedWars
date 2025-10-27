@@ -21,6 +21,8 @@ public class ElytraListener implements Listener {
 
         Location location = player.getLocation().clone();
         location.add(0, -1, 0);
+        Location location2 = player.getLocation().clone();
+        location.add(0, -2, 0);
 
         if (Main.isPlayerInGame(player)) {
 
@@ -30,7 +32,7 @@ public class ElytraListener implements Listener {
 
             if (!event.isGliding()) {
 //                Bukkit.getConsoleSender().sendMessage("player stopped the fly");
-                if (location.getBlock().getType() == Material.AIR) {
+                if (!location.getBlock().getType().isSolid() && !location2.getBlock().getType().isSolid()) {
                     gamePlayer.blockElytra = true;
 //                    Bukkit.getConsoleSender().sendMessage("AIR STOP!");
                 }
@@ -38,21 +40,17 @@ public class ElytraListener implements Listener {
             else {
                 if (gamePlayer.blockElytra) {
 
-
-
-                    if (location.getBlock().getType() != Material.AIR) {
+                    if (location.getBlock().getType().isSolid() || location2.getBlock().getType().isSolid()) {
                         gamePlayer.blockElytra = false;
-//                        Bukkit.getConsoleSender().sendMessage("bug prevented. elytra unlocked");
-                    }
-
+                    } else {
 //                    Bukkit.getConsoleSender().sendMessage("elytra blocked");
-                    event.setCancelled(true);
-                    MiscUtils.sendActionBarMessage(player, ChatColor.RED + "Элитры заблокированы!");
-                } else {
+                        event.setCancelled(true);
+                        MiscUtils.sendActionBarMessage(player, ChatColor.RED + "Элитры заблокированы!");
+                    }
+                }
 //                    Bukkit.getConsoleSender().sendMessage("blocker started");
                     ElytraBlocker elytraBlocker = new ElytraBlocker(gamePlayer, 16);
                     elytraBlocker.runTaskTimerAsynchronously(Main.getInstance(), 0L, 5L);
-                }
             }
 
 //        boolean startGliding = event.isGliding(); //false - starting to glide; true - ending the glide???

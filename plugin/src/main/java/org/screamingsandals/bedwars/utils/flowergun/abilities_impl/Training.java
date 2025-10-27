@@ -32,22 +32,22 @@ public class Training extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.KNIGHT);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
 
-        this.description = "Попадания полностью заряженным ударом#меча по противнику, приносит 1 заряд Тренировки.#Максимальное количество зарядов - (values1).#При неполных зарядах Тренировки, удары мечом#по противникам наносят на 1,5 ед. урона меньше,#при полных - на (values2) ед. больше.";
+        this.description = "Попадания полностью заряженным ударом#меча по противнику, приносит 1 заряд Тренировки.#Максимальное количество зарядов - (values1).#При неполных зарядах Тренировки, удары мечом#по противникам наносят на 1 ед. урона меньше,#при полных - на (values2) ед. больше.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 50 - 10 * level;
+        return 30 - 5 * level;
     }
 
     @Override
     public double calculateDoubleValue1(int level) {
-        return 0.8 + 0.2 * level;
+        return 0.75 + 0.25 * level;
     }
 
     @Override
     public String formatValue2(int level) {
-        return FlowerUtils.singleDecimal.format( calculateDoubleValue1(level) );
+        return FlowerUtils.doubleDecimal.format( calculateDoubleValue1(level) );
     }
 
     @Override
@@ -68,11 +68,9 @@ public class Training extends Ability implements IAbility {
                     if ( stacks >= maxStacks ) {
                         compoundValueModifier.addDouble( calculateDoubleValue1(level) );
                     } else {
-                        compoundValueModifier.addDouble( -1.5 );
-                        if ( event.getFinalDamage() > 3 ) {
-                            this.stacks++;
-                            notifyPlayerOnStackCount(attacker);
-                        }
+                        compoundValueModifier.addDouble( -1 );
+                        this.stacks++;
+                        notifyPlayerOnStackCount(attacker);
                     }
                 }
             }

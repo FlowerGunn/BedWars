@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
@@ -16,8 +17,9 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Random;
 import java.util.UUID;
 
 public class AbilitiesManager {
@@ -27,12 +29,18 @@ public class AbilitiesManager {
     @Getter
     private ArrayList<IAbility> allAbilities = new ArrayList<>();
 
+    @Getter
+    private ArrayList<String> trialAbilitiesIds = new ArrayList<>();
+
+    private int lastDaySeed = 0;
+
+
     public AbilitiesManager() {
 
         this.allAbilitiesClasses.add(CopperManiac.class);
         this.allAbilitiesClasses.add(Trader.class);
         this.allAbilitiesClasses.add(Levitator.class);
-        this.allAbilitiesClasses.add( Tempered.class );
+        this.allAbilitiesClasses.add(Tempered.class );
         this.allAbilitiesClasses.add(Friendlyness.class);
         this.allAbilitiesClasses.add(Willpower.class);
         this.allAbilitiesClasses.add(Sniper.class);
@@ -78,7 +86,7 @@ public class AbilitiesManager {
 
         this.allAbilitiesClasses.add(Evasion.class);
         this.allAbilitiesClasses.add(Shrapnel.class);
-
+        //2 april
         this.allAbilitiesClasses.add(Anger.class);
         this.allAbilitiesClasses.add(BigCalliber.class);
 
@@ -96,10 +104,63 @@ public class AbilitiesManager {
         this.allAbilitiesClasses.add(FlowerMadness.class);
         this.allAbilitiesClasses.add(Amogus.class);
 
+        this.allAbilitiesClasses.add(ExtremeFishing.class);
+        this.allAbilitiesClasses.add(Overflow.class);
+
+        this.allAbilitiesClasses.add(FuryOfTheSeas.class);
+        this.allAbilitiesClasses.add(Carnivore.class);
+        //13 april
+        this.allAbilitiesClasses.add(Equipment.class);
+        this.allAbilitiesClasses.add(Confidence.class);
+        this.allAbilitiesClasses.add(Stash.class);
+
+        this.allAbilitiesClasses.add(BountyHunter.class);
+
         for (Class clazz : this.allAbilitiesClasses) {
             this.allAbilities.add(Ability.generateAbility(clazz));
         }
 
+        generateDailyTrialAbilities();
+
+    }
+    
+    public boolean isAbilityTrial( String id ) {
+        return this.trialAbilitiesIds.contains( id );
+    }
+
+    public void checkDailyTrialSelection() {
+        if ( this.lastDaySeed != LocalDateTime.now().getDayOfYear() ) generateDailyTrialAbilities();
+    }
+
+    public void generateDailyTrialAbilities() {
+        generateDailyTrialAbilities( 0 );
+    }
+    public void generateDailyTrialAbilities( long seed ) {
+
+        this.trialAbilitiesIds = new ArrayList<>();
+        
+        ArrayList<IAbility> allowedTrialAbilities = new ArrayList<>();
+
+        for (IAbility ability : this.allAbilities) {
+            if ( ability.getRarity() <= 4 && !ability.isPublicTesting() ) allowedTrialAbilities.add(ability);
+        }
+
+        Random random;
+
+        if ( seed == 0 ) {
+            seed = LocalDateTime.now().getDayOfYear() * 17;
+            this.lastDaySeed = LocalDateTime.now().getDayOfYear();
+            random = new Random(seed);
+        } else {
+            random = new Random();
+        }
+
+        while( this.trialAbilitiesIds.size() < FlowerUtils.trialAbilitiesPool ) {
+            IAbility ability = allowedTrialAbilities.get( random.nextInt( allowedTrialAbilities.size() ) );
+            allowedTrialAbilities.remove(ability);
+            this.trialAbilitiesIds.add( ability.getId() );
+            Main.getInstance().getLogger().info(ColoursManager.pink + "Added trial ability - " + ability.getId());
+        }
     }
 
 
@@ -163,10 +224,10 @@ public class AbilitiesManager {
     }
 
     public void giveAbilityToById(UUID uniqueId, String abilityId, int amount) {
-        giveAbilityToById(uniqueId, abilityId, amount, false);
+        giveAbilityToById(uniqueId, abilityId, amount, false, true);
     }
 
-    public void giveAbilityToById(UUID uniqueId, String abilityId, int amount, boolean crafted) {
+    public void giveAbilityToById(UUID uniqueId, String abilityId, int amount, boolean crafted, boolean notify) {
         OwnedAbility ownedAbility;
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uniqueId);
 
@@ -185,7 +246,6 @@ public class AbilitiesManager {
             ownedAbility.instancesCrafted += amount;
             Main.getDatabaseManager().storeDatabaseAbility(ownedAbility);
             if (offlinePlayer.isOnline()) {
-                Collections.sort(Main.getPlayerGameProfile(offlinePlayer.getPlayer()).ownedAbilities, new SortByRarityOwnedAbility());
                 NotificationManager.getAbilityMessage(offlinePlayer.getPlayer(), ownedAbility);
             }
             return;
@@ -194,6 +254,7 @@ public class AbilitiesManager {
         OwnedAbility newOwnedAbility = new OwnedAbility(Main.getDatabaseManager().getMaxAbilityEntryId() + 1, uniqueId, abilityId, 1, amount - 1, crafted ? amount : 0, -1);
         if (offlinePlayer.isOnline()) {
             replaceAbilityWithANewOne(Main.getPlayerGameProfile(Bukkit.getPlayer(uniqueId)).ownedAbilities, newOwnedAbility);
+            Main.getPlayerGameProfile(offlinePlayer.getPlayer()).ownedAbilities.sort(new SortByRarityOwnedAbility());
             NotificationManager.getAbilityMessage(offlinePlayer.getPlayer(), ownedAbility);
         }
         Main.getDatabaseManager().storeDatabaseAbility(newOwnedAbility);
@@ -250,7 +311,7 @@ public class AbilitiesManager {
 
     public void saveChosenAbilitiesSlots(GamePlayer gamePlayer) {
 
-        Main.getDatabaseManager().resetAllAbilitiesSlotsByUUID(gamePlayer.player.getUniqueId());
+            Main.getDatabaseManager().resetAllAbilitiesSlotsByUUID(gamePlayer.player.getUniqueId());
 
         for ( int i = 0; i < gamePlayer.loadedAbilities.size(); i++ ) {
             LoadedAbility loadedAbility = gamePlayer.loadedAbilities.get(i);

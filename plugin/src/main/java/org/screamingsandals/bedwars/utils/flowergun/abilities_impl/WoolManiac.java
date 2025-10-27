@@ -28,8 +28,9 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
         this.rarity = 3;
         this.icon = IconType.IRON_INGOT;
 
-        this.abilityCategories.add(AbilityCategory.ECONOMIST);
-        this.abilityCategories.add(AbilityCategory.BUILDER);
+        this.abilityCategories.add(AbilityCategory.TRICKSTER);
+        this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.SCOUT);
 
         this.description = "Игрок получает неломаемую зажигалку,#неломаемые ножницы на Эффективность (values1)#и (values2) шерсти при первом спавне.";
     }

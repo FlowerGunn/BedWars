@@ -32,7 +32,7 @@ public class Willpower extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.FIGHTER);
         this.abilityCategories.add(AbilityCategory.SUPPORT);
 
-        this.description = "Получение урона от противников#или нанесение урона противникам в ближнем бою#восполнит ближайшему союзнику в радиусе (values1) блоков#(values2) единиц сытости и 1 единицу голода.";
+        this.description = "Игрок получает и наносит на 20% меньше урона.#Получение урона от противников#или нанесение урона противникам в ближнем бою#восполнит ближайшему союзнику в радиусе (values1) блоков#(values2) единиц сытости и 1 единицу голода.";
     }
 
     @Override
@@ -53,10 +53,12 @@ public class Willpower extends Ability implements IAbility {
     @Override
     public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
         if (event.isCancelled()) return;
+        compoundValueModifier.addExp(-0.2);
         if ( damageInstance.damageSource == DamageSource.PLAYER ) {
             Player defender = victim;
             if (event.getFinalDamage() != 0) {
                 proc(defender, level);
+                compoundValueModifier.addExp(-0.2);
             }
         }
     }
@@ -64,6 +66,7 @@ public class Willpower extends Ability implements IAbility {
     @Override
     public void playerDealDamage(int level, DamageInstance damageInstance, Player attacker, EntityDamageByEntityEvent event, CompoundValueModifier compoundValueModifier) {
         if (event.isCancelled()) return;
+        compoundValueModifier.addExp(-0.2);
         if ( damageInstance.damageTarget == DamageTarget.PLAYER ) {
             Player defender = (Player) event.getEntity();
             if (event.getFinalDamage() != 0) {

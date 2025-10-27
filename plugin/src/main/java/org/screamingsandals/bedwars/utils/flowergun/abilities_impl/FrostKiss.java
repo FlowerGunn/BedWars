@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
@@ -29,26 +30,27 @@ public class FrostKiss extends Ability implements IAbility {
 
         this.abilityCategories.add(AbilityCategory.SNOWMAN);
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
         this.abilityCategories.add(AbilityCategory.RANGER);
 
-        this.description = "Раз в (values1) секунд попадание#снежком наложит на противника эффект#Замедление 5 на (values2) секунд.";
+        this.description = "Попадания снежком наложит на противника#эффект Замедление 5 на (values2) секунд#и даст игроку 1 снежок.";
         this.isOnCooldown = false;
     }
 
-    @Override
-    public int calculateIntValue1(int level) {
-        return 260 + -40 * level;
-    }
+//    @Override
+//    public int calculateIntValue1(int level) {
+//        return 260 + -40 * level;
+//    }
     @Override
     public int calculateIntValue2(int level) {
         return 40 + 10 * level;
     }
 
 
-    @Override
-    public String formatValue1(int level) {
-        return "" + calculateIntValue1(level) / 20;
-    }
+//    @Override
+//    public String formatValue1(int level) {
+//        return "" + calculateIntValue1(level) / 20;
+//    }
 
     @Override
     public String formatValue2(int level) {
@@ -71,12 +73,15 @@ public class FrostKiss extends Ability implements IAbility {
             playFXSlow(victim,1);
             notifyPlayerOnAbilityActivation(attacker);
 
-            this.isOnCooldown = true;
-            Player finalAttacker = attacker;
-            Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-                notifyPlayerOnCooldownEnd(finalAttacker);
-                this.isOnCooldown = false;
-            },calculateIntValue1(level));
+            ItemStack itemStack = new ItemStack(Material.SNOWBALL);
+            attacker.getInventory().addItem(itemStack);
+
+//            this.isOnCooldown = true;
+//            Player finalAttacker = attacker;
+//            Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
+//                notifyPlayerOnCooldownEnd(finalAttacker);
+//                this.isOnCooldown = false;
+//            },calculateIntValue1(level));
 
         }
 

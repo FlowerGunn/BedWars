@@ -28,7 +28,7 @@ public class Acrobatics extends Ability implements IAbility {
         this.icon = IconType.SLOW_FALLING;
         this.abilityCategories.add(AbilityCategory.SCOUT);
         this.abilityCategories.add(AbilityCategory.BUILDER);
-        this.description = "Использование гаджета Трамплин наложит на игрока#эффекты Медленного падения на (values1) секунд#и Скорости 3 на (values2) секунд. Игрок получает#на (values3)% меньше физического контактного урона#(от падения и ударов в стену).";
+        this.description = "Использование гаджета Трамплин наложит на игрока#эффекты Спешки 2 на (values1) секунд#и Скорости 3 на (values2) секунд. Игрок получает#на (values3)% меньше физического контактного урона#(от падения и ударов в стену).";
     }
 
     @Override
@@ -63,7 +63,7 @@ public class Acrobatics extends Ability implements IAbility {
 
             Player player = gamePlayer.player;
 
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, calculateIntValue1(level), 0, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, calculateIntValue1(level), 1, false, false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, calculateIntValue2(level), 2, false, false));
 
             playFXSpeed(player, 1);

@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public enum GadgetType {
     TRAMPOLINE("trampoline") , ZOGLIN("zoglin"),BLAZE("blaze"),PHANTOM("phantom"),WALL("wall"), PLATFORM("platform"), PLATFORM_SLIME("platform_slime"), TP("tp"), ARROW_SHIELD("arrow_shield"), TNT("tnt"), FIREBALL("fireball"), SHEEP("sheep"), TRAP("trap"), GOLEM("golem"), TRACKER("tracker"), BOOTS("boots"),NEW_BOOTS("new_boots"),FIREWORK("firework"),
-    SNOWBALL("snowball"), MEGA_WALL("mega_wall");
+    SNOWBALL("snowball"), MEGA_WALL("mega_wall"), STRAY("stray"), HUSK("husk"), SLIME("slime"), GUARDIAN("guardian"), SHULKER("shulker"), GHAST("ghast");
 
     @Getter
     private String id;

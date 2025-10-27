@@ -34,7 +34,7 @@ public class Endurance extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue1(int level) {
-        return 10 + 3 * level;
+        return 10 + 2 * level;
     }
 
 

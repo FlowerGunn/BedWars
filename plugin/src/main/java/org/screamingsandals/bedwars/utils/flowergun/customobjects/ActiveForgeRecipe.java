@@ -65,7 +65,7 @@ public class ActiveForgeRecipe {
         }
         if ( this.recipe.getOutputAbility() != null ) {
             IAbility ability = this.recipe.getOutputAbility();
-            Main.getAbilitiesManager().giveAbilityToById(gamePlayer.player.getUniqueId(), ability.getId(), 1, true);
+            Main.getAbilitiesManager().giveAbilityToById(gamePlayer.player.getUniqueId(), ability.getId(), 1, true, true);
         }
     }
 }

@@ -1,13 +1,12 @@
 package org.screamingsandals.bedwars.utils.flowergun.mechanics;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.ThrownPotion;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.potion.PotionEffect;
@@ -49,6 +48,7 @@ public class PotionEffectsListener implements Listener {
         negativeEffects.add(PotionEffectType.UNLUCK);
         negativeEffects.add(PotionEffectType.DARKNESS);
         negativeEffects.add(PotionEffectType.WITHER);
+        negativeEffects.add(PotionEffectType.WEAKNESS);
     }
 
 
@@ -124,6 +124,30 @@ public class PotionEffectsListener implements Listener {
             }
 
         }
+
+    }
+
+
+    @EventHandler (priority = EventPriority.HIGHEST)
+    public void onLingeringSplash(EntityPotionEffectEvent event) {
+        if (! (event.getEntity() instanceof Player player )) return;
+        if ( event.getCause() == EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD ) {
+            double closestDistance = 100;
+            ThrownPotion lingeringPotion = null;
+            for ( Entity entity : player.getNearbyEntities(3, 3, 3) ) {
+                if ( entity instanceof ThrownPotion thrownPotion ) {
+                    double distance = thrownPotion.getLocation().distance(player.getLocation());
+                    if ( distance < closestDistance ) {
+                        closestDistance = distance;
+                        lingeringPotion = thrownPotion;
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler (priority = EventPriority.HIGHEST)
+    public void onLingeringSplash(LingeringPotionSplashEvent event) {
 
     }
 

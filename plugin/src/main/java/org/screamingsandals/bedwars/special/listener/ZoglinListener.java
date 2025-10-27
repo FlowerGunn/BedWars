@@ -21,6 +21,7 @@ package org.screamingsandals.bedwars.special.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -127,187 +128,8 @@ public class ZoglinListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onGolemDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof org.bukkit.entity.Zoglin)) {
-            return;
-        }
-
-        org.bukkit.entity.Zoglin ironGolem = (org.bukkit.entity.Zoglin) event.getEntity();
-        for (String name : Main.getGameNames()) {
-            Game game = Main.getGame(name);
-            if (game.getStatus() == GameStatus.RUNNING && ironGolem.getWorld().equals(game.getGameWorld())) {
-                List<SpecialItem> zoglins = game.getActivedSpecialItems(Zoglin.class);
-                for (SpecialItem item : zoglins) {
-                    if (item instanceof Zoglin) {
-                        Zoglin golem = (Zoglin) item;
-                        if (golem.getEntity().equals(ironGolem)) {
-                            if (event.getDamager() instanceof Player) {
-                                Player player = (Player) event.getDamager();
-                                if (Main.isPlayerInGame(player)) {
-                                    if (golem.getTeam() != game.getTeamOfPlayer(player)) {
-                                        return;
-                                    }
-                                }
-                            } else if (event.getDamager() instanceof Projectile) {
-                                ProjectileSource shooter = ((Projectile) event.getDamager()).getShooter();
-                                if (shooter instanceof Player) {
-                                    Player player = (Player) shooter;
-                                    if (Main.isPlayerInGame(player)) {
-                                        if (golem.getTeam() != game.getTeamOfPlayer(player)) {
-                                            return;
-                                        }
-                                    }
-                                }
-                            }
-
-                            event.setCancelled(game.getOriginalOrInheritedFriendlyfire());
-                            return;
-                        }
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    public void onGolemAttack(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof org.bukkit.entity.Zoglin)) {
-            return;
-        }
-
-        org.bukkit.entity.Zoglin ironGolem = (org.bukkit.entity.Zoglin) event.getDamager();
-        for (String name : Main.getGameNames()) {
-            Game game = Main.getGame(name);
-            if (game.getStatus() == GameStatus.RUNNING && ironGolem.getWorld().equals(game.getGameWorld())) {
-                List<SpecialItem> zoglins = game.getActivedSpecialItems(Zoglin.class);
-                for (SpecialItem item : zoglins) {
-                    if (item instanceof Zoglin) {
-                        Zoglin golem = (Zoglin) item;
-                        if (golem.getEntity().equals(ironGolem)) {
-
-                            if ( event.getEntity() instanceof Player ) {
-                                Player player = (Player) event.getEntity();
-
-                                if (golem.getTeam() == game.getTeamOfPlayer(player)) {
-//                                        Bukkit.getConsoleSender().sendMessage("Zoglin stopped revenging after being attacked");
-                                        event.setCancelled(true);
-                                        ironGolem.setTarget(null);
-                                        return;
-                                    }
 
 
-                                event.setDamage(FlowerUtils.zoglinDamage);
-//                                Bukkit.getConsoleSender().sendMessage("Zoglin damages " + player.getName() + " for " + event.getFinalDamage() + " (" + event.getDamage() + ")");
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    public void onGolemTarget(EntityTargetEvent event) {
-        if (!(event.getEntity() instanceof org.bukkit.entity.Zoglin)) {
-            return;
-        }
-
-
-        //else Bukkit.getConsoleSender().sendMessage("Target reason = " + event.getReason());
-
-        org.bukkit.entity.Zoglin entityZoglin = (org.bukkit.entity.Zoglin) event.getEntity();
-        for (String name : Main.getGameNames()) {
-            Game game = Main.getGame(name);
-            if ((game.getStatus() == GameStatus.RUNNING || game.getStatus() == GameStatus.GAME_END_CELEBRATING) && entityZoglin.getWorld().equals(game.getGameWorld())) {
-                List<SpecialItem> activeZoglins = game.getActivedSpecialItems(Zoglin.class);
-                List<SpecialItem> activeGolems = game.getActivedSpecialItems(Golem.class);
-                List<SpecialItem> activePhantoms = game.getActivedSpecialItems(Phantom.class);
-                List<SpecialItem> activeBlazes = game.getActivedSpecialItems(Blaze.class);
-                for (SpecialItem item : activeZoglins) {
-                    if (item instanceof Zoglin) {
-                        Zoglin activeZoglin = (Zoglin) item;
-                        if (activeZoglin.getEntity().equals(entityZoglin)) {
-                            if (event.getTarget() instanceof Player) {
-                                final Player player = (Player) event.getTarget();
-                                if (game.isProtectionActive(player)) {
-                                    event.setCancelled(true);
-                                    return;
-                                }
-
-                                if (Main.isPlayerInGame(player)) {
-
-                                    if (activeZoglin.getTeam() == game.getTeamOfPlayer(player)) {
-                                        if (event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY) {
-//                                            Bukkit.getConsoleSender().sendMessage("Zoglin stopped revenging after being attacked");
-                                            EntityUtils.makeMobForgetTarget(entityZoglin);
-                                            event.setCancelled(true);
-                                            return;
-                                        }
-                                        event.setCancelled(true);
-//                                        Bukkit.getConsoleSender().sendMessage("Zoglin saw an ally and event cancelled");
-                                        // Try to find enemy
-                                        Player playerTarget = MiscUtils.findTarget(game, player, activeZoglin.getFollowRange());
-                                        if (playerTarget != null) {
-                                            // Oh. We found enemy!
-                                            entityZoglin.setTarget(playerTarget);
-//                                            Bukkit.getConsoleSender().sendMessage("Zoglin from team " + activeZoglin.getTeam().getName() + " targets player from team " + game.getTeamOfPlayer(player).getName() + " through event targeting");
-                                            return;
-                                        }
-                                    } else {
-//                                        Bukkit.getConsoleSender().sendMessage("Zoglin saw an enemy player");
-                                    }
-                                }
-                            } else if (event.getTarget() instanceof org.bukkit.entity.Zoglin) {
-                                for (SpecialItem activeSpecialEntity : activeZoglins) {
-                                    if (activeSpecialEntity instanceof Zoglin) {
-                                        Zoglin anotherActiveZoglin = (Zoglin) activeSpecialEntity;
-                                        if (anotherActiveZoglin.getEntity().equals(event.getTarget()) && anotherActiveZoglin.getTeam() == activeZoglin.getTeam()) {
-                                            event.setCancelled(true);
-                                        }
-                                    }
-                                }
-                            }
-                            else if (event.getTarget() instanceof org.bukkit.entity.IronGolem) {
-                                for (SpecialItem anotherSpecialEntity : activeGolems) {
-                                    if (anotherSpecialEntity instanceof Golem) {
-                                        Golem activeGolem = (Golem) anotherSpecialEntity;
-                                        if (activeGolem.getEntity().equals(event.getTarget()) && activeGolem.getTeam() == activeZoglin.getTeam()) {
-                                            event.setCancelled(true);
-                                        }
-                                    }
-                                }
-                            } else if (event.getTarget() instanceof org.bukkit.entity.Phantom) {
-                                for (SpecialItem activeSpecialEntity : activePhantoms) {
-                                    if (activeSpecialEntity instanceof Phantom) {
-                                        Phantom anotherActivePhantom = (Phantom) activeSpecialEntity;
-                                        if (anotherActivePhantom.getEntity().equals(event.getTarget()) && anotherActivePhantom.getTeam() == activeZoglin.getTeam()) {
-                                            event.setCancelled(true);
-                                        }
-                                    }
-                                }
-                            }
-                            else if (event.getTarget() instanceof org.bukkit.entity.Blaze) {
-                                for (SpecialItem anotherSpecialEntity : activeBlazes) {
-                                    if (anotherSpecialEntity instanceof Golem) {
-                                        Blaze activeGolem = (Blaze) anotherSpecialEntity;
-                                        if (activeGolem.getEntity().equals(event.getTarget()) && activeGolem.getTeam() == activeZoglin.getTeam()) {
-                                            event.setCancelled(true);
-                                        }
-                                    }
-                                }
-                            }
-                            else if (event.getTarget() instanceof org.bukkit.entity.Villager) {
-                                event.setCancelled(true);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     @EventHandler
     public void onGolemTargetDie(PlayerDeathEvent event) {
@@ -325,28 +147,7 @@ public class ZoglinListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onGolemDeath(EntityDeathEvent event) {
-        if (!(event.getEntity() instanceof org.bukkit.entity.Zoglin)) {
-            return;
-        }
 
-        org.bukkit.entity.Zoglin ironGolem = (org.bukkit.entity.Zoglin) event.getEntity();
-        for (String name : Main.getGameNames()) {
-            Game game = Main.getGame(name);
-            if ((game.getStatus() == GameStatus.RUNNING || game.getStatus() == GameStatus.GAME_END_CELEBRATING) && ironGolem.getWorld().equals(game.getGameWorld())) {
-                List<SpecialItem> zoglins = game.getActivedSpecialItems(Zoglin.class);
-                for (SpecialItem item : zoglins) {
-                    if (item instanceof Zoglin) {
-                        Zoglin golem = (Zoglin) item;
-                        if (golem.getEntity().equals(ironGolem)) {
-                            event.getDrops().clear();
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     private String applyProperty(BedwarsApplyPropertyToBoughtItem event) {
         return ZOGLIN_PREFIX

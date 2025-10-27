@@ -55,7 +55,7 @@ shop_back: "&cВернуться в список категорий"
 game_start_title: "&aАрена запущена!"
 game_start_subtitle: "&aАрена &7%arena%&a запущена! Приятной игры!"
 bossbar_waiting: "&cИгра скоро начнётся!"
-bossbar_running: "&aИгра началась! Приятной игры!"
+bossbar_running: "&aСтадия 1: Начальная игра"
 you_are_already_in_some_game: "&cВы уже находитесь в игре."
 you_are_not_in_game_yet: "&cВы ещё не в игре."
 game_is_gone: "&cПохоже, игра, в которой вы находились, уже не в этом мире."
@@ -309,6 +309,7 @@ specials_arrow_blocker_already_activated: "&cЗащита от снарядов 
 specials_arrow_blocker_ended: "&cЗащита от снарядов закончилась!"
 specials_golem_created: "&aГолем создан."
 specials_phantom_created: "&aФантом создан."
+specials_mob_created: "&aМоб создан."
 specials_blaze_created: "&aИфрит создан."
 specials_zoglin_created: "&aЗоглин создан."
 special_item_delay: "&cВам нужно подождать %time% секунд перед повторным использованием!"
@@ -449,6 +450,12 @@ new_buy_success: '&4ИетИет ИЕТ иет &5ИИИИИИииИИИиии'
 item_name_trap: 'Ловушка джокушкера'
 item_name_tnt: 'Динамит с самоподжёгом'
 item_name_golem: 'Яйцо голема'
+item_name_husk: 'Яйцо пустынного зомби'
+item_name_stray: 'Яйцо снежного скелета'
+item_name_guardian: 'Яйцо стража'
+item_name_ghast: 'Яйцо гаста'
+item_name_slime: 'Яйцо слайма'
+item_name_shulker: 'Яйцо шалкера'
 item_name_zoglin: 'Яйцо Зоглина'
 item_name_blaze: 'Яйцо Ифрита'
 item_name_phantom: 'Яйцо Фантома'
@@ -580,11 +587,12 @@ upgrade_vitality_level2_description1: "При возрождении вы пол
 upgrade_vitality_level3_name: "&f&lЖивучесть Ур.&5&l3"
 upgrade_vitality_level3_description1: "В магазине становятся доступны/ботинки на Невесомость. Вы роняете/голову при смерти с шансом -20%."
 upgrade_vitality_level4a_name: "&f&lЖивучесть Ур.&6&l<&6&l4&7&l>"
-upgrade_vitality_level4a_description1: "В магазине становятся доступны/кожаные штаны на Защиту 1."
+upgrade_vitality_level4a_description1: "В магазине становятся доступны/кожаные штаны на Защиту 3."
 upgrade_vitality_level4b_name: "&f&lЖивучесть Ур.&7&l<&6&l4&6&l>"
-upgrade_vitality_level4b_description1: "В магазине становятся доступны/кожаные штаны на Защиту от снарядов 2."
+upgrade_vitality_level4b_description1: "В магазине становятся доступны/кожаные штаны на Защиту от снарядов 5."
 
 abilities_menu_item_name: "&6Выбор способностей"
+abilities_menu_locked_item_name: "&7Выбор способностей [ЗАБЛОКИРОВАНО]"
 
 game_end_bossbar: "&a...конец игры..."
 

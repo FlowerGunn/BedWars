@@ -30,17 +30,17 @@ public class Cheers extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.HEALER);
         this.abilityCategories.add(AbilityCategory.SUPPORT);
 
-        this.description = "При выпивании бутылки мёда и наличии союзника#в радиусе (values1) блоков оба игрока#получат эффект Регенерации 1 на (values2) секунд.#Владелец навыка теряет любые эффекты Регенерации#при получении урона от игроков.";
+        this.description = "При выпивании бутылки мёда и наличии союзника#в радиусе (values1) блоков оба игрока#получат эффект Регенерации 1 на (values2) секунд.";//#Владелец навыка теряет любые эффекты Регенерации#при получении урона от игроков.
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 8 + 2 * level;
+        return 14 + 2 * level;
     }
 
     @Override
     public int calculateIntValue2(int level) {
-        return 60 + 40 * level;
+        return 80 + 40 * level;
     }
 
 
@@ -76,19 +76,16 @@ public class Cheers extends Ability implements IAbility {
 
     };
 
-    @Override
-    public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
-        //if (!(event instanceof EntityDamageByEntityEvent)) return;
-
-        if (event.isCancelled()) return;
-
-        if (Main.isPlayerInGame(victim)) {
-
-            if ( damageInstance.damageSource == DamageSource.PLAYER )
-            victim.removePotionEffect(PotionEffectType.REGENERATION);
-
-        }
-
-    }
+//    @Override
+//    public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
+//        //if (!(event instanceof EntityDamageByEntityEvent)) return;
+//
+//        if (event.isCancelled()) return;
+//        if (Main.isPlayerInGame(victim)) {
+//            if ( damageInstance.damageSource == DamageSource.PLAYER )
+//            victim.removePotionEffect(PotionEffectType.REGENERATION);
+//        }
+//
+//    }
 
 }

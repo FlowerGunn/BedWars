@@ -33,7 +33,7 @@ public class GuardianAngel extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
         this.abilityCategories.add(AbilityCategory.SUPPORT);
 
-        this.description = "Лечение союзников даст им +1 к броне#на (values1) секунд, а также даст игроку 1 заряд Веры.#Максимальное количество зарядов - (values2)#При полных зарядах Веры игрок получает#+2 к макс. здоровью до конца игры.";
+        this.description = "Лечение союзников даст им +2 к броне#на (values1) секунд, а также даст игроку 1 заряд Веры.#Максимальное количество зарядов - (values2)#При полных зарядах Веры игрок получает#+2 к макс. здоровью до конца игры.";
         this.isOnCooldown = false;
     }
 
@@ -63,7 +63,7 @@ public class GuardianAngel extends Ability implements IAbility {
 
         GamePlayer gHealer = Main.getPlayerGameProfile(healer);
         GamePlayer gTarget = Main.getPlayerGameProfile(target);
-        gTarget.addCustomStatusEffect(new CustomStatusEffect("guardian_angel_armor", gTarget, gHealer, Attribute.GENERIC_ARMOR, new CompoundValueModifier(1, 0, 0), calculateIntValue1(level), false));
+        gTarget.addCustomStatusEffect(new CustomStatusEffect("guardian_angel_armor", gTarget, gHealer, Attribute.GENERIC_ARMOR, new CompoundValueModifier(2, 0, 0), calculateIntValue1(level), false));
         playFXDefensiveUtility(target, 1);
 
         if (stacks < maxStacks) {

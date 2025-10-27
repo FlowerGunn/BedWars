@@ -21,10 +21,13 @@ package org.screamingsandals.bedwars.special;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.bedwars.api.Team;
 import org.screamingsandals.bedwars.api.game.Game;
@@ -77,22 +80,7 @@ public class Phantom extends SpecialItem implements org.screamingsandals.bedwars
     }
 
     public void spawn() {
-        final TeamColor color = TeamColor.fromApiColor(team.getColor());
-        final org.bukkit.entity.Phantom golem = (org.bukkit.entity.Phantom) location.getWorld().spawnEntity(location, EntityType.PHANTOM);
-        golem.setHealth(health);
-
-//        golem.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100000, 0, false, true));
-        golem.setCustomName(name
-                .replace("%teamcolor%", color.chatColor.toString())
-                .replace("%team%", team.getName()));
-        golem.setCustomNameVisible(showName);
-        try {
-            golem.setInvulnerable(false);
-        } catch (Throwable ignored) {
-            // Still can throw an exception on some old versions
-        }
-        
-        entity = golem;
+        spawnMob();
 
 //        EntityUtils.makeMobAttackTarget2(golem, speed, followRange, -1)
 //                .getTargetSelector()
@@ -101,8 +89,6 @@ public class Phantom extends SpecialItem implements org.screamingsandals.bedwars
 //                .attackNearestTarget(3, EntityType.PHANTOM.getEntityClass());
 
 
-        game.registerSpecialItem(this);
-        Main.registerGameEntity(golem, (org.screamingsandals.bedwars.game.Game) game);
         if (!Main.getConfigurator().config.getBoolean("specials.dont-show-success-messages")) {
             MiscUtils.sendActionBarMessage(player, i18nonly("specials_phantom_created"));
         }
@@ -123,5 +109,31 @@ public class Phantom extends SpecialItem implements org.screamingsandals.bedwars
         }
 
         player.updateInventory();
+    }
+
+    private void spawnMob() {
+        final TeamColor color = TeamColor.fromApiColor(team.getColor());
+        final org.bukkit.entity.Phantom golem = (org.bukkit.entity.Phantom) location.getWorld().spawnEntity(location, EntityType.PHANTOM);
+        golem.setHealth(health);
+
+//        golem.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100000, 0, false, true));
+        golem.setCustomName(name
+                .replace("%teamcolor%", color.chatColor.toString())
+                .replace("%team%", team.getName()));
+        golem.setCustomNameVisible(showName);
+        try {
+            golem.setInvulnerable(false);
+        } catch (Throwable ignored) {
+            // Still can throw an exception on some old versions
+        }
+
+        entity = golem;
+        PersistentDataContainer persistentDataContainer = this.entity.getPersistentDataContainer();
+        persistentDataContainer.set(new NamespacedKey(Main.getInstance(), "mobTeamName"), PersistentDataType.STRING, team.getName());
+        persistentDataContainer.set(new NamespacedKey(Main.getInstance(), "mobGameName"), PersistentDataType.STRING, game.getName());
+
+        game.registerSpecialItem(this);
+        Main.registerGameEntity(golem, (org.screamingsandals.bedwars.game.Game) game);
+
     }
 }

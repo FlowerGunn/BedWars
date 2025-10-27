@@ -1,5 +1,6 @@
 package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Firework;
@@ -32,16 +33,19 @@ public class BigCalliber extends Ability implements IAbility {
 
         this.abilityCategories.add(AbilityCategory.PYROTECHNIC);
         this.abilityCategories.add(AbilityCategory.RANGER);
-        this.abilityCategories.add(AbilityCategory.DEMOLITIONIST);
 
-        this.description = "Игрок наносит на (values1)% больше урона#используя фейерверки, однако замедляется#на 50% при выстреливании фейерверков.";
+        this.description = "Игрок наносит +(values1) ед. урона#используя фейерверки, однако замедляется#на 50% при выстреливании фейерверков.";
     }
 
     @Override
-    public int calculateIntValue1(int level) {
-        return 30 + 5 * level;
+    public double calculateDoubleValue1(int level) {
+        return 3 + 0.5 * level;
     }
 
+    @Override
+    public String formatValue1(int level) {
+        return FlowerUtils.doubleDecimal.format( calculateDoubleValue1(level)  );
+    }
 
 
 
@@ -53,8 +57,8 @@ public class BigCalliber extends Ability implements IAbility {
         if ( damageInstance.damageType == DamageType.FIREWORK && damageInstance.damageTarget == DamageTarget.PLAYER )
 
             if (Main.isPlayerInGame(attacker)) {
-
-                compoundValueModifier.addExp( calculateDoubleValue1(level) * 0.01 );
+//                Bukkit.getConsoleSender().sendMessage("increase " + attacker.getName());
+                compoundValueModifier.addDouble( calculateIntValue1(level) );
 
             }
 

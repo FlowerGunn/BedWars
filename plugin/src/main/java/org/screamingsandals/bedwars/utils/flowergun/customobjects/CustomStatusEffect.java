@@ -46,10 +46,6 @@ public class CustomStatusEffect extends BukkitRunnable {
         this.damageExample = damageInstance;
     }
 
-    public void start() {
-
-    }
-
     @Override
     public void run() {
         this.isActive = false;

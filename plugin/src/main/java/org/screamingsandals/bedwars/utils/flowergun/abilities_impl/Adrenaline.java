@@ -7,10 +7,12 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.*;
 
@@ -29,7 +31,7 @@ public class Adrenaline extends Ability implements IAbility {
         this.item = Material.WITHER_SKELETON_SKULL;
         this.rarity = 4;
         this.icon = IconType.INCREASE_DAMAGE;
-        this.description = "Урон от Огня, Яда, Иссушения,#Голода или Магии уменьшен на (values2)%#и даст игроку Силу 1 на (values1) секунды.";
+        this.description = "Урон от Огня, Яда, Иссушения,#Голода или Магии уменьшен на (values2)%#и даст игроку +20% к ближнему урону на (values1) секунды.";
 
         this.abilityCategories.add(AbilityCategory.MADMAN);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
@@ -50,7 +52,7 @@ public class Adrenaline extends Ability implements IAbility {
 
     @Override
     public int calculateIntValue2(int level) {
-        return 60 + 10 * level;
+        return 40 + 10 * level;
     }
 
     @Override
@@ -70,7 +72,9 @@ public class Adrenaline extends Ability implements IAbility {
                 compoundValueModifier.addExp(calculateIntValue2(level) * -0.01);
                 playFXDefensiveUtility(victim, 1);
 //                notifyPlayerOnAbilityActivation(victim);
-                victim.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, calculateIntValue1(level), 0));
+                GamePlayer gamePlayer = Main.getPlayerGameProfile(victim);
+                gamePlayer.addCustomStatusEffect(new CustomStatusEffect("adrenaline_damage", gamePlayer, gamePlayer, CustomStatusEffectType.DAMAGE_DEALT, new DamageInstance( DamageSource.PLAYER, null, DamageRelay.MELEE, null), new CompoundValueModifier(0, 0,  20 * 0.01), calculateIntValue1(level), false));
+                //victim.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, calculateIntValue1(level), 0));
             }
         }
 

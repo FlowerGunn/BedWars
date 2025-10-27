@@ -36,12 +36,12 @@ public class BattleShout extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
         this.abilityCategories.add(AbilityCategory.SUPPORT);
 
-        this.description = "Убийство противников даст всем союзникам#в радиусе 15 блоков 1 ед. щита. Помощь в убийстве#даст всем союзникам в радиусе 15 блоков#Регенерацию 2 на (values1) секунд.";
+        this.description = "Убийство противников даст всем союзникам#в радиусе 15 блоков 1 ед. щита. Помощь в убийстве#даст всем союзникам в радиусе 15 блоков#Регенерацию 1 на (values1) секунд.";
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 80 + 60 * level;
+        return 120 + 40 * level;
     }
 
 
@@ -71,7 +71,7 @@ public class BattleShout extends Ability implements IAbility {
         notifyPlayerOnAbilityActivation(assistant);
 
         for ( GamePlayer ally : allies ) {
-            healRegen(assistant, ally.player, new PotionEffect(PotionEffectType.REGENERATION, calculateIntValue1(level), 1));
+            healRegen(assistant, ally.player, new PotionEffect(PotionEffectType.REGENERATION, calculateIntValue1(level), 0));
         }
 
     };

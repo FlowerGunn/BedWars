@@ -19,52 +19,42 @@
 
 package org.screamingsandals.bedwars.commands;
 
-import org.screamingsandals.bedwars.Main;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.screamingsandals.bedwars.api.game.Game;
+import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.api.game.GameStatus;
+import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.CustomStatusEffect;
 
 import java.util.List;
 
 import static org.screamingsandals.bedwars.lib.lang.I18n.i18n;
 
-public class JoinCommand extends BaseCommand {
+public class DamageCommand extends BaseCommand {
 
-    public JoinCommand() {
-        super("join", JOIN_PERMISSION, false, Main.getConfigurator().config.getBoolean("default-permissions.join"));
+    public DamageCommand() {
+        super("damage", DAMAGE_PERMISSION, true, Main.getConfigurator().config.getBoolean("bw.info"));
     }
 
     @Override
     public boolean execute(CommandSender sender, List<String> args) {
-        Player player = (Player) sender;
-//        if (Main.isPlayerInGame(player)) {
-//            player.sendMessage(i18n("you_are_already_in_some_game"));
-//            return true;
-//        }
 
-        if (args.size() >= 1) {
-            String arenaN = args.get(0);
-            if (Main.isGameExists(arenaN)) {
-                Main.getGame(arenaN).joinToGame(player);
-            } else {
-                player.sendMessage(i18n("no_arena_found"));
-            }
-        } else {
-            final Game game = Main.getInstance().getGameWithHighestPlayers();
-            if (game != null) {
-                game.joinToGame(player);
-                return true;
-            }
-            player.sendMessage(i18n("there_is_no_empty_game"));
-            return true;
+        if (sender instanceof Player player) {
+
+            Main.getPlayerGameProfile(player).switchDamageDebug();
+
         }
+
         return true;
     }
 
     @Override
     public void completeTab(List<String> completion, CommandSender sender, List<String> args) {
-        if (args.size() == 1) {
-            completion.addAll(Main.getGameNames());
+        if (args.size() == 1 && hasPermission(sender, DAMAGE_PERMISSION, false)) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                completion.add(p.getName());
+            }
         }
     }
 

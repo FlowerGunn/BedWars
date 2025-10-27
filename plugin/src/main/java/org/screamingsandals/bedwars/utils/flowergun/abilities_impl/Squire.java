@@ -32,6 +32,7 @@ public class Squire extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.ARCHER);
         this.abilityCategories.add(AbilityCategory.RANGER);
         this.abilityCategories.add(AbilityCategory.ECONOMIST);
+        this.abilityCategories.add(AbilityCategory.SUPPORT);
 
         this.description = "Убийства или помощи в убийстве#принесут игроку (values2) стрел.#Перезарядка: (values1) секунд";
         this.isOnCooldown = false;
@@ -63,12 +64,8 @@ public class Squire extends Ability implements IAbility {
         playFXItemGained(killer, 1);
         notifyPlayerOnAbilityActivation(killer);
 
-        this.isOnCooldown = true;
-        Player finalAttacker = killer;
-        Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-            notifyPlayerOnCooldownEnd(finalAttacker);
-            this.isOnCooldown = false;
-        },calculateIntValue1(level));
+
+        putOnCooldown(killer,calculateIntValue1(level));
 
         notifyPlayerOnAbilityActivation(killer);
 
@@ -85,12 +82,8 @@ public class Squire extends Ability implements IAbility {
         playFXItemGained(assistant, 1);
         notifyPlayerOnAbilityActivation(assistant);
 
-        this.isOnCooldown = true;
-        Player finalAttacker = assistant;
-        Bukkit.getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-            notifyPlayerOnCooldownEnd(finalAttacker);
-            this.isOnCooldown = false;
-        },calculateIntValue1(level));
+
+        putOnCooldown(assistant,calculateIntValue1(level));
 
         notifyPlayerOnAbilityActivation(assistant);
 

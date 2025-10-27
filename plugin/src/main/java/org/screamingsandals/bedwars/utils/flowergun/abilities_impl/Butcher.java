@@ -37,7 +37,7 @@ public class Butcher extends Ability implements IAbility {
     }
 
     @Override
-    public int calculateIntValue1(int level) { return 9 + 2 * level; }
+    public int calculateIntValue1(int level) { return 10 + 2 * level; }
 
 
 
@@ -49,14 +49,13 @@ public class Butcher extends Ability implements IAbility {
 
         if (event.isCancelled()) return;
 
-        if ( event.getDamage() > 3 ) {
-            if (Main.isPlayerInGame(attacker)) {
-                if ( FlowerUtils.isPlayersWeaponFullyCharged(attacker) && FlowerUtils.axes.contains(attacker.getInventory().getItemInMainHand().getType())) {
+        if (Main.isPlayerInGame(attacker)) {
+            if ( FlowerUtils.isPlayersWeaponFullyCharged(attacker) && FlowerUtils.axes.contains(attacker.getInventory().getItemInMainHand().getType())) {
 
-                    double armour = attacker.getAttribute(Attribute.GENERIC_ARMOR).getValue();
-                    compoundValueModifier.addDouble(armour * calculateIntValue1(level) * 0.01);
-                    playFXDamage((LivingEntity) event.getEntity(), 1);
-                }
+                double armour = attacker.getAttribute(Attribute.GENERIC_ARMOR).getValue();
+                Main.getInstance().getLogger().info("Armor " + armour + " - " + (armour * calculateIntValue1(level) * 0.01));
+                compoundValueModifier.addDouble(armour * calculateIntValue1(level) * 0.01);
+                playFXDamage((LivingEntity) event.getEntity(), 1);
             }
         }
     }

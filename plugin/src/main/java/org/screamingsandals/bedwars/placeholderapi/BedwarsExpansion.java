@@ -60,6 +60,11 @@ public class BedwarsExpansion extends PlaceholderExpansion {
     }
 
     @Override
+    public boolean persist() {
+        return true;
+    }
+
+    @Override
     public String onPlaceholderRequest(Player player, String identifier) {
         // any game
         if (identifier.startsWith("game_")) {
@@ -337,10 +342,10 @@ public class BedwarsExpansion extends PlaceholderExpansion {
                             int roundedAbsorption = (int) Math.floor(absorption);
                             String healthbar = "";
 
-                            String firstHalfFull = game.getPlayerTeam(gPlayer).teamInfo.color.firstHalfFull;
-                            String firstHalfEmpty = game.getPlayerTeam(gPlayer).teamInfo.color.firstHalfEmpty;
-                            String secondHalfFull = game.getPlayerTeam(gPlayer).teamInfo.color.secondHalfFull;
-                            String secondHalfEmpty = game.getPlayerTeam(gPlayer).teamInfo.color.secondHalfEmpty;
+                            String firstHalfFull = game.getPlayerTeam(gPlayer).teamInfo.color.getFirstHalfFull();
+                            String firstHalfEmpty = game.getPlayerTeam(gPlayer).teamInfo.color.getFirstHalfEmpty();
+                            String secondHalfFull = game.getPlayerTeam(gPlayer).teamInfo.color.getSecondHalfFull();
+                            String secondHalfEmpty = game.getPlayerTeam(gPlayer).teamInfo.color.getSecondHalfEmpty();
 
 
 
@@ -363,8 +368,8 @@ public class BedwarsExpansion extends PlaceholderExpansion {
 //                            Bukkit.getConsoleSender().sendMessage("counting absorbtion");
                             for (int i = 1; i <= roundedAbsorption; i++ ) {
                                 if (i <= roundedAbsorption) {
-                                    if (i % 2 == 1) healthbar += TeamColor.firstHalfAbsorption;
-                                    else healthbar += TeamColor.secondHalfAbsorption;
+                                    if (i % 2 == 1) healthbar += TeamColor.getFirstHalfAbsorption();
+                                    else healthbar += TeamColor.getSecondHalfAbsorption();
                                 }
                             }
 //                            Bukkit.getConsoleSender().sendMessage("returning healthbar");

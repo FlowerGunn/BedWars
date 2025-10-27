@@ -36,6 +36,7 @@ public class BigBoy extends Ability implements IAbility{
 
         this.abilityCategories.add(AbilityCategory.BULLDOZER);
         this.abilityCategories.add(AbilityCategory.TANK);
+        this.abilityCategories.add(AbilityCategory.FIGHTER);
 
         this.description = "Игрок получает +(values1) к макс. здоровью#и -(values2)% скорости на всю игру";
         this.used = false;
@@ -43,12 +44,12 @@ public class BigBoy extends Ability implements IAbility{
 
     @Override
     public double calculateDoubleValue1(int level) {
-        return 2 + level * 0.5;
+        return 2 + level * 0.3;
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 35 - 5 * level;
+        return 10 - 2 * level;
     }
 
     @Override

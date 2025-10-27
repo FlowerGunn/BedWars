@@ -3,12 +3,15 @@ package org.screamingsandals.bedwars.utils.flowergun.abilities_impl;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.screamingsandals.bedwars.Main;
+import org.screamingsandals.bedwars.game.GamePlayer;
+import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.IAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
@@ -32,7 +35,7 @@ public class Weightless extends Ability implements IAbility {
         this.abilityCategories.add(AbilityCategory.SCOUT);
         this.abilityCategories.add(AbilityCategory.FIGHTER);
 
-        this.description = "При убийстве противника игрок получает случайный эффект:#Прыгучесть 3 или Левитация 1 на (values1) секунд.#При получении игроком любого урона их эффект#левитации будет продлён на 2 секунды.";
+        this.description = "При возрождении, убийстве, помощи в убийстве или ломании#кровати игрок получает эффекты Скорости 1, Прыгучести 1#и Медленного Падения на (values1) секунд. При наличии#на игроке эффектов Прыгучести или Скорости сила#обновлённых эффектов будет удвоена.";
     }
 
     @Override
@@ -43,41 +46,103 @@ public class Weightless extends Ability implements IAbility {
 
     @Override
     public String formatValue1(int level) {
-        return "" + calculateIntValue1(level) / 20;
+        return "" + calculateIntValue1(level);
     }
 
+
+//    @Override
+//    public int calculateIntValue2(int level) {
+//        return 20*60*4 - 20*30 * (level - 1);
+//    }
+
+//    @Override
+//    public String formatValue2(int level) {
+//        return FlowerUtils.singleDecimal.format(calculateIntValue2(level) / 20.0 / 60.0);
+//    }
 
     @Override
     public void playerKill(int level, Player victim, Player killer, PlayerDeathEvent event) {
 
-        if (this.isOnCooldown) return;
+        trigger(killer,level);
+        
+//        if (this.isOnCooldown) return;
+//
+//        Random random = new Random();
+//
+//        if ( random.nextBoolean() ) {
+//            killer.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, calculateIntValue1(level), 0, false, false));
+//        } else {
+//            killer.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, calculateIntValue1(level), 2, false, false));
+//        }
+//
+//        playFXSpeed(killer, 2);
+//        notifyPlayerOnAbilityActivation(killer);
 
-        Random random = new Random();
-
-        if ( random.nextBoolean() ) {
-            killer.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, calculateIntValue1(level), 0, false, false));
-        } else {
-            killer.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, calculateIntValue1(level), 2, false, false));
+    }
+    @Override
+    public void playerFirstSpawn(int level, GamePlayer gamePlayer) {
+        if ( Main.isPlayerInGame(gamePlayer.player) ) {
+            trigger(gamePlayer.player, level);
         }
-
-        playFXSpeed(killer, 2);
-        notifyPlayerOnAbilityActivation(killer);
-
-    };
+    }
 
     @Override
-    public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
+    public void playerRespawn(int level, GamePlayer gamePlayer) {
+        if ( Main.isPlayerInGame(gamePlayer.player) ) {
+            trigger(gamePlayer.player, level);
+        }
+    }
 
-        if (this.isOnCooldown) return;
+    private void trigger(Player player, int level) {
 
-//        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
-        if (Main.isPlayerInGame(victim)) {
+        if ( Main.isPlayerInGame(player) ) {
 
-            if ( victim.hasPotionEffect(PotionEffectType.LEVITATION) ) {
-                int duration = victim.getPotionEffect(PotionEffectType.LEVITATION).getDuration();
-                victim.addPotionEffect(victim.getPotionEffect(PotionEffectType.LEVITATION).withDuration(duration + 40));
-            }
+            int extra = 0;
+            if ( player.hasPotionEffect(PotionEffectType.JUMP) || player.hasPotionEffect(PotionEffectType.SPEED) ) extra = 1;
+
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, calculateIntValue1(level) * 20, extra, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, calculateIntValue1(level) * 20, extra, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, calculateIntValue1(level) * 20, 0, false, false));
+            playFXSpeed(player, 2);
+            notifyPlayerOnAbilityActivation(player);
+        }
+
+    }
+
+    @Override
+    public void blockBreak(int level, BlockBreakEvent event) {
+
+        if (event.isCancelled()) return;
+        String material = event.getBlock().getType().toString();
+
+        if (material.contains("BED") ) {
+
+            trigger(event.getPlayer(), level);
 
         }
+
+    }
+
+    public void playerKillAssist(int level, Player killer, Player victim, Player assistant) {
+
+        trigger(assistant,level);
+
+    }
+
+        @Override
+    public void playerReceiveDamage(int level, DamageInstance damageInstance, Player victim, EntityDamageEvent event, CompoundValueModifier compoundValueModifier) {
+//
+//        if (this.isOnCooldown) return;
+
+
+//        Bukkit.getConsoleSender().sendMessage("player receive damage from " + ((EntityDamageByEntityEvent) event).getDamager().getName() + "   source = " + damageSource);
+//        if (Main.isPlayerInGame(victim)) {
+//
+//            if ( victim.hasPotionEffect(PotionEffectType.LEVITATION) ) {
+//                int duration = victim.getPotionEffect(PotionEffectType.LEVITATION).getDuration();
+//                victim.addPotionEffect(victim.getPotionEffect(PotionEffectType.LEVITATION).withDuration(duration + 40));
+//            }
+//
+//        }
     }
 }

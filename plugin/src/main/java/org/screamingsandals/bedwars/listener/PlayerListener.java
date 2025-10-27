@@ -77,6 +77,7 @@ import org.screamingsandals.bedwars.utils.flowergun.FlowerUtils;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Ability;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.Triggers;
 import org.screamingsandals.bedwars.utils.flowergun.managers.ColoursManager;
+import org.screamingsandals.bedwars.utils.flowergun.managers.IconsManager;
 import org.screamingsandals.bedwars.utils.flowergun.managers.NotificationManager;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.IconType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
@@ -136,72 +137,6 @@ public class PlayerListener implements Listener {
                 }
 
                 Triggers.playerDeath(event);
-
-//                net.md_5.bungee.api.ChatColor victimColor;
-//
-//                String victimTeamName;
-//
-//                if (victimTeam != null) {
-//                    victimColor = victimTeam.teamInfo.color.chatColor;
-//                    victimTeamName = victimTeam.getName();
-//
-//                }
-//                else {
-//                    victimColor = net.md_5.bungee.api.ChatColor.DARK_GRAY;
-//                    victimTeamName = "";
-//                }
-//
-//                if (Main.getConfigurator().config.getBoolean("chat.send-death-messages-just-in-game")) {
-//                    String deathMessage = event.getDeathMessage();
-//                    if (Main.getConfigurator().config.getBoolean("chat.send-custom-death-messages")) {
-//                        if (event.getEntity().getKiller() != null) {
-//                            Player killer = event.getEntity().getKiller();
-//                            GamePlayer gKiller = Main.getPlayerGameProfile(killer);
-//
-//                            CurrentTeam killerTeam = game.getPlayerTeam(gKiller);
-//
-//                            String killerTeamName = "";
-//                            net.md_5.bungee.api.ChatColor killerColor;
-//
-//
-//                            if (killerTeam != null)
-//                            {
-//                                killerTeamName = killerTeam.getName();
-//                                killerColor = killerTeam.teamInfo.color.chatColor;
-//                                deathMessage = i18nc("player_killed", game.getCustomPrefix())
-//                                        .replace("%victim%", victimColor + victim.getDisplayName())
-//                                        .replace("%killer%", killerColor + killer.getDisplayName())
-//                                        .replace("%victimTeam%", victimColor + victimTeamName)
-//                                        .replace("%killerTeam%", killerColor + killerTeamName);
-//                            }
-//                            else {
-//                                killerColor = net.md_5.bungee.api.ChatColor.DARK_GRAY;
-//                                deathMessage = i18nc("player_killed_last_breath", game.getCustomPrefix())
-//                                        .replace("%victim%", victimColor + victim.getDisplayName())
-//                                        .replace("%killer%", killerColor + killer.getDisplayName())
-//                                        .replace("%victimTeam%", victimColor + victimTeamName)
-//                                        .replace("%killerTeam%", killerColor + killerTeamName);
-//                            }
-//
-//
-//                        } else {
-//                            deathMessage = i18nc("player_self_killed", game.getCustomPrefix())
-//                                    .replace("%victim%", victimColor + victim.getDisplayName())
-//                                    .replace("%victimTeam%", victimColor + victimTeamName);
-//                        }
-//
-//                    }
-//                    if (deathMessage != null) {
-//                        final BedwarsPlayerDeathMessageSendEvent bpdmsEvent = new BedwarsPlayerDeathMessageSendEvent(victim, game, deathMessage);
-//                        Bukkit.getServer().getPluginManager().callEvent(bpdmsEvent);
-//                        if (!bpdmsEvent.isCancelled()) {
-//                            event.setDeathMessage(null);
-//                            for (Player player : game.getConnectedPlayers()) {
-//                                player.sendMessage(bpdmsEvent.getMessage());
-//                            }
-//                        }
-//                    }
-//                }
 
                 CurrentTeam team = game.getPlayerTeam(gVictim);
                 SpawnEffects.spawnEffect(game, victim, "game-effects.kill");
@@ -398,9 +333,13 @@ public class PlayerListener implements Listener {
 
         Game game = findRejoinableGameOfPlayer(player);
 
+        IconsManager.loadIcons(player);
+
         if ( game != null ) {
             if (game.internalReturnPlayer(player)) return;
         }
+
+        Main.getAbilitiesManager().checkDailyTrialSelection();
 
         if (Game.isBungeeEnabled() && Main.getConfigurator().config.getBoolean("bungee.auto-game-connect", false)) {
             new BukkitRunnable() {
@@ -525,6 +464,8 @@ public class PlayerListener implements Listener {
                 event.setCancelled(true);
             }
             Triggers.blockPlace(event);
+        } else if (!event.getPlayer().hasPermission("bw.admin")) {
+            event.setCancelled(true);
         } else if (Main.getConfigurator().config.getBoolean("preventArenaFromGriefing")) {
             for (String gameN : Main.getGameNames()) {
                 Game game = Main.getGame(gameN);
@@ -714,21 +655,29 @@ public class PlayerListener implements Listener {
 
 
             }
+        } else if (!event.getWhoClicked().hasPermission("bw.admin")) {
+            event.setCancelled(true);
+            return;
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onDamage(EntityDamageEvent event) {
-        if (event.isCancelled()) {
-            if (Main.getConfigurator().config.getBoolean("event-hacks.damage")
-                    && event.getEntity() instanceof Player
-                    && Main.isPlayerInGame((Player) event.getEntity())) {
-                event.setCancelled(false);
-                Bukkit.getConsoleSender().sendMessage("event hacks enabled");
-            } else {
-                return;
-            }
-        }
+
+//        Main.getInstance().getLogger().info("processing entity damage" );
+//
+//        Main.getInstance().getLogger().info(event.isCancelled() + " cancelled");
+//
+//        if (event.isCancelled()) {
+//            if (Main.getConfigurator().config.getBoolean("event-hacks.damage")
+//                    && event.getEntity() instanceof Player
+//                    && Main.isPlayerInGame((Player) event.getEntity())) {
+//                event.setCancelled(false);
+//                Bukkit.getConsoleSender().sendMessage("event hacks enabled");
+//            } else {
+//                return;
+//            }
+//        }
 
         final Entity entity = event.getEntity();
 
@@ -776,8 +725,9 @@ public class PlayerListener implements Listener {
 
         if (ChatColor.stripColor(player.getName()).equals("FlowerGun")) {
             //WAYPOINT DAMAGE LOG
-            player.sendTitle("", ChatColor.GRAY + cause, 5,40, 5);
-            Bukkit.getConsoleSender().sendMessage(cause);
+//            player.sendTitle("", ChatColor.GRAY + cause, 5,40, 5);
+//            player.sendMessage(ChatColor.GREEN + cause );
+//            Bukkit.getConsoleSender().sendMessage(cause);
         }
 
 
@@ -810,10 +760,16 @@ public class PlayerListener implements Listener {
                 }
                 if (event instanceof EntityDamageByEntityEvent) {
                     EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) event;
-                    if (edbee.getDamager() instanceof Player) {
+                    if (edbee.getDamager() instanceof Player damager) {
+                        GamePlayer gDamager = Main.getPlayerGameProfile(damager);
                         if (game.isProtectionActive((Player) edbee.getDamager())) {
-                            game.removeProtectedPlayer((Player) edbee.getDamager());
-                            Bukkit.getConsoleSender().sendMessage("trying to remove protection from " + edbee.getDamager().getName());
+                            Bukkit.getConsoleSender().sendMessage("trying to remove protection from " + gDamager.getGame().getPlayerTeam(gDamager).getName() + " " + gDamager.player.getName() + " -> " + game.getPlayerTeam(gPlayer).getName() + " " + gPlayer.player.getName());
+                            if (gDamager.getGame().getPlayerTeam(gDamager) != game.getPlayerTeam(gPlayer)) {
+                                game.removeProtectedPlayer(damager);
+//
+                                event.setCancelled(false);
+                                return;
+                            }
                         }
                     }
                 }
@@ -1007,11 +963,16 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if ((event.isCancelled() && event.getAction() != Action.RIGHT_CLICK_AIR) || !Main.isPlayerInGame(player)) {
+        if (event.isCancelled() && event.getAction() != Action.RIGHT_CLICK_AIR) {
             return;
         }
         GamePlayer gPlayer = Main.getPlayerGameProfile(player);
         Game game = gPlayer.getGame();
+
+        if ( game == null && !event.getPlayer().hasPermission("bw.admin")) {
+            event.setCancelled(true);
+            return;
+        } else if ( game == null ) return;
 
 //        if ( event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.CRAFTING_TABLE) {
 //            event.setCancelled(false);
@@ -1052,10 +1013,10 @@ public class PlayerListener implements Listener {
 //                    }
                     CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
                     customGUI.load();
-                } else if (event.getItem() != null && event.getMaterial() == Material.BLAZE_POWDER) {
-                    Bukkit.getConsoleSender().sendMessage("FUCK YOU ERROR!!!!!!!!!!!!!!!!!");
-                    CustomGUI customGUI = new CustomGUI(player, "ABILITIES");
-                    customGUI.load();
+                } else if (event.getItem() != null && event.getItem().equals(FlowerUtils.getAbilitiesMenuLockedItemStack())) {
+                    PlayerStatistic statistic = Main.getPlayerStatisticsManager().getStatistic(player);
+                    NotificationManager.abilitySelectionLockedMessage(player, statistic.getGames(), FlowerUtils.unlockAbilitySelectionGamesPlayedRequirement);
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.2F, 1.0F);
                 }
             } else if (game.getStatus() == GameStatus.RUNNING) {
                 if (event.getClickedBlock() != null) {
@@ -1334,6 +1295,11 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent je) {
+//        je.getPlayer().sendMessage(" ");
+//        je.getPlayer().sendMessage(" ");
+//        je.getPlayer().sendMessage( IconsManager.blue_excl + ColoursManager.ua_yellow + " Слава" + ColoursManager.ua_blue + " Украине" + ColoursManager.ua_yellow + "!");
+//        je.getPlayer().sendMessage(" ");
+//        je.getPlayer().sendMessage(" ");
         final Player player = je.getPlayer();
 
         if (Main.isHologramsEnabled()) {
@@ -1344,7 +1310,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onChat(AsyncPlayerChatEvent event) {
-//        Bukkit.getConsoleSender().sendMessage("Message sent: " + event.getMessage());
+        Bukkit.getConsoleSender().sendMessage( event.getPlayer().getName() + " > " + event.getMessage());
 //        Bukkit.getConsoleSender().sendMessage("Cancelled: " + event.isCancelled());
 //        Bukkit.getConsoleSender().sendMessage("Recepients amount: " + event.getRecipients());
 //        if (event.isCancelled() || !Main.getConfigurator().config.getBoolean("chat.override")) {
@@ -1358,11 +1324,12 @@ public class PlayerListener implements Listener {
             event.setCancelled(true);
             GamePlayer gPlayer = Main.getPlayerGameProfile(player);
             Game game = gPlayer.getGame();
-            CurrentTeam team = game.getPlayerTeam(gPlayer);
+            CurrentTeam team = gPlayer.latestCurrentTeam;
+//            CurrentTeam team = game.getPlayerTeam(gPlayer);
             String message = event.getMessage();
             boolean spectator = gPlayer.isSpectator;
 
-            String playerName = player.getName();
+                    String playerName = player.getName();
             String displayName = player.getDisplayName();
             String playerListName = player.getPlayerListName();
 
@@ -1401,17 +1368,20 @@ public class PlayerListener implements Listener {
             ComponentBuilder chatMessage = Component.text();
 
             if (teamChat) {
-                chatMessage.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
-                        .append(Component.text(team != null ? team.teamInfo.name : "ЭХО").color(ColoursManager.getComponent(team != null ? team.teamInfo.color.chatColor : ColoursManager.darkGray)))
-                        .append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)));
+                chatMessage//.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
+                        .append(Component.text(team != null ? team.teamInfo.color.bed.getIcon() : IconType.BED_GRAY.getIcon())) //.color(ColoursManager.getComponent(team != null ? team.teamInfo.color.chatColor : ColoursManager.darkGray)))
+                        //.append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)))
+                ;
             } else if (spectator) {
-                chatMessage.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
-                        .append(Component.text("ПРИЗРАКИ").color(ColoursManager.getComponent(ColoursManager.darkGray)))
-                        .append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)));
+                chatMessage//.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
+                        .append(Component.text(IconType.BED_CROSSED.getIcon()))//.color(ColoursManager.getComponent(ColoursManager.darkGray)))
+                        //.append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)))
+                ;
             } else {
-                chatMessage.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
-                        .append(Component.text("ВСЕ").color(ColoursManager.getComponent(ColoursManager.white)))
-                        .append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)));
+                chatMessage//.append(Component.text("[").color(ColoursManager.getComponent(ColoursManager.gray)))
+                        .append(Component.text(IconType.GLOBAL.getIcon()))//.color(ColoursManager.getComponent(ColoursManager.white)))
+                        //.append(Component.text("]").color(ColoursManager.getComponent(ColoursManager.gray)))
+                ;
             }
 
             chatMessage.append(Component.text(" "));

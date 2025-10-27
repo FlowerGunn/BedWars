@@ -21,6 +21,7 @@ package org.screamingsandals.bedwars.commands;
 
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.screamingsandals.bedwars.Main;
@@ -30,6 +31,7 @@ import org.screamingsandals.bedwars.statistics.PlayerStatistic;
 import org.screamingsandals.bedwars.utils.flowergun.customgui.CustomGUI;
 import org.screamingsandals.bedwars.utils.flowergun.managers.AbilitiesManager;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.LoadedAbility;
+import org.screamingsandals.bedwars.utils.flowergun.managers.NotificationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,7 @@ public class InfoCommand extends BaseCommand {
         } else {
             if (args.size() >= 1) {
 
-                if ( sender instanceof Player ) {
+                if ( sender instanceof Player senderPlayer && senderPlayer.getGameMode() != GameMode.SPECTATOR ) {
 
                     String name = args.get(0);
                     Player player = Bukkit.getPlayer(name);
@@ -60,26 +62,10 @@ public class InfoCommand extends BaseCommand {
                         GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
                         if (gamePlayer.getGame().getStatus() == GameStatus.RUNNING) {
 
-                            CustomGUI gui = new CustomGUI((Player) sender, "ABILITIES_READONLY");
+                            CustomGUI gui = new CustomGUI(senderPlayer, "ABILITIES_READONLY");
                             gui.setArg1(ChatColor.stripColor(player.getName()));
                             gui.load();
 
-//                        ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
-//
-//                        sender.sendMessage(ChatColor.WHITE + "" + ChatColor.BOLD + " Способности игрока " + ChatColor.GRAY + player.getDisplayName());
-//                        sender.sendMessage("");
-//
-//                        for (int i = 0; i < loadedAbilities.size(); i++) {
-//                            LoadedAbility loadedAbility = loadedAbilities.get(i);
-//                            sender.sendMessage("   " + AbilitiesManager.formatLoadedAbilityNameInSlot(gamePlayer, i));
-//                            if (!loadedAbility.isEmpty()) {
-//                                ArrayList<String> lore = loadedAbility.getOwnedAbility().getAbility().parseDescription(3, loadedAbility.getActiveLevel(), i + 1);
-//                                for (String line : lore ) {
-//                                    sender.sendMessage("     " + line);
-//                                }
-//                            }
-//                            sender.sendMessage("");
-//                        }
 
                         } else sender.sendMessage(i18n("info_not_found"));
                     }
@@ -93,24 +79,10 @@ public class InfoCommand extends BaseCommand {
                     else {
                         GamePlayer gamePlayer = Main.getPlayerGameProfile(player);
                         if (gamePlayer.getGame().getStatus() == GameStatus.RUNNING) {
-
-                        ArrayList<LoadedAbility> loadedAbilities = gamePlayer.loadedAbilities;
-
-                        sender.sendMessage(ChatColor.WHITE + "" + ChatColor.BOLD + " Способности игрока " + ChatColor.GRAY + player.getDisplayName());
-                        sender.sendMessage("");
-
-                        for (int i = 0; i < loadedAbilities.size(); i++) {
-                            LoadedAbility loadedAbility = loadedAbilities.get(i);
-                            sender.sendMessage("   " + AbilitiesManager.formatLoadedAbilityNameInSlot(gamePlayer, i));
-                            if (!loadedAbility.isEmpty()) {
-                                ArrayList<String> lore = loadedAbility.getOwnedAbility().getAbility().parseDescription(3, loadedAbility.getActiveLevel(), i + 1);
-                                for (String line : lore ) {
-                                    sender.sendMessage("     " + line);
-                                }
-                            }
+                            sender.sendMessage(ChatColor.WHITE + "" + ChatColor.BOLD + " Способности игрока " + ChatColor.GRAY + player.getDisplayName());
                             sender.sendMessage("");
-                        }
-
+                            NotificationManager.sendListOfAbilitiesInChat( sender, gamePlayer, 1, 1 );
+                            sender.sendMessage("");
                         } else sender.sendMessage(i18n("info_not_found"));
                     }
                 }

@@ -25,6 +25,8 @@ import org.bukkit.Bukkit;
 import org.screamingsandals.bedwars.utils.flowergun.abilities_base.OwnedAbility;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ActiveForgeRecipe;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.OwnedResource;
+import org.screamingsandals.bedwars.utils.flowergun.customobjects.PlayerConfig;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.PlayerConfigType;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
 import java.sql.*;
@@ -520,5 +522,98 @@ public class DatabaseManager {
         return;
     }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CONFIG
+
+
+    public String getCreateConfigTableSql() {
+        return "CREATE TABLE IF NOT EXISTS " + tablePrefix + "configs (entry_id int(11) NOT NULL AUTO_INCREMENT, config_type varchar(255), config_player varchar(255), config_param1 varchar(255), config_param2 varchar(255), config_param3 varchar(255), config_param4 varchar(255), config_param5 varchar(255), config_param6 varchar(255), config_param7 varchar(255), config_param8 varchar(255), config_change_time timestamp, PRIMARY KEY (entry_id))";
+    }
+
+//
+//    private String getWriteConfigSql() {
+//        return "INSERT INTO " + tablePrefix + "configs(config_type, config_player, config_param1, config_param2, config_param3, config_change_time ) VALUES (?, ?, ?, ?, ?, ?)";
+//    }
+
+
+    public void storeDatabaseConfig(PlayerConfig config) {
+        try (Connection connection = this.getConnection()) {
+            connection.setAutoCommit(false);
+
+            PreparedStatement preparedStatement = connection.prepareStatement(this.getWriteConfigSql());
+            preparedStatement.setInt(1, config.getEntryId());
+            preparedStatement.setString(2, config.getPlayerConfigType().toString());
+            preparedStatement.setString(3, config.getUuid().toString());
+            preparedStatement.setString(4, config.getParameter1());
+            preparedStatement.setString(5, config.getParameter2());
+            preparedStatement.setString(6, config.getParameter3());
+            preparedStatement.setString(7, config.getParameter4());
+            preparedStatement.setString(8, config.getParameter5());
+            preparedStatement.setString(9, config.getParameter6());
+            preparedStatement.setString(10, config.getParameter7());
+            preparedStatement.setString(11, config.getParameter8());
+            preparedStatement.setTimestamp(12, config.getLastEdit());
+            preparedStatement.executeUpdate();
+            connection.commit();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return;
+    }
+
+
+    private String getWriteConfigSql() {
+        return "INSERT INTO " + tablePrefix + "configs( entry_id, config_type, config_player, config_param1, config_param2, config_param3, config_param4, config_param5, config_param6, config_param7, config_param8, config_change_time ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE entry_id=VALUES(entry_id),config_type=VALUES(config_type),config_player=VALUES(config_player),config_param1=VALUES(config_param1),config_param2=VALUES(config_param2),config_param3=VALUES(config_param3),config_param4=VALUES(config_param4),config_param5=VALUES(config_param5),config_param6=VALUES(config_param6),config_param7=VALUES(config_param7),config_param8=VALUES(config_param8),config_change_time=VALUES(config_change_time)";
+    }
+
+    private String getMaxConfigEntryIdSql() {
+        return "SELECT MAX(entry_id) AS max_entry_id FROM " + tablePrefix + "configs";
+    }
+    public int getMaxConfigEntryId() {
+
+        try (Connection connection = this.getConnection()) {
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement(this.getMaxConfigEntryIdSql());
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int result = resultSet.getInt("max_entry_id");
+
+                resultSet.close();
+                preparedStatement.close();
+
+                return result;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private String getReadAllConfigsByUUIDSql() {
+        return "SELECT * FROM " + tablePrefix + "configs WHERE config_player = ?";
+    }
+    public ArrayList<PlayerConfig> readAllConfigsByUUID(UUID uuid) {
+
+        ArrayList<PlayerConfig> activeForgeRecipes = new ArrayList<>();
+
+        try (Connection connection = this.getConnection()) {
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement(this.getReadAllConfigsByUUIDSql());
+            preparedStatement.setString(1, uuid.toString());
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                activeForgeRecipes.add(new PlayerConfig(resultSet.getInt("entry_id"), UUID.fromString(resultSet.getString("config_player")), PlayerConfigType.valueOf(resultSet.getString("config_type")), resultSet.getString("config_param1"), resultSet.getString("config_param2"), resultSet.getString("config_param3"), resultSet.getString("config_param4"), resultSet.getString("config_param5"), resultSet.getString("config_param6"), resultSet.getString("config_param7"), resultSet.getString("config_param8"), resultSet.getTimestamp("config_change_time")));
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return activeForgeRecipes;
+    }
 
 }

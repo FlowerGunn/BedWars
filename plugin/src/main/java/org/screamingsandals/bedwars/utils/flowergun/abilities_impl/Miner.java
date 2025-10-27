@@ -32,7 +32,7 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
             this.abilityCategories.add(AbilityCategory.SCOUT);
             this.abilityCategories.add(AbilityCategory.BUILDER);
 
-            this.description = "Игрок получает неломаемую каменную#кирку на Эффективность (values1),#и (values2) булыжника при первом спавне.";
+            this.description = "Игрок получает неломаемую каменную кирку#и (values2) булыжника при первом спавне.";
         }
 
         @Override
@@ -42,7 +42,7 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
 
         @Override
         public int calculateIntValue2(int level) {
-            return 16 + 8 * level;
+            return 16 + 4 * level;
         }
 
         @Override
@@ -64,10 +64,10 @@ import org.screamingsandals.bedwars.utils.flowergun.other.enums.ResourceType;
             ItemStack kit2 = new ItemStack(Material.STONE_PICKAXE);
             ItemMeta itemMeta2 = kit2.getItemMeta();
             itemMeta2.setUnbreakable(true);
-            if ( calculateIntValue1(level) > 0)
-            itemMeta2.addEnchant(Enchantment.DIG_SPEED, calculateIntValue1(level), true);
-            if ( calculateIntValue3(level) > 0)
-            itemMeta2.addEnchant(Enchantment.DAMAGE_ALL, calculateIntValue3(level), true);
+//            if ( calculateIntValue1(level) > 0)
+//            itemMeta2.addEnchant(Enchantment.DIG_SPEED, calculateIntValue1(level), true);
+//            if ( calculateIntValue3(level) > 0)
+//            itemMeta2.addEnchant(Enchantment.DAMAGE_ALL, calculateIntValue3(level), true);
     //        itemMeta2.addEnchant(Enchantment.BINDING_CURSE, 1, true);
             kit2.setItemMeta(itemMeta2);
             gamePlayer.player.getInventory().addItem(kit2);

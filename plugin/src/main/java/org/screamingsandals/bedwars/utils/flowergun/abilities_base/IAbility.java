@@ -6,11 +6,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.screamingsandals.bedwars.game.Game;
 import org.screamingsandals.bedwars.game.GamePlayer;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.ResourceBundle;
+import org.screamingsandals.bedwars.utils.flowergun.other.enums.AbilityCategory;
 import org.screamingsandals.bedwars.utils.flowergun.shoputils.PurchasableItem;
 import org.screamingsandals.bedwars.utils.flowergun.other.enums.GadgetType;
 import org.screamingsandals.bedwars.utils.flowergun.customobjects.CompoundValueModifier;
@@ -24,9 +27,19 @@ public interface IAbility {
 
     ResourceBundle getUpgradeResources(int i);
 
+    ArrayList<AbilityCategory> getAbilityCategories();
+
     String getRawName();
 
     Material getAbilityMaterial();
+
+    boolean isHidden();
+
+    boolean isPublicTesting();
+
+    boolean isTemporarilyAvailable();
+
+    boolean isDailyTrial();
 
     ItemStack getAbilityGuiItem();
 
@@ -35,6 +48,8 @@ public interface IAbility {
     int getNextLevelCost(int ownedLevel);
 
     String getName();
+
+    void putOnCooldown(Player player, int timeInTicks);
 
     String getId();
 
@@ -109,9 +124,14 @@ public interface IAbility {
 
     void itemConsume(int activeLevel, Player player, PlayerItemConsumeEvent event);
 
-    TextComponent parseDescriptionComponent(Player player,int effectiveOwnedLevel, int min, int slot);
+    ArrayList<String> parseDescriptionOnly(int activeLevel, int slot);
+
+    TextComponent parseDescriptionComponent(Player player, int effectiveOwnedLevel, int min, int slot);
 
     void projectileHit(int level, Player player, ProjectileHitEvent event);
 
     void projectileLaunch(int level, Player player, ProjectileLaunchEvent event);
+
+    void interact(int activeLevel, Player player, PlayerInteractEvent event);
+    void fishAction(int activeLevel, Player player, PlayerFishEvent event);
 }

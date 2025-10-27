@@ -38,14 +38,15 @@ public class IceAge extends Ability implements IAbility {
 
         this.abilityCategories.add(AbilityCategory.MADMAN);
         this.abilityCategories.add(AbilityCategory.MANIPULATOR);
+        this.abilityCategories.add(AbilityCategory.SCOUT);
 
-        this.description = "Во вкладке Особое в магазине игроку#доступен блок синего льда. Ломание блока синего#льда с удержанием SHIFT наложит (values1)#секунд Заморозки на игрока и всех#противников в радиусе (values1) блоков.";
+        this.description = "Во вкладке Особое в магазине игроку#доступен блок синего льда. Ломание блока синего#льда наложит (values2) секунд Заморозки на всех#противников в радиусе (values1) блоков.";
         this.rarity = 5;
     }
 
     @Override
     public int calculateIntValue1(int level) {
-        return 10 + level * 2;
+        return 14 + level * 2;
     }
 
     @Override
@@ -64,7 +65,7 @@ public class IceAge extends Ability implements IAbility {
 
         if (event.isCancelled()) return;
 
-        if ( event.getPlayer().isSneaking() && event.getBlock().getType() == Material.BLUE_ICE ) {
+        if ( event.getBlock().getType() == Material.BLUE_ICE ) {
 
             event.getBlock().getLocation().getBlock().setType(Material.AIR);
 
@@ -77,15 +78,16 @@ public class IceAge extends Ability implements IAbility {
             center.getWorld().spawnParticle(Particle.SNOWBALL, center, 50, 0.5, 0.5, 0.5, 0.6);
 
             Random random = new Random();
-            for ( int i = 0; i < 20; i++ ) {
-                Block block = center.getWorld().getBlockAt(center.clone().add(random.nextInt(-5, 6),random.nextInt(-1, 2),random.nextInt(-5,6)));
+            int radius = calculateIntValue1(level);
+            for ( int i = 0; i < 100; i++ ) {
+                Block block = center.getWorld().getBlockAt(center.clone().add(random.nextInt(-radius, radius+1),random.nextInt(-2, 3),random.nextInt(-radius, radius+1)));
                 if ( block.getType() == Material.AIR && block.getRelative(BlockFace.DOWN).isSolid() ) {
                     block.setType(Material.SNOW);
                     game.getRegion().addBuiltDuringGame(block.getLocation());
                 }
             }
 
-            final ArrayList<GamePlayer> enemies = Ability.findEnemiesInRange(event.getPlayer(), calculateIntValue1(level));
+            final ArrayList<GamePlayer> enemies = Ability.findEnemiesInRange(event.getPlayer(), radius);
 
 
             new BukkitRunnable() {
@@ -97,7 +99,7 @@ public class IceAge extends Ability implements IAbility {
                     for ( GamePlayer enemy : enemies ) {
                         enemy.player.setFreezeTicks(160);
                     }
-                    event.getPlayer().setFreezeTicks(160);
+                    //event.getPlayer().setFreezeTicks(160);
                 }
             }.runTaskTimer(Main.getInstance(), 0L, 10L);
 
